@@ -35,6 +35,7 @@ import { TagsFilter } from "../TagsFilter";
 import { UsersFilter } from "../UsersFilter";
 import { StatusFilter } from "../StatusFilter";
 import { WhatsappsFilter } from "../WhatsappsFilter";
+import api from "../../services/api";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -208,6 +209,14 @@ const TicketsManagerTabs = () => {
     }
   };
 
+  const CloseAllTicket = async () => {
+    try {
+      const { data } = await api.post("/tickets/closeAll", { status: tabOpen });
+    } catch (err) {
+      console.log("Error: ", err);
+    }
+  }
+
   const handleCloseOrOpenTicket = (ticket) => {
     setNewTicketModalOpen(false);
     if (ticket !== undefined && ticket.uuid !== undefined) {
@@ -377,6 +386,23 @@ const TicketsManagerTabs = () => {
             >
               {i18n.t("ticketsManager.buttons.newTicket")}
             </Button>
+            <Can
+              role={user.profile}
+              perform="tickets-manager:closeAll"
+              yes={() => (
+                <>
+                  <Button
+                    // className={classes.buttons}
+                    // style={{ border: "1px solid", marginLeft: "0px", marginRight: "0px", fontSize: "0.8em" }}
+                    variant="outlined"
+                    color="primary"
+                    onClick={async () => await CloseAllTicket()}
+                  >
+                    {i18n.t("ticketsManager.buttons.resolvAll")}
+                  </Button>
+                </>
+              )}
+            />
             <Can
               role={user.profile}
               perform="tickets-manager:showall"
@@ -584,7 +610,7 @@ const TicketsManagerTabs = () => {
             <TicketsList
               statusFilter={selectedStatus}
               searchParam={searchParam}
-              showAll={true}
+              showAll={false}
               tags={selectedTags}              
               selectedQueueIds={selectedQueueIds}
               whatsappIds={selectedWhatsapp}

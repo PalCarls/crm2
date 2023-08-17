@@ -14,7 +14,8 @@ const rules = {
 			"contacts-page:deleteContact",
 			"connections-page:actionButtons",
 			"connections-page:addConnection",
-			"connections-page:editOrDeleteConnection"
+			"connections-page:editOrDeleteConnection",
+			"tickets-manager:closeAll",
 		],
 	},
 };

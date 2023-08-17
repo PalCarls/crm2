@@ -424,7 +424,8 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
         const settingList = await getAllSettings();
         const settinglgpdDeleteMessage = settingList.find(setting => setting.key === "lgpdDeleteMessage");
         const settingEnableLGPD = settingList.find(setting => setting.key === "enableLGPD");
-        if (settingEnableLGPD === "enabled" && settinglgpdDeleteMessage.value === "enabled") {
+
+        if (settingEnableLGPD.value === "enabled" && settinglgpdDeleteMessage.value === "enabled") {
           setLGPDDeleteMessage(true);
         }
     }
@@ -875,7 +876,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                 {/* aviso de mensagem apagado pelo contato */}
                 
                 {!lgpdDeleteMessage && message.isDeleted && (
-                  <div>
+                  <div>                    
                     <span className={classes.deletedMessage}
                     >🚫 Essa mensagem foi apagada pelo contato &nbsp;
                     </span>
