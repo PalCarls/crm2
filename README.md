@@ -1,7 +1,7 @@
 # Multi100.1.1.0.prod
-Multi 100 produção Start 15/08/2023
+Multi 100 produção Start 17/08/2023
 
-Versão 1.1.1  – Liberação para Teste a partir 10/08
+Versão 1.1.1  – Liberação 17/08
 1.1  / Conexão padrão por usuário
 1.1 / Transferir Chamado quando Atendente tiver apenas uma Fila preenche automatico a Fila
 1.1 / Aceitar Chamado quando a Atendente tiver apenas uma Fila preenche automatico fila
@@ -64,7 +64,17 @@ destinatário. Pode salvar para aceitar a primeira vez e as d+ não precisar ou 
 1.1 / Contato Recebido pode clicar em Conversar abre ticket 
 1.1 / Removido a Mensagem que o Contato está sendo atendido por X Atendente e Fila Y, *QUANDO O CONTATO ESTÁ COM O PROPRIO ATENDENTE QUE ESTÁ TENTANDO ABRIR*
 1.1 / Ajuste Redis key Bull
+1.1 / Redes Sociais - LGPD e NPS
+1.1 / Ocultar botões e listas das configurações
+1.1 / Traduzido para Espanhol
+1.1 / Tempo em minutos para abrir novo ticket após encerramento 
+1.1 / Tratamento erro Baileys JSON
+1.1 / Melhorias no wbot, reduçao de consultas a banco
+1.1 / Importador de Históricos direto do Aparelho na leitura de qrcode
+          - Data inicial e Data Final (importa por intervalo de datas configurado)
+          - Visual do processo data / hora da mensagem que está importando
+          - Visual do processo quantidade msg x de y importado
 
 
-1.1 / Separação de tickets por conexão/fila/contato (abre mais de um ticket por contato, mas unifica tudo no front) * verificar na transferencia quando for de setor ele encerrar antes naquele setor o ticket e abrir um novo ticket para o setor novo assim fica os históricos e cada setor e suas permissões tb(opcao de colocar msg privada na transferencia para o novo atendente receber do que se trata) * versão 1.3 
-
+1.1 / Separação de tickets por conexão/fila/contato (abre mais de um ticket por contato, mas unifica tudo no front) se tiver mais de 1 fila no usuario ou admin visualiza unificado
+* verificar na transferencia quando for de setor ele encerrar antes naquele setor o ticket e abrir um novo ticket para o setor novo assim fica os históricos e cada setor e suas permissões tb(opcao de colocar msg privada na transferencia para o novo atendente receber do que se trata) * versão 1.3 
