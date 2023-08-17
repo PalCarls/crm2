@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
-import moment from "moment";
+
 import {
   Dialog,
   DialogContent,
@@ -40,7 +40,6 @@ const useStyles = makeStyles((theme) => ({
   },
 
   multFieldLine: {
-    marginTop: 12,
     display: "flex",
     "& > *:not(:last-child)": {
       marginRight: theme.spacing(1),
@@ -49,19 +48,6 @@ const useStyles = makeStyles((theme) => ({
 
   btnWrapper: {
     position: "relative",
-  },
-  importMessage: {
-    marginTop: 12,
-    marginBottom: 12,
-    paddingBottom: 20,
-    paddingTop: 3,
-    padding: 12,
-    border: "solid grey 2px",
-    borderRadius:4,
-    display: "flex",
-    "& > *:not(:last-child)": {
-      marginRight: theme.spacing(1),
-    },
   },
 
   buttonProgress: {
@@ -109,31 +95,12 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     timeInactiveMessage: "",
     inactiveMessage: "",
     maxUseBotQueuesNPS: 3,
-    whenExpiresTicket: 0,
-    
-    
-    timeCreateNewTicket: 0
+    whenExpiresTicket: 0
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
   const [queues, setQueues] = useState([]);
   const [tab, setTab] = useState("general");
-  const [enableImportMessage, setEnableImportMessage] = useState(false);
-  const [importOldMessagesGroups, setImportOldMessagesGroups] = useState(false);
-  const [closedTicketsPostImported, setClosedTicketsPostImported] =
-    useState(false);
-  const [importOldMessages, setImportOldMessages] = useState(
-    moment().add(-1, "days").format("YYYY-MM-DDTHH:mm")
-  );
-  const [importRecentMessages, setImportRecentMessages] = useState(
-    moment().add(-1, "minutes").format("YYYY-MM-DDTHH:mm")
-  );
-
-
-  const handleEnableImportMessage = async (e) => {
-    setEnableImportMessage(e.target.checked);
-
-  };
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -145,14 +112,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
         const whatsQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(whatsQueueIds);
-        if (data?.importOldMessages) {
-          setEnableImportMessage(true);
-          setImportOldMessages(data?.importOldMessages);
-          setImportRecentMessages(data?.importRecentMessages);
-          setClosedTicketsPostImported(data?.closedTicketsPostImported);
-          setImportOldMessagesGroups(data?.importOldMessagesGroups);
-
-        }
       } catch (err) {
         toastError(err);
       }
@@ -172,39 +131,17 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   }, []);
 
   const handleSaveWhatsApp = async (values) => {
-    const whatsappData = {
-      ...values, queueIds: selectedQueueIds,
-      importOldMessages: enableImportMessage ? importOldMessages : null,
-      importRecentMessages: enableImportMessage ? importRecentMessages : null,
-      importOldMessagesGroups: importOldMessagesGroups ? importOldMessagesGroups : null,
-      closedTicketsPostImported: closedTicketsPostImported ? closedTicketsPostImported : null,
-
-    };
-    //delete whatsappData["queues"];
+    const whatsappData = { ...values, queueIds: selectedQueueIds };
+    delete whatsappData["queues"];
     delete whatsappData["session"];
 
     try {
       if (whatsAppId) {
-        if (whatsAppId && enableImportMessage && whatsApp?.status === "CONNECTED") {
-          toast.warning(
-            "Para fazer a importação das mensagens é necessário ler o qrCode novamente !!!",
-            { autoClose: false }
-          );
-          try {
-            setWhatsApp({ ...whatsApp, status: "qrcode" });
-            await api.delete(`/whatsappsession/${whatsApp.id}`);
-          } catch (err) {
-            toastError(err);
-          }
-        }
-
         await api.put(`/whatsapp/${whatsAppId}`, whatsappData);
-
       } else {
         await api.post("/whatsapp", whatsappData);
       }
       toast.success(i18n.t("whatsappModal.success"));
-
       handleClose();
     } catch (err) {
       toastError(err);
@@ -308,8 +245,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                               />
                             }
                             label={i18n.t("whatsappModal.form.group")}
-                          />
-                        </Grid>
+                          />                         
+                        </Grid>     
                         <Grid xs={6} md={4} item>
                           <FormControl
                             variant="outlined"
@@ -330,154 +267,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                               <MenuItem value={"enabled"}>{i18n.t("whatsappModal.menuItem.enabled")}</MenuItem>
                             </Field>
                           </FormControl>
-                        </Grid>
+                        </Grid>                                       
                       </Grid>
                     </div>
-
-
-                    <div className={classes.importMessage}>
-                      <div className={classes.multFieldLine}>
-                        <FormControlLabel
-                          style={{ marginRight: 7, color: "gray" }}
-                          label={i18n.t("whatsappModal.form.importOldMessagesEnable")}
-                          labelPlacement="end"
-                          control={
-                            <Switch
-                              size="medium"
-                              checked={enableImportMessage}
-                              onChange={handleEnableImportMessage}
-                              name="importOldMessagesEnable"
-                              color="primary"
-                            />
-                          }
-                        />
-
-                        {enableImportMessage ? (
-                          <>
-                            <FormControlLabel
-                              style={{ marginRight: 7, color: "gray" }}
-                              label={i18n.t(
-                                "whatsappModal.form.importOldMessagesGroups"
-                              )}
-                              labelPlacement="end"
-                              control={
-                                <Switch
-                                  size="medium"
-                                  checked={importOldMessagesGroups}
-                                  onChange={(e) =>
-                                    setImportOldMessagesGroups(e.target.checked)
-                                  }
-                                  name="importOldMessagesGroups"
-                                  color="primary"
-                                />
-                              }
-                            />
-
-                            <FormControlLabel
-                              style={{ marginRight: 7, color: "gray" }}
-                              label={i18n.t(
-                                "whatsappModal.form.closedTicketsPostImported"
-                              )}
-                              labelPlacement="end"
-                              control={
-                                <Switch
-                                  size="medium"
-                                  checked={closedTicketsPostImported}
-                                  onChange={(e) =>
-                                    setClosedTicketsPostImported(e.target.checked)
-                                  }
-                                  name="closedTicketsPostImported"
-                                  color="primary"
-                                />
-                              }
-                            />
-                          </>) : <></>}
-                      </div>
-
-                      {enableImportMessage ? (
-                        <Grid style={{ marginTop: 18 }} container spacing={3}>
-                          <Grid item xs={6}>
-                            <Field
-                              fullWidth
-                              as={TextField}
-                              label={i18n.t("whatsappModal.form.importOldMessages")}
-                              type="datetime-local"
-                              name="importOldMessages"
-                              inputProps={{
-                                max: moment()
-                                  .add(0, "minutes")
-                                  .format("YYYY-MM-DDTHH:mm"),
-                                min: moment()
-                                  .add(-2, "years")
-                                  .format("YYYY-MM-DDTHH:mm"),
-                              }}
-                              //min="2022-11-06T22:22:55"
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              error={
-                                touched.importOldMessages &&
-                                Boolean(errors.importOldMessages)
-                              }
-                              helperText={
-                                touched.importOldMessages && errors.importOldMessages
-                              }
-                              variant="outlined"
-                              value={moment(importOldMessages).format(
-                                "YYYY-MM-DDTHH:mm"
-                              )}
-                              onChange={(e) => {
-                                setImportOldMessages(e.target.value);
-                              }}
-                            />
-                          </Grid>
-                          <Grid item xs={6}>
-                            <Field
-                              fullWidth
-                              as={TextField}
-                              label={i18n.t("whatsappModal.form.importRecentMessages")}
-                              type="datetime-local"
-                              name="importRecentMessages"
-                              inputProps={{
-                                max: moment()
-                                  .add(0, "minutes")
-                                  .format("YYYY-MM-DDTHH:mm"),
-                                min: moment(importOldMessages).format(
-                                  "YYYY-MM-DDTHH:mm"
-                                )
-                              }}
-                              //min="2022-11-06T22:22:55"
-                              InputLabelProps={{
-                                shrink: true,
-                              }}
-                              error={
-                                touched.importRecentMessages &&
-                                Boolean(errors.importRecentMessages)
-                              }
-                              helperText={
-                                touched.importRecentMessages && errors.importRecentMessages
-                              }
-                              variant="outlined"
-                              value={moment(importRecentMessages).format(
-                                "YYYY-MM-DDTHH:mm"
-                              )}
-                              onChange={(e) => {
-                                setImportRecentMessages(e.target.value);
-                              }}
-                            />
-                          </Grid>
-                        </Grid>
-
-                      ) : null}
-                    </div>
-                    {enableImportMessage && (
-                      <span style={{ color: "red" }}>
-                        {i18n.t("whatsappModal.form.importAlert")}
-                      </span>
-                    )}
-
-
-                    {/* TOKEN */}
+                     {/* TOKEN */}
                     <div>
                       <Field
                         as={TextField}
@@ -500,15 +293,15 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Grid spacing={2} container>
 
                         <Grid xs={6} md={6} item>
-                          <FormControl
-                            variant="outlined"
-                            margin="dense"
-                            className={classes.FormControl}
+                          <FormControl 
+                            variant="outlined" 
+                            margin="dense" 
+                            className={classes.FormControl} 
                             fullWidth
                           >
-                            <InputLabel id="sendIdQueue-selection-label">
-                              {i18n.t("whatsappModal.form.sendIdQueue")}
-                            </InputLabel>
+                          <InputLabel id="sendIdQueue-selection-label">
+                            {i18n.t("whatsappModal.form.sendIdQueue")}
+                          </InputLabel>
                             <Field
                               as={Select}
                               name="sendIdQueue"
@@ -555,7 +348,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                             </Field>
                           </FormControl>
                         </Grid>
-
+                        
                       </Grid>
                     </div>
                   </DialogContent>
@@ -625,9 +418,9 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                         margin="dense"
                       />
                     </div>
-                  </DialogContent>
+                   </DialogContent>
                 </TabPanel>
-
+                
                 <TabPanel
                   className={classes.container}
                   value={tab}
@@ -635,24 +428,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                 >
                   <DialogContent dividers>
                   <Grid spacing={2} container>
-                    {/* TEMPO PARA CRIAR NOVO TICKET */}
-                    <Grid xs={6} md={4} item>
-                      <Field
-                        as={TextField}
-                        label={i18n.t("whatsappModal.form.timeCreateNewTicket")}
-                        id="timeCreateNewTicket"
-                        fullWidth
-                        name="timeCreateNewTicket"
-                        variant="outlined"
-                        margin="dense"
-                        error={touched.timeCreateNewTicket && Boolean(errors.timeCreateNewTicket)}
-                        helperText={touched.timeCreateNewTicket && errors.timeCreateNewTicket}
-                        className={classes.textField}
-                      />
-                    </Grid>
-                 
                     {/* QUANTIDADE MÁXIMA DE VEZES QUE O CHATBOT VAI SER ENVIADO */}
-                    <Grid xs={6} md={4} item>
+                    <Grid xs={6} md={6} item>
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.maxUseBotQueues")}
@@ -667,7 +444,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       />
                     </Grid>
                       {/* TEMPO PARA ENVIO DO CHATBOT */}
-                    <Grid xs={6} md={4} item>
+                    <Grid xs={6} md={6} item>
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.timeUseBotQueues")}

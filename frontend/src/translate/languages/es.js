@@ -12,8 +12,6 @@ const messages = {
 					name: "Nombre",
 					email: "Correo Electrónico",
 					password: "Contraseña",
-					company: "Nombre de la Empresa",
-          			phone: "Whatsapp (COD + NÚMERO)"
 				},
 				buttons: {
 					submit: "Regístrate",
@@ -25,7 +23,6 @@ const messages = {
 				form: {
 					email: "Correo Electrónico",
 					password: "Contraseña",
-					button:"Ingresar"
 				},
 				buttons: {
 					submit: "Ingresa",
@@ -108,78 +105,11 @@ const messages = {
 				operator: "Agente",
 				period: "Período",
 				until: "Hasta",
-				date:"Fecha",
-				reportTitle:"Relatorios",
-				calls:"Atenciones",
-				search:"Pesquisas",
-				durationCalls:"Duración de la atención",
-				grupoSessions:"Atención en grupos grupos",
-				until:"até",
-				groupTicketsReports:{
-					timezone:"America/Monterrey",
-					msgToast:"Generando relatorio compactado, por favor espere.",
-					errorToast:"Erro ao generar relatorio",
-					back:"Volver",
-					groupServiceReport:"Relatorio de Atención en Grupos",
-					loading:"Cargando...",
-					contact:"Contacto",
-					dateOpen:"Fecha de Apertura",
-					dateLastUpdated:"Fecha Ultima Actualización",
-					agent:"Agente",
-					agentClosed:"Agente(cerró)",
-					waitingAssistance:"Esperando atención",
-					process:"En proceso"
-				  },
-				  researchReports:{
-					response:"respuesta",
-					active:"(Activa)",
-					inactive:"(Inactiva)",
-					quantity:"Cantidade",
-					percentage:"porcentaje",
-					title:"Relatorio de Pesquisas Realizadas",
-					activeSearch:"Pesquisa activa",
-					inactiveSearch:"Pesquisa inactiva",
-				  },
-				  ticketDurationDetail:{
-					msgToast:"Generando relatorio compactado, por favor espere.",
-					title:"Relatorio de Duración de la Atención",
-					startService:"Início de la Atención",
-					lastUpdated:"Última actualización",
-					lastAgent:"Último agente",
-					durationFinished:"Duración después de finalizado"
-				  },
-				  ticketDuration:{
-					title:"Relatorio de Duración de Atención",
-					contact:"Contacto",
-					open:"Abiertos",
-					pending:"Pendientes",
-					finished:"Finalizados",
-					durationFinished:"Duración de los finalizados",
-					durationAfterFinished:"Duración después de finalizado",
-					actions:"Acciones"
-				  },
-				  ticketReports:{
-					msgToast:"Generando relatorio compactado, por favor aguarde.",
-					title:"Relatrio de Atención"
-				  },
-				  pdf:{
-					title:"Relación de Atenciones Realizadas",
-					exportTitle:"Relación de Atenciones en Grupos Realizadas"
-				  }
 			  },
 			  todo: {
 				newTask: "Nueva Tarea",
 				add: "Agregar",
 				task: "Tareas",
-			  },
-			  contactImportWpModal:{
-				title:"Exportar Contactos para Excel",
-				buttons:{
-				  downloadModel:"Download - modelo de excel para importación",
-				  closed:"Cerrar",
-				  import:"Seleccione el archivo de excel para importar los Contactos"
-				}
-		
 			  },
 			connections: {
 				title: "Conexiones",
@@ -204,18 +134,8 @@ const messages = {
 					tryAgain: "Inténtalo de nuevo",
 					qrcode: "QR CODE",
 					newQr: "Nuevo QR CODE",
-					closedImported:"Cerrar todos los tickets Importados",
-					preparing:"Preparando mensajes para importación",
-					importing:"Importando Mensajes del WhatsApp",
-					newQr: "Nuevo QR CODE",
-					processed:"Processado",
-					in:"de",
 					connecting: "Conectando",
 				},
-				typography:{
-					processed:"Processado",
-					in:"de"
-				  },
 				toolTips: {
 					disconnected: {
 						title: "No se pudo iniciar la sesión de WhatsApp",
@@ -267,16 +187,9 @@ const messages = {
 					assessments:"Evaluaciones"
 				  },
 				form: {
-					importOldMessagesEnable:"Importar mensajes del celular",
-					importOldMessages: "Fecha de inicio",
-					importOldMessagesGroups:"Importar mensajes de grupo",
-					closedTicketsPostImported:"Cerrar tickets después de la importación",
 					name: "Nombre",
 					queueRedirection:"Redirección de Fila",
 					queueRedirectionDesc:"Seleccione una fila para los contactos que no tienen una fila para redirigir",
-					name: "Nome",
-					queueRedirection:"Redirecionamento de Fila",
-					queueRedirectionDesc:"Selecione uma fila para os contatos que não possuem fila serem redirecionados",
 					default: "Por Defecto",
 					group: "Permitir grupos",
 					time:"Tiempo",
@@ -330,9 +243,7 @@ const messages = {
 					deleteMessage:
 						"¿Estás seguro que deseas borrar este contacto? Todos los tickets relacionados se perderán.",
 					importMessage:
-						"¿Quieres importar todos los contactos del teléfono?",
-						importChat:"Importar Conversas",
-						wantImport:"Quieres importar todas las conversas del teléfono?"
+						"¿Quieres importar todos los contactos desde tu teléfono?",
 				},
 				buttons: {
 					import: "Importar Contactos",
@@ -346,10 +257,6 @@ const messages = {
 					actions: "Acciones",
 					lastMessage: "Ultimo Mensaje",
 				},
-				menu:{
-					importYourPhone:"Importar del celular por default",
-					importToExcel:"Importar / Exportar del Excel"
-				  }
 			},
 			forwardMessage: {
 				text: "Reenviada",
@@ -589,7 +496,6 @@ const messages = {
 			ticketsManager: {
 				buttons: {
 					newTicket: "Nuevo",
-					resolvAll: "Resolver Todos",
 				},
 			},
 			ticketsQueueSelect: {
@@ -631,9 +537,6 @@ const messages = {
 			transferTicketModal: {
 				title: "Transferir Ticket",
 				fieldLabel: "Escriba para buscar usuarios",
-				fieldQueueLabel: "Transferir para fila",
-				fieldQueuePlaceholder: "Seleccione una fila",
-				fieldWhatsapp:"Seleccione un whatsapp",
 				noOptions: "No se encontraron usuarios con ese nombre",
 				buttons: {
 					ok: "Transferir",
@@ -658,8 +561,9 @@ const messages = {
 				called:"Entradas",
 				today:"Hoy",
 				missedCall:"Llamada de voz/vídeo perdida a las",
+				pendingHeader: "Cola",
 				assignedHeader: "Trabajando en",
-				pendingHeader: "Esperando",
+				pendingHeader: "Fila",
 				assignedHeader: "Trabajando en",
 				groupingHeader: "Grupos",
 				noTicketsTitle: "¡Nada acá!",
@@ -963,13 +867,12 @@ const messages = {
 				title:"Reporte de",
 				inactive:"Inactiva",
 				scheduled:"Programada",
-				process:"En Proceso",
+				process:"En Process",
 				cancelled:"Cancelada",
 				finished:"Finalizada",
 				campaign:"Campaña",
 				validContacts:"Contactos Válidos",
 				confirmationsRequested:"Confirmaciones Solicitadas",
-				confirmations:"Confirmaciones",
 				deliver:"Entregadas",
 				connection:"Conexión",
 				contactLists:"Listado de Contactos",
@@ -1039,12 +942,12 @@ const messages = {
 					actions: "Comportamiento",
 				},
 				buttons: {
-					add: "Agregar fila",
+					add: "Agregar cola",
 				},
 				confirmationModal: {
 					deleteTitle: "Eliminar",
 					deleteMessage:
-						"¿Estás seguro? ¡Esta acción no se puede revertir! Los tickets en esa fila seguirán existiendo, pero ya no tendrán ninguna fila asignada.",
+						"¿Estás seguro? ¡Esta acción no se puede revertir! Los tickets en esa cola seguirán existiendo, pero ya no tendrán ninguna cola asignada.",
 				},
 			},
 			queue: {
@@ -1094,7 +997,7 @@ const messages = {
 				confirmationModal: {
 					deleteTitle: "Borrar",
 					deleteMessage:
-						"Toda la información del usuario se perderá. Los tickets abiertos de los usuarios se moverán a la fila.",
+						"Toda la información del usuario se perderá. Los tickets abiertos de los usuarios se moverán a la cola.",
 				},
 			},
 			compaies: {
@@ -1432,7 +1335,7 @@ const messages = {
 				ERR_QUEUE_COLOR_ALREADY_EXISTS:
 					"Este color ya está en uso, elija otro.",
 				ERR_WAPP_GREETING_REQUIRED:
-					"El mensaje de saludo es obligatorio cuando hay más de una fila.",
+					"El mensaje de saludo es obligatorio cuando hay más de una cola.",
 			},
 		},
 	},

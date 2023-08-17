@@ -362,7 +362,7 @@ const MessagesAPI = () => {
             <p>{i18n.t("messagesAPI.API.text.instructions")}</p>
             <b>Endpoint: </b> {getEndpoint()} <br />
             <b>Método: </b> POST <br />
-            <b>Headers: </b> Authorization Bearer (token registrado) e Content-Type (application/json) <br />
+            <b>Headers: </b> Authorization (token registrado) e Content-Type (application/json) <br />
             <b>Body: </b> {"{"} <br></br>
              "number": "558599999999" <br></br>
              "body": "Message" <br></br> 
@@ -387,7 +387,7 @@ const MessagesAPI = () => {
             <p>{i18n.t("messagesAPI.API.media.instructions")}</p>
             <b>Endpoint: </b> {getEndpoint()} <br />
             <b>Método: </b> POST <br />
-            <b>Headers: </b> Authorization Bearer (token cadastrado) e Content-Type (multipart/form-data) <br />
+            <b>Headers: </b> Authorization (token cadastrado) e Content-Type (multipart/form-data) <br />
             <b>FormData: </b> <br />
             <ul>
               <li>

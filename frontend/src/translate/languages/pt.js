@@ -108,77 +108,11 @@ const messages = {
         period:"Período",
         until:"Até",
         date:"Data",
-        reportTitle:"Relatórios",
-        calls:"Atendimentos",
-        search:"Pesquisas",
-        durationCalls:"Duracão dos atendimentos",
-        grupoSessions:"Atendimentos em grupos",
-        until:"até",
-        groupTicketsReports:{
-          timezone:"America/Sao_Paulo",
-          msgToast:"Gerando relatório compactado, por favor aguarde.",
-          errorToast:"Erro ao gerar o relatório",
-          back:"Voltar",
-          groupServiceReport:"Relatório de Atendimento em Grupos",
-          loading:"Carregando...",
-          contact:"Contato",
-          dateOpen:"Data abertura",
-          dateLastUpdated:"Data Última Atualização",
-          agent:"Quem atendeu",
-          agentClosed:"Quem fechou",
-          waitingAssistance:"Aguardando atendimento",
-          process:"Em atendimento"
-        },
-        researchReports:{
-          response:"resposta",
-          active:"(Ativa)",
-          inactive:"(Inativa)",
-          quantity:"Quantidade",
-          percentage:"porcentagem",
-          title:"Relatório de Pesquisas Realizadas",
-          activeSearch:"Pesquisa ativa",
-          inactiveSearch:"Pesquisa inativa",
-        },
-        ticketDurationDetail:{
-          msgToast:"Gerando relatório compactado, por favor aguarde.",
-          title:"Relatório de Duração do Atendimento",
-          startService:"Início do atendimento",
-          lastUpdated:"Última atualização",
-          lastAgent:"Último atendente",
-          durationFinished:"Duração após finalizado"
-        },
-        ticketDuration:{
-          title:"Relatório de Duração dos Atendimento",
-          contact:"Contato",
-          open:"Abertos",
-          pending:"Pendentes",
-          finished:"Finalizados",
-          durationFinished:"Duração dos finalizados",
-          durationAfterFinished:"Duração após finalizado",
-          actions:"Ações"
-        },
-        ticketReports:{
-          msgToast:"Gerando relatório compactado, por favor aguarde.",
-          title:"Relatório de Atendimento"
-        },
-        pdf:{
-          title:"Relação de Atendimentos Realizados",
-          exportTitle:"Relação de Atendimentos em Grupos Realizados"
-        }
       },
       todo:{
         newTask:"Nova Tarefa",
         add:"Adicionar",
         task:"Tarefas"
-      },
-      contactImportWpModal:{
-        title:"Exportar Contatos para o Excel",
-        buttons:{
-          downloadModel:"Download modelo do excel para importação",
-          closed:"Fechar",
-          import:"Selecione o arquivo do excel para importar Contatos"
-        }
-
       },
       connections: {
         title: "Conexões",
@@ -189,11 +123,8 @@ const messages = {
         newConnection:"Nova Conexão",
         toasts: {
           deleted: "Conexão excluída com sucesso!",
-          closedimported:"Estamos fechando os tickets importados, por favor aguarde uns instantes"
         },
         confirmationModal: {
-          closedImportedTitle:"Fechar tickets importados",
-          closedImportedMessage:"Se você confirmar todos os tickets importados serão fechados",
           deleteTitle: "Deletar",
           deleteMessage: "Você tem certeza? Essa ação não pode ser revertida.",
           disconnectTitle: "Desconectar",
@@ -206,18 +137,7 @@ const messages = {
           tryAgain: "Tentar novamente",
           qrcode: "QR CODE",
           newQr: "Novo QR CODE",
-          closedImported:"Fechar todos os tickets Importados",
-          preparing:"Preparando mensagens para importação",
-          importing:"Importando Mensagens do WhatsApp",
-          newQr: "Novo QR CODE",
-          processed:"Processado",
-          in:"de",
           connecting: "Conectando",
-        },
-        typography:{
-          processed:"Processado",
-          in:"de",
-          date:"Data da mensagem"
         },
         toolTips: {
           disconnected: {
@@ -270,26 +190,21 @@ const messages = {
           assessments:"NPS"
         },
         form: {
-          importOldMessagesEnable:"Importar mensagens do aparelho",
-          importOldMessages: "Data de inicio da importação",
-          importRecentMessages: "Data de termino da importação",
-          importOldMessagesGroups:"Importar mensagens de grupo",
-          closedTicketsPostImported:"Encerrar tickets após importação",
           name: "Nome",
           queueRedirection:"Redirecionamento de Fila",
           queueRedirectionDesc:"Selecione uma fila para os contatos que não possuem fila serem redirecionados",
           default: "Padrão",
           group: "Permitir grupos",
-          importAlert: "ATENÇÃO: Ao salvar, sua conexão será encerrada, será necessário ler novamente o QR Code para importar as mensagens",
+          time:"Tempo",
           groupAsTicket: "Tratar grupos como ticket",
-          timeCreateNewTicket: "Criar novo ticket em x minutos",
-          maxUseBotQueues: "Enviar bot x vezes",
-          timeUseBotQueues: "Enviar bot em x minutos",
+          maxUseBotQueues: "Quantidade máxima de vezes que o chatbot vai ser enviado",
+          timeUseBotQueues: "Tempo em minutos para novo envio do chatbot",
           expiresTicket: "Encerrar chats abertos após x horas",
           expiresTicketNPS: "Encerrar chats aguardando avaliação após x minutos",
           maxUseBotQueuesNPS: "Quantidade máxima de vezes que a avaliaçao vai ser enviada",
           closeLastMessageOptions1:"Do atendente/Cliente",
           closeLastMessageOptions2:"Do atendente",
+          timeUseBotQueues: "Tempo em minutos para novo envio do chatbot",
           outOfHoursMessage: "Mensagem de fora de expediente",
           greetingMessage: "Mensagem de saudação",
           complationMessage: "Mensagem de conclusão",
@@ -347,10 +262,6 @@ const messages = {
           actions: "Ações",
           lastMessage:"Última Mensagem"
         },
-        menu:{
-          importYourPhone:"Importar do aparelho padrão",
-          importToExcel:"Importar / Exportar do Excel"
-        }
       },
       forwardMessage: {
         text: "Encaminhada"
@@ -590,7 +501,6 @@ const messages = {
       ticketsManager: {
         buttons: {
           newTicket: "Novo",
-          resolvAll: "Resolver Todos",
         },
       },
       ticketsQueueSelect: {
@@ -799,7 +709,7 @@ const messages = {
           add: "Nova Resposta",
         },
         dialog: {
-          title:"Mensagem Rápida",
+          title:"Mensaje Rápida",
           shortcode: "Atalho",
           message: "Resposta",
           save:"Salvar"

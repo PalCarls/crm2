@@ -56,6 +56,9 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.mode === 'light' ? "#f2f2f2" : "#7f7f7f",
     borderRadius: 4,
     width: "100%",
+    "& .MuiTab-wrapper": {
+      color: "#128c7e"
+    },
     "& .MuiTabs-flexContainer": {
       justifyContent: "center"
     }
@@ -586,8 +589,8 @@ export default function Options(props) {
         {/* ENVIAR MENSAGEM DE TRANSFERENCIA DE SETOR/ATENDENTE */}
         <Grid xs={12} sm={6} md={4} item>
           <FormControl className={classes.selectContainer}>
-            <InputLabel id="sendMsgTransfTicket-label">
-              {i18n.t("settings.settings.options.sendMsgTransfTicket")}
+            <InputLabel id="CheckMsgIsGroup-label">
+              {i18n.t("settings.settings.options.checkMsgIsGroup")}
             </InputLabel>
             <Select
               labelId="sendMsgTransfTicket-label"
@@ -621,8 +624,8 @@ export default function Options(props) {
               }}
             >
               <MenuItem value={"text"}>Texto</MenuItem>
-              {/* <MenuItem value={"button"}>{i18n.t("settings.settings.options.buttons")}</MenuItem>
-              <MenuItem value={"list"}>Lista</MenuItem> */}
+              <MenuItem value={"button"}>{i18n.t("settings.settings.options.buttons")}</MenuItem>
+              <MenuItem value={"list"}>Lista</MenuItem>
             </Select>
             <FormHelperText>
               {loadingScheduleType && i18n.t("settings.settings.options.updating")}
@@ -811,7 +814,6 @@ export default function Options(props) {
         <Grid spacing={3} container
           style={{ marginBottom: 10 }}>
           <Tabs
-            value={0}
             indicatorColor="primary"
             textColor="primary"
             scrollButtons="on"
@@ -876,8 +878,8 @@ export default function Options(props) {
                   handleLGPDDeleteMessage(e.target.value);
                 }}
               >
-                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
-                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
               </Select>
               <FormHelperText>
                 {loadingLGPDDeleteMessage && i18n.t("settings.settings.options.updating")}
@@ -897,8 +899,8 @@ export default function Options(props) {
                   handleLGPDConsent(e.target.value);
                 }}
               >
-                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
-                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
               </Select>
               <FormHelperText>
                 {loadingLGPDConsent && i18n.t("settings.settings.options.updating")}
@@ -918,8 +920,8 @@ export default function Options(props) {
                   handleLGPDHideNumber(e.target.value);
                 }}
               >
-                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
-                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"disabled"}>{i18n.t("settings.settings.LGPD.enabled")}</MenuItem>
+                <MenuItem value={"enabled"}>{i18n.t("settings.settings.LGPD.disabled")}</MenuItem>
               </Select>
               <FormHelperText>
                 {loadingLGPDHideNumber && i18n.t("settings.settings.options.updating")}
