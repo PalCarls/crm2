@@ -63,6 +63,7 @@
     "use-debounce": "^7.0.0",
     "use-sound": "^2.0.1",
     "uuid": "^8.3.2",
+    "xlsx": "^0.18.5",
     "yup": "^0.32.8"
   },
   "scripts": {

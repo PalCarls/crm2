@@ -57,6 +57,7 @@ import {
 } from "@material-ui/icons";
 import { Menu, MenuItem } from "@material-ui/core";
 import { green } from "@material-ui/core/colors";
+import ContactImportWpModal from "../../components/ContactImportWpModal";
 
 const reducer = (state, action) => {
     if (action.type === "LOAD_CONTACTS") {
@@ -123,6 +124,8 @@ const Contacts = () => {
     const [contacts, dispatch] = useReducer(reducer, []);
     const [selectedContactId, setSelectedContactId] = useState(null);
     const [contactModalOpen, setContactModalOpen] = useState(false);
+
+    const [importContactModalOpen, setImportContactModalOpen] = useState(false);
     const [deletingContact, setDeletingContact] = useState(null);
     const [ImportContacts, setImportContacts] = useState(null);
     const [blockingContact, setBlockingContact] = useState(null);
@@ -445,13 +448,11 @@ const Contacts = () => {
                                                 marginRight: 10,
                                             }}
                                         />
-                                        Importar Agenda
+                                        {i18n.t("contacts.menu.importYourPhone")}
                                     </MenuItem>
                                     <MenuItem
-                                        onClick={() => {
-                                            fileUploadRef.current.value = null;
-                                            fileUploadRef.current.click();
-                                        }}
+                                        onClick={() => {setImportContactModalOpen(true)}}
+                                        
                                     >
                                         <Backup
                                             fontSize="small"
@@ -460,7 +461,8 @@ const Contacts = () => {
                                                 marginRight: 10,
                                             }}
                                         />
-                                        Importar Excel
+                                        {i18n.t("contacts.menu.importToExcel")}
+
                                     </MenuItem>
                                     {<MenuItem>
                         
@@ -504,6 +506,11 @@ const Contacts = () => {
                     </Button>
                 </MainHeaderButtonsWrapper>
             </MainHeader>
+
+            <ContactImportWpModal
+            isOpen={importContactModalOpen}
+            handleClose={()=>setImportContactModalOpen(false)}
+            />
             <Paper
                 className={classes.mainPaper}
                 variant="outlined"

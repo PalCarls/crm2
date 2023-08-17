@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useContext, useEffect } from "react";
 import { toast } from "react-toastify";
-import { format, parseISO } from "date-fns";
+import { add, format, parseISO } from "date-fns";
 
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
-
+import openSocket from "socket.io-client";
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
 import {
@@ -20,6 +20,9 @@ import {
   Tooltip,
   Typography,
   CircularProgress,
+  Box,
+  Card,
+  CardContent,
 } from "@material-ui/core";
 import {
   Edit,
@@ -52,6 +55,7 @@ import toastError from "../../errors/toastError";
 import formatSerializedId from '../../utils/formatSerializedId';
 import { AuthContext } from "../../context/Auth/AuthContext";
 import usePlans from "../../hooks/usePlans";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -80,6 +84,30 @@ const useStyles = makeStyles((theme) => ({
     color: green[500],
   },
 }));
+
+function CircularProgressWithLabel(props) {
+  return (
+    <Box position="relative" display="inline-flex">
+      <CircularProgress variant="determinate" {...props} />
+      <Box
+        top={0}
+        left={0}
+        bottom={0}
+        right={0}
+        position="absolute"
+        display="flex"
+        alignItems="center"
+        justifyContent="center"
+      >
+        <Typography
+          variant="caption"
+          component="div"
+          color="textSecondary"
+        >{`${Math.round(props.value)}%`}</Typography>
+      </Box>
+    </Box>
+  );
+}
 
 const CustomToolTip = ({ title, content, children }) => {
   const classes = useStyles();
@@ -123,9 +151,11 @@ const Connections = () => {
 
   const { whatsApps, loading } = useContext(WhatsAppsContext);
   const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
+  const [statusImport, setStatusImport] = useState([]);
   const [qrModalOpen, setQrModalOpen] = useState(false);
   const [selectedWhatsApp, setSelectedWhatsApp] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const history = useHistory();
   const confirmationModalInitialState = {
     action: "",
     title: "",
@@ -186,6 +216,25 @@ const Connections = () => {
         });
     }
   };
+
+  useEffect(() => {
+    const socket = openSocket(process.env.REACT_APP_BACKEND_URL);
+
+    socket.on(`importMessages-${user.companyId}`, (data) => {
+      if (data.action === "refresh") {
+        setStatusImport([]);
+        history.go(0);
+      }
+      if (data.action === "update") {
+        setStatusImport(data.status);
+        console.log("Importação concluida com exito", data);
+      }
+    });
+
+    /* return () => {
+      socket.disconnect();
+    }; */
+  }, [whatsApps]);
 
   const handleStartWhatsAppSession = async (whatsAppId) => {
     try {
@@ -250,6 +299,14 @@ const Connections = () => {
         whatsAppId: whatsAppId,
       });
     }
+    if (action === "closedImported") {
+      setConfirmModalInfo({
+        action: action,
+        title: i18n.t("connections.confirmationModal.closedImportedTitle"),
+        message: i18n.t("connections.confirmationModal.closedImportedMessage"),
+        whatsAppId: whatsAppId,
+      });
+    }
     setConfirmModalOpen(true);
   };
 
@@ -270,8 +327,69 @@ const Connections = () => {
         toastError(err);
       }
     }
+    if (confirmModalInfo.action === "closedImported") {
+      try {
+        await api.post(`/closedimported/${confirmModalInfo.whatsAppId}`);
+        toast.success(i18n.t("connections.toasts.closedimported"));
+      } catch (err) {
+        toastError(err);
+      }
+    }
 
     setConfirmModalInfo(confirmationModalInitialState);
+  };
+
+
+  const renderImportButton = (whatsApp) => {
+    if (whatsApp?.statusImportMessages === "renderButtonCloseTickets") {
+      return (
+        <Button
+          style={{ marginLeft: 12 }}
+          size="small"
+          variant="outlined"
+          color="primary"
+          onClick={() => {
+            handleOpenConfirmationModal("closedImported", whatsApp.id);
+          }}
+        >
+          {i18n.t("connections.buttons.closedImported")}
+        </Button>
+      );
+    }
+
+    if (whatsApp?.importOldMessages) {
+      let isTimeStamp = !isNaN(
+        new Date(Math.floor(whatsApp?.statusImportMessages)).getTime()
+      );
+
+      if (isTimeStamp) {
+        const ultimoStatus = new Date(
+          Math.floor(whatsApp?.statusImportMessages)
+        ).getTime();
+        const dataLimite = +add(ultimoStatus, { seconds: +35 }).getTime();
+        if (dataLimite > new Date().getTime()) {
+          return (
+            <>
+              <Button
+                disabled
+                style={{ marginLeft: 12 }}
+                size="small"
+                endIcon={
+                  <CircularProgress
+                    size={12}
+                    className={classes.buttonProgress}
+                  />
+                }
+                variant="outlined"
+                color="primary"
+              >
+                {i18n.t("connections.buttons.preparing")}
+              </Button>
+            </>
+          );
+        }
+      }
+    }
   };
 
   const renderActionButtons = (whatsApp) => {
@@ -310,17 +428,20 @@ const Connections = () => {
         {(whatsApp.status === "CONNECTED" ||
           whatsApp.status === "PAIRING" ||
           whatsApp.status === "TIMEOUT") && (
-            <Button
-              size="small"
-              variant="outlined"
-              color="secondary"
-              onClick={() => {
-                handleOpenConfirmationModal("disconnect", whatsApp.id);
-              }}
-            >
-              {i18n.t("connections.buttons.disconnect")}
-            </Button>
-          )}
+            <>
+              <Button
+                size="small"
+                variant="outlined"
+                color="secondary"
+                onClick={() => {
+                  handleOpenConfirmationModal("disconnect", whatsApp.id);
+                }}
+              >
+                {i18n.t("connections.buttons.disconnect")}
+              </Button>
+
+              {renderImportButton(whatsApp)}
+            </>)}
         {whatsApp.status === "OPENING" && (
           <Button size="small" variant="outlined" disabled color="default">
             {i18n.t("connections.buttons.connecting")}
@@ -500,6 +621,51 @@ const Connections = () => {
           </PopupState>
         </MainHeaderButtonsWrapper>
       </MainHeader>
+
+      {statusImport?.all ? (
+        <>
+          <div style={{ margin: "auto", marginBottom: 12 }}>
+            <Card className={classes.root}>
+              <CardContent className={classes.content}>
+                <Typography component="h5" variant="h5">
+
+                  {statusImport?.this === -1 ? i18n.t("connections.buttons.preparing") : i18n.t("connections.buttons.importing")}
+
+                </Typography>
+                {statusImport?.this === -1 ?
+                  <Typography component="h6" variant="h6" align="center">
+
+                    <CircularProgress
+                      size={24}
+                    />
+
+                  </Typography>
+
+
+
+                  :
+                  <>
+
+                    <Typography component="h6" variant="h6" align="center">
+                      {`${i18n.t(`connections.typography.processed`)} ${statusImport?.this} ${i18n.t(`connections.typography.in`)} ${statusImport?.all}  ${i18n.t(`connections.typography.date`)}: ${statusImport?.date} `}
+                    </Typography>
+                    <Typography align="center">
+                      <CircularProgressWithLabel
+                        style={{ margin: "auto" }}
+                        value={(statusImport?.this / statusImport?.all) * 100}
+                      />
+                    </Typography>
+                  </>
+
+
+                }
+
+              </CardContent>
+            </Card>
+          </div>
+        </>
+      ) : null}
+
       <Paper className={classes.mainPaper} variant="outlined">
         <Table size="small">
           <TableHead>

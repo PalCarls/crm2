@@ -91,6 +91,7 @@ const Ticket = () => {
             setLoading(false);
           }
         } catch (err) {
+          history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
           setLoading(false);
           toastError(err);
         }
