@@ -37,7 +37,7 @@ const MessagesAPI = () => {
   const history = useHistory();
 
   const [formMessageTextData,] = useState({ token: '', number: '', body: '' })
-  const [formMessageMediaData,] = useState({ token: '', number: '', medias: '' })
+  const [formMessageMediaData,] = useState({ token: '', number: '', medias: '', body:'' })
   const [file, setFile] = useState({})
 
   const { getPlanCompany } = usePlans();
@@ -85,7 +85,7 @@ const MessagesAPI = () => {
       const firstFile = file[0];
       const data = new FormData();
       data.append('number', values.number);
-      data.append('body', data.body ? data.body: firstFile.name);
+      data.append('body', values.body ? values.body: firstFile.name);
       data.append('userId', values.userId);
       data.append('queueId', values.queueId);
       data.append('medias', firstFile);
@@ -170,7 +170,6 @@ const MessagesAPI = () => {
                   margin="dense"
                   fullWidth
                   className={classes.textField}
-                  required
                 />
               </Grid>
               <Grid item xs={12}  md={6}>
@@ -183,7 +182,6 @@ const MessagesAPI = () => {
                   margin="dense"
                   fullWidth
                   className={classes.textField}
-                  required
                 />
               </Grid>
               <Grid item xs={12} className={classes.textRight}>
@@ -263,7 +261,6 @@ const MessagesAPI = () => {
                   margin="dense"
                   fullWidth
                   className={classes.textField}
-                  required
                 />
               </Grid>
               <Grid item xs={12}  md={6}>
@@ -276,7 +273,6 @@ const MessagesAPI = () => {
                   margin="dense"
                   fullWidth
                   className={classes.textField}
-                  required
                 />
               </Grid>
               <Grid item xs={12}  md={6}>
@@ -289,7 +285,6 @@ const MessagesAPI = () => {
                   margin="dense"
                   fullWidth
                   className={classes.textField}
-                  required
                 />
               </Grid>
               <Grid item xs={12}>
@@ -392,6 +387,15 @@ const MessagesAPI = () => {
             <ul>
               <li>
                 <b>number: </b> 558599999999
+              </li>
+              <li>
+                <b>body:</b> Message
+              </li>
+              <li>
+                <b>userId:</b> ID usuário
+              </li>
+              <li>
+                <b>queueId:</b> ID da fila
               </li>
               <li>
                 <b>medias: </b> arquivo

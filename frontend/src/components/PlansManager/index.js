@@ -80,6 +80,7 @@ export function PlanManagerForm(props) {
         useSchedules: true,
         useInternalChat: true,
         useExternalApi: true,
+        useKanban: true
     });
 
     useEffect(() => {
@@ -296,6 +297,24 @@ export function PlanManagerForm(props) {
                             </FormControl>
                         </Grid>
 
+                         {/* KANBAN */}
+                         <Grid xs={12} sm={8} md={2} item>
+                            <FormControl margin="dense" variant="outlined" fullWidth>
+                                <InputLabel htmlFor="useKanban-selection">Kanban</InputLabel>
+                                <Field
+                                    as={Select}
+                                    id="useKanban-selection"
+                                    label="Kanban"
+                                    labelId="useKanban-selection-label"
+                                    name="useKanban"
+                                    margin="dense"
+                                >
+                                    <MenuItem value={true}>{i18n.t("plans.form.enabled")}</MenuItem>
+                                    <MenuItem value={false}>{i18n.t("plans.form.disabled")}</MenuItem>
+                                </Field>
+                            </FormControl>
+                        </Grid>
+
                         <Grid sm={3} md={1} item>
                             <ButtonWithSpinner className={classes.fullWidth} loading={loading} onClick={() => onCancel()} variant="contained">
                             {i18n.t("plans.form.clear")}
@@ -352,6 +371,9 @@ export function PlansManagerGrid(props) {
         return row.useExternalApi === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
     };
 
+    const renderKanban = (row) => {
+        return row.useKanban === false ? `${i18n.t("plans.form.no")}` : `${i18n.t("plans.form.yes")}`;
+    };
     return (
         <Paper className={classes.tableContainer}>
             <Table
@@ -375,6 +397,7 @@ export function PlansManagerGrid(props) {
                         <TableCell align="center">{i18n.t("plans.form.schedules")}</TableCell>
                         <TableCell align="center">Chat Interno</TableCell>
                         <TableCell align="center">API Externa</TableCell>
+                        <TableCell align="center">Kanban</TableCell>
                     </TableRow>
                 </TableHead>
                 <TableBody>
@@ -397,6 +420,7 @@ export function PlansManagerGrid(props) {
                             <TableCell align="center">{renderSchedules(row)}</TableCell>
                             <TableCell align="center">{renderInternalChat(row)}</TableCell>
                             <TableCell align="center">{renderExternalApi(row)}</TableCell>
+                            <TableCell align="center">{renderKanban(row)}</TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
@@ -425,6 +449,7 @@ export default function PlansManager() {
         useSchedules: true,
         useInternalChat: true,
         useExternalApi: true,
+        useKanban: true,
     })
 
     useEffect(() => {
@@ -506,6 +531,7 @@ export default function PlansManager() {
         let useSchedules = data.useSchedules === false ? false : true
         let useInternalChat = data.useInternalChat === false ? false : true
         let useExternalApi = data.useExternalApi === false ? false : true
+        let useKanban = data.useKanban === false ? false : true
 
         setRecord({
             id: data.id,
@@ -513,14 +539,15 @@ export default function PlansManager() {
             users: data.users || 0,
             connections: data.connections || 0,
             queues: data.queues || 0,
-            amount: data.amount.toLocaleString('pt-br', { minimumFractionDigits: 2 }) || 0,
+            amount: data.amount?.toLocaleString('pt-br', { minimumFractionDigits: 2 }) || 0,
             useWhatsapp,
             useFacebook,
             useInstagram,
             useCampaigns,
             useSchedules,
             useInternalChat,
-            useExternalApi
+            useExternalApi,
+            useKanban
         })
     }
 

@@ -6,7 +6,7 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import Divider from "@material-ui/core/Divider";
-import { Badge, Collapse, List } from "@material-ui/core";
+import { Avatar, Badge, Collapse, FormControl, List } from "@material-ui/core";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
 import WhatsAppIcon from "@material-ui/icons/WhatsApp";
 import SyncAltIcon from "@material-ui/icons/SyncAlt";
@@ -17,7 +17,7 @@ import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import FlashOnIcon from "@material-ui/icons/FlashOn";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import CodeRoundedIcon from "@material-ui/icons/CodeRounded";
-import EventIcon from "@material-ui/icons/Event";
+import ViewKanban from "@mui/icons-material/ViewKanban";
 import Schedule from "@material-ui/icons/Schedule";
 import LocalOfferIcon from "@material-ui/icons/LocalOffer";
 import EventAvailableIcon from "@material-ui/icons/EventAvailable";
@@ -29,9 +29,8 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from '@material-ui/icons/LocalAtm';
 import BusinessIcon from '@material-ui/icons/Business';
-import StarOutlineIcon from '@material-ui/icons/StarOutline';
-import { AddToQueueRounded, AttachFile, DeviceHubOutlined } from '@material-ui/icons';
-import AssignmentIcon from '@material-ui/icons/Assignment';
+import { AddToQueueRounded, AttachFile, CalendarToday, DeviceHubOutlined, ExploreOutlined, Label } from '@material-ui/icons';
+
 
 import Typography from "@material-ui/core/Typography";
 
@@ -130,7 +129,9 @@ const MainListItems = (props, { collapsed }) => {
   const { user } = useContext(AuthContext);
   const [connectionWarning, setConnectionWarning] = useState(false);
   const [openCampaignSubmenu, setOpenCampaignSubmenu] = useState(false);
+  const [openKanbanSubmenu, setOpenKanbanSubmenu] = useState(false);
   const [showCampaigns, setShowCampaigns] = useState(false);
+  const [showKanban, setShowKanban] = useState(false);
   // novas features
   const [showSchedules, setShowSchedules] = useState(false);
   const [showInternalChat, setShowInternalChat] = useState(false);
@@ -166,7 +167,9 @@ const MainListItems = (props, { collapsed }) => {
     async function fetchData() {
       const companyId = localStorage.getItem("companyId");
       const planConfigs = await getPlanCompany(undefined, companyId);
+      console.log(planConfigs)
       setShowCampaigns(planConfigs.plan.useCampaigns);
+      setShowKanban(planConfigs.plan.useKanban);
       setShowSchedules(planConfigs.plan.useSchedules);
       setShowInternalChat(planConfigs.plan.useInternalChat);
       setShowExternalApi(planConfigs.plan.useExternalApi);
@@ -289,6 +292,53 @@ const MainListItems = (props, { collapsed }) => {
         primary={i18n.t("mainDrawer.listItems.quickMessages")}
         icon={<FlashOnIcon />}
       />
+
+      {showKanban && (
+        <>
+          <ListItem
+            dense
+            button
+            onClick={() => setOpenKanbanSubmenu((prev) => !prev)}
+          >
+            <ListItemIcon>
+              <ViewKanban />
+            </ListItemIcon>
+            <ListItemText
+              primary={i18n.t("mainDrawer.listItems.kanban")}
+            />
+            {openKanbanSubmenu ? (
+              <ExpandLessIcon />
+            ) : (
+              <ExpandMoreIcon />
+            )}
+          </ListItem>
+          <Collapse
+            style={{ paddingLeft: 15 }}
+            in={openKanbanSubmenu}
+            timeout="auto"
+            unmountOnExit
+          >
+            <List dense component="div" disablePadding>
+              <ListItem onClick={() => history.push("/kanban")} button>
+                <ListItemIcon>
+                  <ListIcon />
+                </ListItemIcon>
+                <ListItemText primary={i18n.t("kanban.subMenus.list")}/>
+              </ListItem>
+              <ListItem
+                onClick={() => history.push("/tagsKanban")}
+                button
+              >
+                <ListItemIcon>
+                  <CalendarToday />
+                </ListItemIcon>
+                <ListItemText primary={i18n.t("kanban.subMenus.tags")} />
+              </ListItem>                
+            </List>
+          </Collapse>
+        </>
+      )}
+     
 
       <ListItemLink
         to="/contacts"
@@ -447,11 +497,11 @@ const MainListItems = (props, { collapsed }) => {
               }
             />
 
-            {/* <ListItemLink
+            <ListItemLink
               to="/files"
               primary={i18n.t("mainDrawer.listItems.files")}
               icon={<AttachFile />}
-            /> */}
+            />
 
             {/* <ListItemLink
               to="/integrations"

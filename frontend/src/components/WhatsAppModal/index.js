@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import * as Yup from "yup";
 import { Formik, Form, Field } from "formik";
 import { toast } from "react-toastify";
+import { head } from "lodash";
+import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
@@ -24,7 +26,8 @@ import {
   Divider,
   Tab,
   Tabs,
-  Paper
+  Paper,
+  Box
 } from "@material-ui/core";
 
 import api from "../../services/api";
@@ -32,11 +35,13 @@ import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
 import QueueSelect from "../QueueSelect";
 import TabPanel from "../TabPanel";
+import { Autorenew, FileCopy } from "@material-ui/icons";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
+    gap: 4
   },
 
   multFieldLine: {
@@ -77,6 +82,12 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
     flex: 1,
   },
+  tokenRefresh: {
+    minWidth: "auto",
+    display: "flex", // Torna o botão flexível para alinhar o conteúdo
+    alignItems: "center", // Alinha verticalmente ao centro
+    justifyContent: "center", // Alinha horizontalmente ao centro
+  },
 }));
 
 const SessionSchema = Yup.object().shape({
@@ -88,6 +99,13 @@ const SessionSchema = Yup.object().shape({
 
 const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const classes = useStyles();
+  const [autoToken, setAutoToken] = useState("");
+
+  const inputFileRef = useRef(null);
+
+  const [attachment, setAttachment] = useState(null)
+  const [attachmentName, setAttachmentName] = useState('')
+
   const initialState = {
     name: "",
     greetingMessage: "",
@@ -110,9 +128,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     inactiveMessage: "",
     maxUseBotQueuesNPS: 3,
     whenExpiresTicket: 0,
-    
-    
-    timeCreateNewTicket: 0
+    timeCreateNewTicket: 0,
+    greetingMediaAttachment: "",
+    importRecentMessages: "",
+    importOldMessages: "",
+    importOldMessagesGroups:""
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
@@ -120,15 +140,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const [tab, setTab] = useState("general");
   const [enableImportMessage, setEnableImportMessage] = useState(false);
   const [importOldMessagesGroups, setImportOldMessagesGroups] = useState(false);
-  const [closedTicketsPostImported, setClosedTicketsPostImported] =
-    useState(false);
-  const [importOldMessages, setImportOldMessages] = useState(
-    moment().add(-1, "days").format("YYYY-MM-DDTHH:mm")
-  );
-  const [importRecentMessages, setImportRecentMessages] = useState(
-    moment().add(-1, "minutes").format("YYYY-MM-DDTHH:mm")
-  );
-
+  const [closedTicketsPostImported, setClosedTicketsPostImported] = useState(false);
+  const [importOldMessages, setImportOldMessages] = useState(moment().add(-1, "days").format("YYYY-MM-DDTHH:mm"));
+  const [importRecentMessages, setImportRecentMessages] = useState( moment().add(-1, "minutes").format("YYYY-MM-DDTHH:mm"));
+  const [copied, setCopied] = useState(false);
 
   const handleEnableImportMessage = async (e) => {
     setEnableImportMessage(e.target.checked);
@@ -142,7 +157,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       try {
         const { data } = await api.get(`whatsapp/${whatsAppId}?session=0`);
         setWhatsApp(data);
-
+        setAttachmentName(data.greetingMediaAttachment);
+        setAutoToken(data.token);
         const whatsQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(whatsQueueIds);
         if (data?.importOldMessages) {
@@ -151,7 +167,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
           setImportRecentMessages(data?.importRecentMessages);
           setClosedTicketsPostImported(data?.closedTicketsPostImported);
           setImportOldMessagesGroups(data?.importOldMessagesGroups);
-
         }
       } catch (err) {
         toastError(err);
@@ -172,13 +187,15 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   }, []);
 
   const handleSaveWhatsApp = async (values) => {
+    if (!whatsAppId) setAutoToken(generateRandomCode(30));
+
     const whatsappData = {
       ...values, queueIds: selectedQueueIds,
       importOldMessages: enableImportMessage ? importOldMessages : null,
       importRecentMessages: enableImportMessage ? importRecentMessages : null,
       importOldMessagesGroups: importOldMessagesGroups ? importOldMessagesGroups : null,
       closedTicketsPostImported: closedTicketsPostImported ? closedTicketsPostImported : null,
-
+      token: autoToken ? autoToken : null,
     };
     //delete whatsappData["queues"];
     delete whatsappData["session"];
@@ -199,9 +216,21 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         }
 
         await api.put(`/whatsapp/${whatsAppId}`, whatsappData);
-
-      } else {
-        await api.post("/whatsapp", whatsappData);
+        if (attachment != null) {
+          const formData = new FormData();
+          formData.append("file", attachment);
+          await api.post(`/whatsapp/${whatsAppId}/media-upload`, formData);
+        }
+        if(!attachmentName && (whatsApp.greetingMediaAttachment !== null)) {
+          await api.delete(`/whatsapp/${whatsAppId}/media-upload`);
+        }
+      } else {        
+        const {data} = await api.post("/whatsapp", whatsappData);
+        if (attachment != null) {
+          const formData = new FormData();
+          formData.append("file", attachment);
+          await api.post(`/whatsapp/${data.id}/media-upload`, formData);
+        }
       }
       toast.success(i18n.t("whatsappModal.success"));
 
@@ -211,15 +240,51 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     }
   };
 
+  function generateRandomCode(length) {
+    const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let code = "";
+  
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charset.length);
+      code += charset.charAt(randomIndex);
+    }
+    return code;
+  }
+  
+  const handleRefreshToken = () => {
+    setAutoToken(generateRandomCode(30));
+  }
+
+  const handleCopyToken = () => {
+    navigator.clipboard.writeText(autoToken); // Copia o token para a área de transferência    
+    setCopied(true); // Define o estado de cópia como verdadeiro
+  };
+
   const handleClose = () => {
     onClose();
     setWhatsApp(initialState);
+    // inputFileRef.current.value = null
+    setAttachment(null)
+    setAttachmentName("")
+    setCopied(false);
   };
 
   const handleTabChange = (event, newValue) => {
     setTab(newValue);
   };
+  
+  const handleFileUpload = () => {
+    const file = inputFileRef.current.files[0];
+    setAttachment(file)
+    setAttachmentName(file.name)
+    inputFileRef.current.value = null
+  };
 
+  const handleDeleFile = () => {
+    setAttachment(null)
+    setAttachmentName(null)
+  }
+  
   return (
     <div className={classes.root}>
       <Dialog
@@ -270,6 +335,34 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   name={"general"}
                 >
                   <DialogContent dividers>
+                    {attachmentName && (
+                      <div
+                        style={{display: 'flex', flexDirection: 'row-reverse'}}
+                      >
+                        <Button
+                          variant='outlined'
+                          color="primary"
+                          endIcon={<DeleteOutlineIcon />}
+                          onClick={handleDeleFile}
+                        >
+                          {attachmentName}
+                        </Button>
+                      </div>
+                    )}
+                    <div
+                      style={{display: 'flex', flexDirection: "column-reverse"}}
+                    >
+                      <input
+                        type="file"
+                        accept="video/*,image/*"
+                        ref={inputFileRef}
+                        style={{ display: 'none' }}
+                        onChange={handleFileUpload}
+                      />
+                      <Button variant="contained" color="primary" onClick={() => inputFileRef.current.click()}>
+                        Adicionar Imagem 
+                      </Button>
+                    </div>
                     {/* NOME E PADRAO */}
                     <div className={classes.multFieldLine}>
                       <Grid spacing={2} container>
@@ -478,17 +571,34 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
 
                     {/* TOKEN */}
-                    <div>
-                      <Field
-                        as={TextField}
-                        label={i18n.t("whatsappModal.form.token")}
-                        type="token"
-                        fullWidth
-                        name="token"
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </div>
+                    <Box display="flex" alignItems="center">
+                      <Grid xs={6} md={12} item>
+                        <Field
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.token")}
+                          type="token"
+                          fullWidth
+                          // name="token"
+                          value={autoToken}
+                          variant="outlined"
+                          margin="dense"
+                          disabled
+                        />
+                      </Grid>
+                      <Button
+                          onClick={handleRefreshToken}
+                          disabled={isSubmitting}
+                          className={classes.tokenRefresh}
+                          variant="text"
+                          startIcon={<Autorenew style={{marginLeft:5 , color: "green"}}/>}
+                        />
+                        <Button
+                          onClick={handleCopyToken}
+                          className={classes.tokenRefresh}
+                          variant="text"
+                          startIcon={<FileCopy style={{ color: copied ? "blue" : "inherit" }} />}
+                        />
+                    </Box>
                     {/* FILAS */}
                     <QueueSelect
                       selectedQueueIds={selectedQueueIds}
@@ -535,23 +645,23 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                             fullWidth
                             className={classes.formControl}
                           >
-                            <InputLabel id="timeSendQueue-selection-label">{i18n.t("whatsappModal.form.time")}</InputLabel>
+                            <InputLabel id="timeSendQueue-selection-label">{i18n.t("whatsappModal.form.timeSendQueue")}</InputLabel>
                             <Field
                               as={Select}
-                              label={i18n.t("Tempo")}
-                              placeholder={i18n.t("Tempo")}
+                              label={i18n.t("whatsappModal.form.timeSendQueue")}
+                              placeholder={i18n.t("whatsappModal.form.timeSendQueue")}
                               labelId="timeSendQueue-selection-label"
                               id="timeSendQueue"
                               name="timeSendQueue"
                             >
                               <MenuItem value={"0"}>{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
-                              <MenuItem value={"5"}>5 minutos</MenuItem>
-                              <MenuItem value={"10"}>10 minutos</MenuItem>
-                              <MenuItem value={"15"}>15 minutos</MenuItem>
-                              <MenuItem value={"15"}>20 minutos</MenuItem>
-                              <MenuItem value={"15"}>25 minutos</MenuItem>
-                              <MenuItem value={"30"}>30 minutos</MenuItem>
-                              <MenuItem value={"60"}>60 minutos</MenuItem>
+                              <MenuItem value={"5"}>5 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"10"}>10 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"15"}>15 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"15"}>20 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"15"}>25 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"30"}>30 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
+                              <MenuItem value={"60"}>60 {i18n.t("whatsappModal.menuItem.minutes")}</MenuItem>
                             </Field>
                           </FormControl>
                         </Grid>

@@ -39,6 +39,8 @@ import Subscription from "../pages/Subscription/";
 import QueueIntegration from "../pages/QueueIntegration";
 import Files from "../pages/Files/";
 import ToDoList from "../pages/ToDoList/";
+import Kanban from "../pages/Kanban";
+import TagsKanban from "../pages/TagsKanban";
 
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
@@ -79,6 +81,9 @@ const Routes = () => {
                 <Route exact path="/chats/:id?" component={Chat} isPrivate />
                 <Route exact path="/files" component={Files} isPrivate />
                 <Route exact path="/moments" component={ChatMoments} isPrivate />
+                <Route exact path="/Kanban" component={Kanban} isPrivate />
+                <Route exact path="/TagsKanban" component={TagsKanban} isPrivate />
+                
 
                 {showCampaigns && (
                   <>

@@ -1,4 +1,4 @@
-import React from "react";
+import React,{ useState } from "react";
 import { useParams } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -50,18 +50,22 @@ const useStyles = makeStyles(theme => ({
 const TicketsCustom = () => {
 	const classes = useStyles();
 	const { ticketId } = useParams();
+    const [ selectedQueuesMessage, setSelectedQueuesMessage] = useState();
 
 	return (
 		<div className={classes.chatContainer}>
 			<div className={classes.chatPapper}>
 				<Grid container spacing={0}>
 					<Grid item xs={4} className={classes.contactsWrapper}>
-						<TicketsManager />
+						<TicketsManager  
+							setSelectedQueuesMessage={setSelectedQueuesMessage}
+                    		selectedQueuesMessage={selectedQueuesMessage}
+						/>
 					</Grid>
 					<Grid item xs={8} className={classes.messagesWrapper}>
 						{ticketId ? (
 							<>
-								<Ticket />
+								<Ticket selectedQueuesMessage={selectedQueuesMessage}/>
 							</>
 						) : (
 							<Paper square variant="outlined" className={classes.welcomeMsg}>

@@ -72,7 +72,7 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
                             id: getData.data.contactId,
                             name: contact,
                             number: numbers,
-                            profilePicUrl: getData.data.profilePicUrl
+                            profilePicUrl: getData.data.urlPicture
                         }
 
                         setContact(obj)
@@ -145,7 +145,7 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
                 />
                 <Grid container spacing={1}>
                     <Grid item xs={2}>
-                        <Avatar src={selectedContact.profilePicUrl} />
+                        <Avatar src={`${selectedContact?.urlPicture}`} />
                     </Grid>
                     <Grid item xs={9}>
                         <Typography style={{ marginTop: "12px", marginLeft: "10px" }} variant="subtitle1" color="primary" gutterBottom>

@@ -38,7 +38,7 @@ const useStyles = makeStyles((theme) => ({
 
 }));;
 
-const ContactImportWpModal = ({ isOpen, handleClose }) => {
+const ContactImportWpModal = ({ isOpen, handleClose, selectedTags, hideNum, userProfile }) => {
   const classes = useStyles();
 
   const initialContact = { name: "", number: "", error: "" }
@@ -53,7 +53,6 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
     setCurrentContact(initialContact)
     handleClose()
   }
-
 
   useEffect(() => {
     if (contactsToImport?.length) {
@@ -97,10 +96,12 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
     if (!model) {
       while (i !== 0) {
         const { data } = await api.get("/contacts/", {
-          params: { searchParam: "", pageNumber: i },
+          params: { searchParam: "", pageNumber: i, contactTag: JSON.stringify(selectedTags)},
         });
         data.contacts.forEach((element) => {
-          allDatas.push(element);
+          const tagsContact = element.tags.map(tag => tag.name).join(', '); // Concatenando as tags com vírgula
+          const contactWithTags = { ...element, tags: tagsContact }; // Substituindo as tags pelo valor concatenado
+          allDatas.push(contactWithTags);
         });
 
         const pages = data?.count / 20;
@@ -116,9 +117,9 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
         email: "joao@possoatender.com",
       });
     }
-
+    
     const exportData = allDatas.map((e) => {
-      return { name: e.name, number: e.number, email: e.email };
+      return { name: e.name, number: (hideNum && userProfile === "user" ? e.isGroup ? e.number : e.number.slice(0,-6)+"**-**"+ e.number.slice(-2): e.number), email: e.email, tags: e.tags };
     });
     //console.log({ allDatas });
     let wb = XLSX.utils.book_new();
@@ -126,10 +127,6 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
     XLSX.utils.book_append_sheet(wb, ws, "Contatos");
     XLSX.writeFile(wb, "backup_contatos.xlsx");
   };
-
-
-
-
 
   const handleImportChange = (e) => {
     const [file] = e.target.files;
@@ -142,8 +139,6 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
       const ws = wb.Sheets[wsname];
       const data = XLSX.utils.sheet_to_json(ws);
       setContactsToImport(data)
-
-
     };
     reader.readAsBinaryString(file);
   };
@@ -153,8 +148,6 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
       <DialogTitle>{i18n.t("Exportar / Importar contatos")}</DialogTitle>
       <div>
         <Box style={{ padding: "0px 10px 10px" }} >
-
-
           <div className={classes.multFieldLine}>
             <Button
               fullWidth
@@ -165,10 +158,8 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
             >
               {i18n.t("contactImportWpModal.title")}
             </Button>
-
           </div>
           <div className={classes.multFieldLine}>
-
             <Button
               fullWidth
               size="small"
@@ -177,45 +168,26 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
               onClick={() => handleOnExportContacts(true)}
             >
               {i18n.t("contactImportWpModal.buttons.downloadModel")}
-
             </Button>
-
           </div>
-
-
-
           <div className={classes.multFieldLine}>
-
-
-
             <div style={{ minWidth: "100%" }}>
-
               {contactsToImport?.length ?
                 <>
                   <div className={classes.label}>
                     <h4>{statusMessage}</h4>
-
-
                     {currentContact?.name ?
-
                       <Button
                         fullWidth
                         disabled
                         size="small"
                         color={currentContact?.error === "success" ? "primary" : "error"}
                         variant="text"
-
                       >
                         {`${currentContact?.name} => ${currentContact?.number} `}
                       </Button>
-
                       : <></>}
-
-
-
                   </div>
-
-
                 </> :
                 <>
                   <label className={classes.label} for="contacts"> <AttachFileIcon /> <div> {i18n.t("contactImportWpModal.buttons.import")}</div> </label>
@@ -223,29 +195,15 @@ const ContactImportWpModal = ({ isOpen, handleClose }) => {
                     onChange={handleImportChange}
                   />
                 </>
-
               }
-
-
-
             </div>
-
-
-
-
           </div>
-
-
-
-
         </Box>
       </div>
 
       <DialogActions>
         <Button onClick={handleClose} color="primary">
-
-        {i18n.t("contactImportWpModal.buttons.closed")}
-          
+          {i18n.t("contactImportWpModal.buttons.closed")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -116,7 +116,7 @@ const TicketListForwardMessageItem = ({ ticket, selectedTicket, sendData }) => {
             >
                 <ListItemAvatar>
                     <Avatar
-                        src={ticket.contact.profilePicUrl && ticket.contact.profilePicUrl}
+                        src={ticket.contact.urlPicture && ticket.contact.urlPicture}
                     ></Avatar>
                 </ListItemAvatar>
                 <ListItemText

@@ -195,6 +195,7 @@ const TicketsListCustom = (props) => {
     const { user } = useContext(AuthContext);
     const { profile, queues } = user;
     const allTicket = user.allTicket === 'enable';
+    const allowGroup = user.allowGroup; 
 
     useEffect(() => {
         dispatch({ type: "RESET" });
@@ -222,7 +223,7 @@ const TicketsListCustom = (props) => {
         ) ;
         // const allticket = user.allTicket === 'enable';
 
-        if (profile === "admin" || allTicket) {
+        if (profile === "admin" || allTicket || allowGroup) {
             dispatch({ type: "LOAD_TICKETS", payload: tickets });
         } else {
             dispatch({ type: "LOAD_TICKETS", payload: filteredTickets });

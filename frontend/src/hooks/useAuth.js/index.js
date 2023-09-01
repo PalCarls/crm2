@@ -108,6 +108,19 @@ const useAuth = () => {
         }
       }
 
+      if (has(company, "settings") && isArray(company.settings)) {
+        const setting = company.settings.find(
+          (s) => s.key === "sendSignMessage"
+        );
+
+        const signEnable = setting.value === "enable";
+
+        if (setting && setting.value === "enabled") {
+          localStorage.setItem("sendSignMessage", signEnable); //regra pra exibir campanhas
+        }
+      }
+      localStorage.setItem("profileImage", data.user.profileImage); //regra pra exibir campanhas
+
       moment.locale('pt-br');
       let dueDate;
       if (data.user.company.id === 1) {

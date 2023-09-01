@@ -1,2 +1,7 @@
 
-frontend/src/assets/logo1.png
+frontend/public/android-chrome-192x192.png
+frontend/public/apple-touch-icon.png
+frontend/public/favicon-16x16.png
+frontend/public/favicon-32x32.png
+frontend/public/favicon.ico
+frontend/src/assets/logo.png

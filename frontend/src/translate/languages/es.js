@@ -1287,7 +1287,7 @@ const messages = {
 						  "Enviar mensaje de despedida(estado Esperando)",
 						acceptAudioMessageContact: "Aceptar audios de todos",
 						enableLGPD:"Habilitar opción P.P.",
-						mandatoryTag:"Tag obligatoria"
+						requiredTag:"Tag obligatoria para cerrar ticket"
 					  },
 					  LGPD:{
 						title:"Politica de Privacidad",
@@ -1310,6 +1310,7 @@ const messages = {
 					dialogRatingSuccess: "Cerrar y Enviar Evaluación",
 					dialogRatingWithoutFarewellMsg: "Cerrar SIN Mensaje de Despedida",
 					ratingTitle: "Elegir menú de evaluación",
+					notMessage:"No hay mensaje seleccionado",
 					buttons: {
 						return: "Devolver",
 						resolve: "Resolver",
@@ -1317,6 +1318,7 @@ const messages = {
 						accept: "Aceptar",
 						rating: "Enviar Evaluación",
 						enableIntegration: "Activar/Desactivar integración",
+						requiredTag:"Opps! Debes asignar una tag antes de cerrar el ticket."
 					},
 				},
 			},

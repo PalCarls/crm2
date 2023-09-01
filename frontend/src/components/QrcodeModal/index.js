@@ -1,13 +1,21 @@
 import React, { useEffect, useState } from "react";
 import QRCode from "qrcode.react";
 import toastError from "../../errors/toastError";
-
+import { makeStyles } from "@material-ui/core/styles";
 import { Dialog, DialogContent, Paper, Typography } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { socketConnection } from "../../services/socket";
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: "flex",
+    flexWrap: "wrap",
+  },
+}))
+
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
+  const classes = useStyles();
   const [qrCode, setQrCode] = useState("");
 
   useEffect(() => {
@@ -48,14 +56,16 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
     <Dialog open={open} onClose={onClose} maxWidth="lg" scroll="paper">
       <DialogContent>
         <Paper elevation={0}>
-          <Typography color="primary" gutterBottom>
+          <Typography color="secondary" gutterBottom>
             {i18n.t("qrCode.message")}
           </Typography>
-          {qrCode ? (
-            <QRCode value={qrCode} size={256} />
-          ) : (
-            <span>Waiting for QR Code</span>
-          )}
+            <div className={classes.root}>
+              {qrCode ? (
+                <QRCode value={qrCode} size={300} style={{ backgroundColor: "white", padding: '5px' }} />
+              ) : (
+                <span>Aguardando pelo QR Code</span>
+              )}
+            </div>
         </Paper>
       </DialogContent>
     </Dialog>

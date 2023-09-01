@@ -39,6 +39,8 @@ import toastError from "../../errors/toastError";
 import { socketConnection } from "../../services/socket";
 import useSettings from "../../hooks/useSettings";
 import { i18n } from "../../translate/i18n";
+import SelectMessageCheckbox from "./SelectMessageCheckbox";
+
 
 const useStyles = makeStyles((theme) => ({
   messagesListWrapper: {
@@ -64,7 +66,6 @@ const useStyles = makeStyles((theme) => ({
   },
 
   currentTicktText: {
-    backgroundColor: theme.palette.secondary,
     color: theme.palette.primary,
     fontWeight: 'bold',
     padding: 8,
@@ -107,8 +108,8 @@ const useStyles = makeStyles((theme) => ({
     },
 
     whiteSpace: "pre-wrap",
-    backgroundColor: "#ffffff",
-    color: "#303030",
+    backgroundColor: theme.mode === 'light' ? "#ffffff" : "#202c33",
+    color: theme.mode === 'light' ? "#303030" : "#ffffff",
     alignSelf: "flex-start",
     borderTopLeftRadius: 0,
     borderTopRightRadius: 8,
@@ -118,13 +119,13 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 5,
     paddingTop: 5,
     paddingBottom: 0,
-    boxShadow: "0 1px 1px #b3b3b3",
+    // boxShadow: "0 1px 1px #b3b3b3",
   },
 
   quotedContainerLeft: {
     margin: "-3px -80px 6px -6px",
     overflow: "hidden",
-    backgroundColor: "#f0f0f0",
+    backgroundColor: theme.mode === 'light' ? "#f0f0f0" : "#1d282f",
     borderRadius: "7.5px",
     display: "flex",
     position: "relative",
@@ -142,7 +143,7 @@ const useStyles = makeStyles((theme) => ({
   quotedSideColorLeft: {
     flex: "none",
     width: "4px",
-    backgroundColor: "#6bcbef",
+    backgroundColor: "#388aff",
   },
 
   messageRight: {
@@ -160,8 +161,8 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
     },
     whiteSpace: "pre-wrap",
-    backgroundColor: "#dcf8c6",
-    color: "#303030",
+    backgroundColor: theme.mode === 'light' ? "#dcf8c6" : "#005c4b",
+    color: theme.mode === 'light' ? "#303030" :"#ffffff",
     alignSelf: "flex-end",
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
@@ -171,7 +172,7 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 5,
     paddingTop: 5,
     paddingBottom: 0,
-    boxShadow: "0 1px 1px #b3b3b3",
+    // boxShadow: "0 1px 1px #b3b3b3",
   },
 
   messageRightPrivate: {
@@ -200,13 +201,13 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: 5,
     paddingTop: 5,
     paddingBottom: 0,
-    boxShadow: "0 1px 1px #b3b3b3",
+    // boxShadow: "0 1px 1px #b3b3b3",
   },
 
   quotedContainerRight: {
     margin: "-3px -80px 6px -6px",
     overflowY: "hidden",
-    backgroundColor: "#cfe9ba",
+    backgroundColor: theme.mode === 'light' ? "#cfe9ba" : "#025144",
     borderRadius: "7.5px",
     display: "flex",
     position: "relative",
@@ -400,7 +401,17 @@ const reducer = (state, action) => {
   }
 };
 
-const MessagesList = ({ ticket, ticketId, isGroup }) => {
+const MessagesList = ({ 
+    ticket, 
+    ticketId, 
+    isGroup, 
+    selectedQueues, 
+    showSelectMessageCheckbox, 
+    setShowSelectMessageCheckbox, 
+    setSelectedMessagesList, 
+    selectedMessagesList,
+    forwardMessageModalOpen,
+    setForwardMessageModalOpen }) => {
   const classes = useStyles();
 
   const [messagesList, dispatch] = useReducer(reducer, []);
@@ -425,7 +436,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
         const settinglgpdDeleteMessage = settingList.find(setting => setting.key === "lgpdDeleteMessage");
         const settingEnableLGPD = settingList.find(setting => setting.key === "enableLGPD");
 
-        if (settingEnableLGPD.value === "enabled" && settinglgpdDeleteMessage.value === "enabled") {
+        if (settingEnableLGPD && settingEnableLGPD?.value === "enabled" && settinglgpdDeleteMessage && settinglgpdDeleteMessage?.value === "enabled") {
           setLGPDDeleteMessage(true);
         }
     }
@@ -438,7 +449,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
     setPageNumber(1);
 
     currentTicketId.current = ticketId;
-  }, [ticketId]);
+  }, [ticketId,selectedQueues]);
 
   useEffect(() => {
     setLoading(true);
@@ -447,7 +458,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
         if (ticketId === undefined) return;
         try {
           const { data } = await api.get("/messages/" + ticketId, {
-            params: { pageNumber },
+            params: { pageNumber, selectedQueues: JSON.stringify(selectedQueues) },
           });
 
           if (currentTicketId.current === ticketId) {
@@ -464,12 +475,13 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
           toastError(err);
         }
       };
+      
       fetchMessages();
     }, 500);
     return () => {
       clearTimeout(delayDebounceFn);
     };
-  }, [pageNumber, ticketId]);
+  }, [pageNumber, ticketId, selectedQueues]);
 
   useEffect(() => {
     const companyId = localStorage.getItem("companyId");
@@ -685,6 +697,7 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
           >
             <div
               className={classes.currentTicktText}
+              style={{backgroundColor: message.ticket.queue.color}}
             >
               #{i18n.t("ticketsList.called")} {message.ticketId} - {message.ticket.queue?.name}
             </div>
@@ -699,8 +712,9 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
           >
             <div
               className={classes.currentTicktText}
+              style={{backgroundColor: "grey"}}
             >
-              #{i18n.t("ticketsList.called")} {message.ticketId}
+              #{i18n.t("ticketsList.called")} {message.ticketId} - {i18n.t("ticketsList.noQueue")}
             </div>
 
           </span>
@@ -850,6 +864,12 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                 title={message.queueId && message.queue?.name}
                 onDoubleClick={(e) => hanldeReplyMessage(e,message)}
               >
+                <SelectMessageCheckbox 
+                  showSelectMessageCheckbox={showSelectMessageCheckbox} 
+                  message={message} 
+                  selectedMessagesList={selectedMessagesList} 
+                  setSelectedMessagesList={setSelectedMessagesList} 
+                />
                 <IconButton
                   variant="contained"
                   size="small"
@@ -906,18 +926,11 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
 
                   {message.quotedMsg && message.mediaType === "reactionMessage" && (
                     <>
-                      <Badge className={classes.badge}
-                        overlap="circular"
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'right',
-                        }}
-                        badgeContent={<span style={{ fontSize: "4em", marginTop: "-95px", marginLeft: "340px" }}>
-                          {message.body}
-                        </span>}
-                      >
-                      </Badge>
-                      <span style={{ marginLeft: "0px" }}><MarkdownWrapper >{"_*" + message.contact?.name + "*_ reagiu..."}</MarkdownWrapper></span>
+                      <span style={{ marginLeft: "0px" }}>
+                        <MarkdownWrapper>
+                          {"" + message?.contact?.name + " reagiu... " + message.body}
+                        </MarkdownWrapper>
+                      </span>
                     </>
                   )}
 
@@ -939,6 +952,13 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
                 title={message.queueId && message.queue?.name}
                 onDoubleClick={(e) => hanldeReplyMessage(e,message)}
               >
+                <SelectMessageCheckbox 
+                  showSelectMessageCheckbox={showSelectMessageCheckbox} 
+                  message={message} 
+                  selectedMessagesList={selectedMessagesList} 
+                  setSelectedMessagesList={setSelectedMessagesList} 
+                />
+
                 <IconButton
                   variant="contained"
                   size="small"
@@ -970,18 +990,11 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
 
                   {message.quotedMsg && message.mediaType === "reactionMessage" && (
                     <>
-                      <Badge className={classes.badge}
-                        overlap="circular"
-                        anchorOrigin={{
-                          vertical: 'bottom',
-                          horizontal: 'right',
-                        }}
-                        badgeContent={<span style={{ fontSize: "4em", marginTop: "42px", marginLeft: "0px" }}>
-                          {message.body.split("*")[2]}
-                        </span>}
-                      >
-                      </Badge>
-                      <span style={{ marginLeft: "-135px" }}><MarkdownWrapper >{message.body.split(":")[0] + "* reagiu...."}</MarkdownWrapper></span>
+                      <span style={{ marginLeft: "0px" }}>
+                        <MarkdownWrapper>
+                          {"" + message?.contact?.name + " reagiu... " + message.body}
+                        </MarkdownWrapper>
+                      </span>
                     </>
                   )}
 
@@ -1009,6 +1022,11 @@ const MessagesList = ({ ticket, ticketId, isGroup }) => {
         menuOpen={messageOptionsMenuOpen}
         handleClose={handleCloseMessageOptionsMenu}
         ticketGroup={ticket}
+        showSelectCheckBox={showSelectMessageCheckbox}
+        setShowSelectCheckbox={setShowSelectMessageCheckbox}
+        forwardMessageModalOpen={forwardMessageModalOpen}
+        setForwardMessageModalOpen={setForwardMessageModalOpen}
+        selectedMessages={selectedMessagesList}
       />
       <div
         id="messagesList"

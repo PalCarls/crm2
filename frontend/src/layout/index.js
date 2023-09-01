@@ -14,12 +14,17 @@ import {
   Menu,
   useTheme,
   useMediaQuery,
+  Avatar,
+  FormControl,
+  Badge,
+  withStyles,
 } from "@material-ui/core";
 
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CachedIcon from "@material-ui/icons/Cached";
+import whatsappIcon from '../assets/nopicture.png'
 
 import MainListItems from "./MainListItems";
 import NotificationsPopOver from "../components/NotificationsPopOver";
@@ -42,6 +47,10 @@ import UserLanguageSelector from "../components/UserLanguageSelector";
 import ColorModeContext from "../layout/themeContext";
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
+import { getBackendUrl } from "../config";
+import ModalImage from "react-modal-image";
+
+const backendUrl = getBackendUrl();
 
 const drawerWidth = 240;
 
@@ -117,7 +126,7 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
   },
-  
+
   drawerPaperClose: {
     overflowX: "hidden",
     transition: theme.transitions.create("width", {
@@ -158,8 +167,8 @@ const useStyles = makeStyles((theme) => ({
     // color: theme.barraSuperior.secondary.main,
   },
   logo: {
-    width: "80%",
-    height: "auto",
+    width: "100%",
+    height: "48px",
     maxWidth: 180,
     [theme.breakpoints.down("sm")]: {
       width: "auto",
@@ -168,7 +177,57 @@ const useStyles = makeStyles((theme) => ({
     },
     logo: theme.logo
   },
+  avatar2: {
+    width: theme.spacing(4),
+    height: theme.spacing(4),
+    cursor: 'pointer',
+    borderRadius: '50%',
+    border: '2px solid #ccc',
+  },
+  updateDiv: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 }));
+
+const StyledBadge = withStyles((theme) => ({
+  badge: {
+    backgroundColor: '#44b700',
+    color: '#44b700',
+    boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
+    '&::after': {
+      position: 'absolute',
+      top: 0,
+      left: 0,
+      width: '100%',
+      height: '100%',
+      borderRadius: '50%',
+      animation: '$ripple 1.2s infinite ease-in-out',
+      border: '1px solid currentColor',
+      content: '""',
+    },
+  },
+  '@keyframes ripple': {
+    '0%': {
+      transform: 'scale(.8)',
+      opacity: 1,
+    },
+    '100%': {
+      transform: 'scale(2.4)',
+      opacity: 0,
+    },
+  },
+}))(Badge);
+
+const SmallAvatar = withStyles((theme) => ({
+  root: {
+    width: 22,
+    height: 22,
+    border: `2px solid ${theme.palette.background.paper}`,
+  },
+}))(Avatar);
 
 const LoggedInLayout = ({ children, themeToggle }) => {
   const classes = useStyles();
@@ -188,6 +247,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const [volume, setVolume] = useState(localStorage.getItem("volume") || 1);
 
   const { dateToClient } = useDate();
+  const [profileUrl, setProfileUrl] = useState(null);
 
 
   //################### CODIGOS DE TESTE #########################################
@@ -256,6 +316,8 @@ const LoggedInLayout = ({ children, themeToggle }) => {
     const userId = localStorage.getItem("userId");
 
     const socket = socketConnection({ companyId });
+    const ImageUrl = localStorage.getItem("profileImage")
+    setProfileUrl(`${backendUrl}/public/company${companyId}/user/${ImageUrl}`);
 
     socket.on(`company-${companyId}-auth`, (data) => {
       if (data.user.id === +userId) {
@@ -265,6 +327,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           window.location.reload();
         }, 1000);
       }
+
     });
 
     socket.emit("userStatus");
@@ -338,12 +401,18 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         open={drawerOpen}
       >
         <div className={classes.toolbarIcon}>
-          <img src={logo} className={classes.logo} alt="logo" />
+          {/* <img src={logo} className={classes.logo} alt="logo" /> */}
+          <ModalImage
+            className={classes.logo}
+            smallSrcSet={logo}
+            medium={logo}
+            large={logo}
+            alt="image"
+          />
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
             <ChevronLeftIcon />
           </IconButton>
         </div>
-        <Divider />
         <List className={classes.containerWithScroll}>
           <MainListItems drawerClose={drawerClose} collapsed={!drawerOpen} />
         </List>
@@ -364,7 +433,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             edge="start"
             variant="contained"
             aria-label="open drawer"
-            style={{color:"white"}}
+            style={{ color: "white" }}
             onClick={() => setDrawerOpen(!drawerOpen)}
             className={clsx(
               classes.menuButton,
@@ -422,16 +491,23 @@ const LoggedInLayout = ({ children, themeToggle }) => {
           <ChatPopover />
 
           <div>
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
+            <StyledBadge
+              overlap="circular"
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'right',
+              }}
+              variant="dot"
               onClick={handleMenu}
-              variant="contained"
-              style={{ color: "white" }}
             >
-              <AccountCircle />
-            </IconButton>
+              <Avatar alt="Multi100" className={classes.avatar2} src={profileUrl} />
+            </StyledBadge>
+
+            <UserModal 
+              open={userModalOpen} 
+              onClose={() => setUserModalOpen(false)} 
+              onImageUpdate={(newProfileUrl) => setProfileUrl(newProfileUrl)} />
+
             <Menu
               id="menu-appbar"
               anchorEl={anchorEl}

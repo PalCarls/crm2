@@ -64,6 +64,13 @@
   import ContactSendModal from "../ContactSendModal";
   import CameraModal from "../CameraModal";
 
+  import useSettings from "../../hooks/useSettings";
+import axios from "axios";
+import path from "path";
+import { getBackendUrl } from "../../config";
+
+const backendUrl = getBackendUrl();
+
   const Mp3Recorder = new MicRecorder({ bitRate: 128 });
   
   const useStyles = makeStyles((theme) => ({
@@ -175,12 +182,13 @@
 	  paddingTop: 8,
 	  paddingLeft: 73,
 	  paddingRight: 7,
+	  backgroundColor: theme.palette.optionsBackground,
 	},
 	replyginMsgContainer: {
 	  flex: 1,
 	  marginRight: 5,
 	  overflowY: "hidden",
-	  backgroundColor: "rgba(0, 0, 0, 0.05)",
+	  backgroundColor: theme.mode === 'light' ? "#f0f0f0" : "#1d282f",//"rgba(0, 0, 0, 0.05)",
 	  borderRadius: "7.5px",
 	  display: "flex",
 	  position: "relative",
@@ -200,7 +208,7 @@
 	replyginSelfMsgSideColor: {
 	  flex: "none",
 	  width: "4px",
-	  backgroundColor: "#6bcbef",
+	  backgroundColor:  "#6bcbef",
 	},
 	messageContactName: {
 	  display: "flex",
@@ -233,7 +241,7 @@
 	},
 	invertedFabMenu: {
 		border: 'none',
-		borderRadius: 0, // Define o raio da borda para 0 para remover qualquer borda
+		borderRadius: 50, // Define o raio da borda para 0 para remover qualquer borda
 		boxShadow: 'none', // Remove a sombra
 		padding: theme.spacing(1),
 		backgroundColor: 'transparent',
@@ -241,6 +249,9 @@
 		'&:hover': {
 		  backgroundColor: 'transparent',
 		},
+		'&:disabled': {
+			backgroundColor: 'transparent !important' ,
+		  },
 	  },
 	  invertedFabMenuMP: {
 		border: 'none',
@@ -309,7 +320,8 @@
 	const [anchorEl, setAnchorEl] = useState(null);
 	const { setReplyingMessage, replyingMessage } = useContext(ReplyMessageContext);
 	const { user } = useContext(AuthContext);
-	const [signMessagePar] = useLocalStorage("sendSignMessage", true);
+	const [signMessagePar, setSignMessagePar] = useState(false);
+	const { getAll: getAllSettings } = useSettings();
 	const [signMessage, setSignMessage] = useState(true);
 	const [privateMessage, setPrivateMessage] = useState(false);
 	const [senVcardModalOpen, setSenVcardModalOpen] = useState(false);
@@ -327,7 +339,7 @@
 		setShowEmoji(false);
 		setMedias([]);
 		setReplyingMessage(null);
-		setSignMessage(true);
+		//setSignMessage(true);
 		setPrivateMessage(false);
 	  };
 	}, [ticketId, setReplyingMessage]);
@@ -338,10 +350,27 @@
 	  }, 10000);
 	  // eslint-disable-next-line
 	}, [onDragEnter === true]);
+
+	//permitir ativar/desativar firma
+	useEffect(() => {
+	  const fetchSettings = async() =>{
+		const settingList = await getAllSettings();
+		const setting = settingList.find(setting => setting.key === "sendSignMessage");
+            if (setting && setting?.value === "enabled") {
+                setSignMessagePar(true);
+				const signMessageStorage = JSON.parse(localStorage.getItem("persistentSignMessage"));
+				setSignMessage(signMessageStorage);
+            } else {
+				setSignMessagePar(false);
+			}
+	  }
+	  fetchSettings();
+	}, [])
+	
   
-	const capitalizeFirstLetter = (string) => {
-	  return string.charAt(0).toUpperCase() + string.slice(1);
-	}
+	// const capitalizeFirstLetter = (string) => {
+	//   return string.charAt(0).toUpperCase() + string.slice(1);
+	// }
   
 	const handleChangeInput = (e) => {
 	  setInputMessage(e.target.value);
@@ -351,9 +380,25 @@
 		setPrivateMessage(!privateMessage);
 	  };
   
-	const handleQuickAnswersClick = (value) => {
+	const handleQuickAnswersClick = async (value) => {
+		if (value.mediaPath) {
+			 try {
+
+			 const { data } = await axios.get( value.mediaPath, {
+				responseType: "blob",
+			});
+			
+			 handleUploadQuickMessageMedia(data)
+			 setInputMessage("")
+			 return
+			//  handleChangeMedias(response)
+			} catch(err) {
+				toastError(err);
+			}
+		}
+	
 	  setInputMessage("");
-	  setInputMessage(value);
+	  setInputMessage(value.value);
 	  setTypeBar(false);
 	};
   
@@ -380,8 +425,25 @@
 	};
   
 	const handleChangeSign = (e) => {
-		setSignMessage(!signMessage);
+		getStatusSingMessageLocalstogare();
 	};
+
+	const getStatusSingMessageLocalstogare = () => {
+		const signMessageStorage = JSON.parse(localStorage.getItem("persistentSignMessage"));
+		//si existe uma chave "sendSingMessage"
+		if(signMessageStorage !== null){
+			if(signMessageStorage){
+				localStorage.setItem("persistentSignMessage", false);
+				setSignMessage(false);
+			} else {
+				localStorage.setItem("persistentSignMessage", true);
+				setSignMessage(true);
+			}
+		} else {
+			localStorage.setItem("persistentSignMessage", false);
+			setSignMessage(false);
+		}
+	}
 	
 	const handleInputPaste = (e) => {
 	  if (e.clipboardData.files[0]) {
@@ -518,8 +580,10 @@
 			return {
 			value: m.message,
 			label: `/${m.shortcode} - ${truncatedMessage}`,
+			mediaPath: m.mediaPath,
 			};
 		});
+
 		setQuickAnswer(options);
 		}
 		fetchData();
@@ -558,6 +622,25 @@
 
 		 const formData = new FormData();
 		  const filename = `${new Date().getTime()}.png`;
+		  formData.append("medias", blob, filename);
+		  formData.append("body", privateMessage ? `\u200d` : "");
+		  formData.append("fromMe", true);
+	
+		  await api.post(`/messages/${ticketId}`, formData);
+		} catch (err) {
+			toastError(err);
+			setLoading(false);
+		}
+		setLoading(false);
+	};
+
+	const handleUploadQuickMessageMedia = async (blob) => {
+		setLoading(true);
+		try {
+		const extension = blob.type.split("/")[1];
+
+		 const formData = new FormData();
+		  const filename = `${new Date().getTime()}.${extension}`;
 		  formData.append("medias", blob, filename);
 		  formData.append("body", privateMessage ? `\u200d` : "");
 		  formData.append("fromMe", true);
@@ -775,12 +858,17 @@
 				onChange={handleChangeMedias}
 			  />
 			  <label htmlFor="upload-button"> */}
-			<Fab className={classes.invertedFabMenu} onClick={handleOpenMenuClick}>
+			<Fab 
+				disabled={disableOption()}
+				aria-label="uploadMedias"
+				component="span"
+				className={classes.invertedFabMenu} 
+				onClick={handleOpenMenuClick}>
 				<AddIcon />
 			</Fab>
 				<Menu
 					anchorEl={anchorEl}
-					keepMounted
+					keepMounted					
 					open={Boolean(anchorEl)}
 					onClose={handleMenuItemClick}
 					id="simple-menu"
@@ -948,7 +1036,7 @@
 				}
 				multiline
 				maxRows={5}
-				value={capitalizeFirstLetter(inputMessage)}
+				value={inputMessage}
 				onChange={handleChangeInput}
 				disabled={disableOption()}
 				onPaste={(e) => {
@@ -968,9 +1056,9 @@
 					  <li
 						className={classes.messageQuickAnswersWrapperItem}
 						key={index}
-					  >
+					  >						
 						{/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
-						<a onClick={() => handleQuickAnswersClick(value.value)}>
+						<a onClick={() => handleQuickAnswersClick(value)}>
 						  {`${value.label} - ${value.value}`}
 						</a>
 					  </li>

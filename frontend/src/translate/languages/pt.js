@@ -280,6 +280,7 @@ const messages = {
           queueRedirectionDesc:"Selecione uma fila para os contatos que não possuem fila serem redirecionados",
           default: "Padrão",
           group: "Permitir grupos",
+          timeSendQueue: "Tempo para redirecionar para fila",
           importAlert: "ATENÇÃO: Ao salvar, sua conexão será encerrada, será necessário ler novamente o QR Code para importar as mensagens",
           groupAsTicket: "Tratar grupos como ticket",
           timeCreateNewTicket: "Criar novo ticket em x minutos",
@@ -313,6 +314,7 @@ const messages = {
         menuItem: {
           enabled: "Habilitado",
           disabled: "Desabilitado",
+          minutes: "minutos",
         },
         success: "Conexão salvo com sucesso.",
       },
@@ -331,6 +333,7 @@ const messages = {
           exportContact: "Exportar contatos",
           deleteMessage:"Tem certeza que deseja deletar este contato? Todos os atendimentos relacionados serão perdidos.",
           blockContact:"Tem certeza que deseja bloquear este contato?",
+          unblockContact:"Tem certeza que deseja desbloquear este contato?",
           importMessage: "Deseja importar todos os contatos do telefone?",
           importChat:"Importar Conversas",
           wantImport:"Deseja importar todas as conversas do telefone?"
@@ -399,6 +402,8 @@ const messages = {
           name: "Nome",
           color: "Cor",
           orderQueue: "Ordem da fila (Bot)",
+          rotate: "Rodízio",
+          tempoRoteador: "Tempo de Rodízio",
           greetingMessage: "Mensagem de saudação",
           complationMessage: "Mensagem de conclusão",
           outOfHoursMessage: "Mensagem de fora de expediente",
@@ -424,19 +429,21 @@ const messages = {
           selectUser:"Selecione um Usuário",
           selectQueue:"Selecione uma Fila",
           selectIntegration:"Selecione uma Integração",
-          addOptions:"Adiconar opções",
+          addOptions:"Adicionar opções",
         },
         serviceHours:{
           dayWeek:"Dia da semana",
           startTimeA:"Hora Inicial - Turno A",
           endTimeA:"Hora Final - Turno A",
           startTimeB:"Hora Inicial - Turno B",
-          endTimeB:"Hora Inicial - Turno B",
+          endTimeB:"Hora Final - Turno B",
           monday:"Segunda-feira",
           tuesday:"Terça-feira",
           wednesday:"Quarta-feira",
           thursday:"Quinta-feira",
-          friday:"Sexta-feira"
+          friday:"Sexta-feira",
+          saturday:"Sábado",
+          sunday:"Domingo",
         }
       },
       queueIntegrationModal: {
@@ -532,6 +539,8 @@ const messages = {
         title: {
           add: "Nova Tag",
           edit: "Editar Tag",
+          addKanban: "Nova Lane",
+          editKanban: "Editar Lane",
         },
         form: {
           name: "Nome",
@@ -543,6 +552,7 @@ const messages = {
           cancel: "Cancelar",
         },
         success: "Tag salvo com sucesso.",
+        successKanban: "Lane salvo com sucesso.",
       },
       fileModal: {
         title: {
@@ -553,16 +563,16 @@ const messages = {
           okAdd: "Salvar",
           okEdit: "Editar",
           cancel: "Cancelar",
-          options: "Adicionar opção",
+          fileOptions: "Adicionar arquivo",
         },
         form: {
-          name: "Nome",
-          message: "Mensagem da Avaliação",
-          options: "Opções de Avaliação",
-          extraName: "Nome da opção",
+          name: "Nome da lista de arquivos",
+          message: "Detalhes da lista",
+          fileOptions: "Lista de arquivos",
+          extraName: "Mensagem para enviar com arquivo",
           extraValue: "Valor da opção",
         },
-        success: "Avaliação salva com sucesso!",
+        success: "Lista de arquivos salva com sucesso!",
       },
       chat: {
         noTicketMessage: "Selecione um ticket para começar a conversar.",
@@ -590,7 +600,7 @@ const messages = {
       ticketsManager: {
         buttons: {
           newTicket: "Novo",
-          resolvAll: "Resolver Todos",
+          resolveAll: "Resolver Todos",
         },
       },
       ticketsQueueSelect: {
@@ -663,8 +673,8 @@ const messages = {
         assignedHeader: "Atendendo",
         groupingHeader: "Grupos",
         noTicketsTitle: "Nada aqui!",
-        noTicketsMessage:
-          "Nenhum atendimento encontrado com esse status ou termo pesquisado",
+        noTicketsMessage: "Nenhum atendimento encontrado com esse status ou termo pesquisado",
+        noQueue: "Sem Fila",
         buttons: {
           accept: "Aceitar",
           cancel: "Cancelar",
@@ -720,7 +730,8 @@ const messages = {
           chats: "Chat Interno",
           financeiro: "Financeiro",
           queueIntegration: "Integrações",
-          version: "Versión",
+          version: "Versão",
+          kanban: "Kanban"
         },
         appBar: {
           user: {
@@ -795,19 +806,37 @@ const messages = {
       },
       quickMessages: {
         title: "Respostas Rápidas",
+        searchPlaceholder: "Pesquisar...",
+        confirmationModal: {
+          deleteTitle: "Exclusão",
+          deleteMessage: "Esta ação é irreversível! Deseja prosseguir?",  
+        },
         buttons: {
-          add: "Nova Resposta",
+          add: "Adicionar",
+          attach: "Anexar Arquivo",
+          cancel: "Cancelar",
+          edit:"Editar"
+        },
+        toasts: {
+          success: "Atalho adicionado com sucesso!",
+          deleted: "Atalho removido com sucesso!",
         },
         dialog: {
           title:"Mensagem Rápida",
           shortcode: "Atalho",
           message: "Resposta",
-          save:"Salvar"
+          save:"Salvar",
+          cancel:"Cancelar",
+          geral: "Global",
+          add: "Adicionar",
+          edit: "Editar"
         },
         table:{
           shortcode: "Atalho",
           message:"Mensagem",
-          actions:"Ações"
+          actions:"Ações",
+          mediaName:"Nome do Arquivo",
+          status: "Status"
         }
       },
       contactLists: {
@@ -873,6 +902,16 @@ const messages = {
           deleted: "Registro excluído",
         },
       },
+
+      kanban: {
+        title: "Kanban",
+        searchPlaceholder: "Pesquisa",
+        subMenus:{
+          list:"Painel",
+          tags:"Lanes"
+        }
+      },
+
       campaigns: {
         title: "Campanhas",
         searchPlaceholder: "Pesquisa",
@@ -935,6 +974,7 @@ const messages = {
             scheduledAt: "Agendamento",
             confirmation: "Confirmação",
             contactList: "Lista de Contato",
+            tagList:"Tags"
           },
           buttons: {
             add: "Adicionar",
@@ -1205,6 +1245,7 @@ const messages = {
         },
         table: {
           name: "Nome",
+          kanban: "Kanban",
           color: "Cor",
           tickets: "Registros Tags",
           contacts: "Contatos",
@@ -1217,6 +1258,27 @@ const messages = {
           deleted: "Tag excluído com sucesso.",
         },
       },
+
+      tagsKanban: {
+        title: "Lanes",
+        confirmationModal: {
+          deleteTitle: "Você tem certeza que quer excluir esta Lane?",
+          deleteMessage: "Esta ação não pode ser revertida.",
+        },
+        table: {
+          name: "Nome",
+          color: "Cor",
+          tickets: "Tickets",
+          actions: "Ações",
+        },
+        buttons: {
+          add: "Nova Lane",
+        },
+        toasts: {
+          deleted: "Lane excluída com sucesso.",
+        },
+      },
+
       files: {
         title: "Lista de arquivos",
         table: {
@@ -1274,6 +1336,7 @@ const messages = {
             sendMsgTransfTicket:"Enviar mensagem transferência de setor/atendente",
             checkMsgIsGroup:"Ignorar Mensagens de Grupos",
             chatBotType:"Tipo do Bot",
+            userRandom:"Escolher atendente aleatório",
             buttons:"Botões",
             acceptCallWhatsapp:"Informar que não aceita ligação no whatsapp?",
             sendSignMessage:"Permite atendente escolher ENVIAR Assinatura",
@@ -1282,7 +1345,7 @@ const messages = {
             sendFarewellWaitingTicket:"Enviar mensagem de despedida no Aguardando",
             acceptAudioMessageContact:"Aceita receber audio de todos contatos?",
             enableLGPD:"Habilitar tratamento LGPD",
-            mandatoryTag:"Tag obrigatoria"
+            requiredTag:"Tag obrigatoria para fechar ticket"
           },
           LGPD:{
             title:"LGPD",
@@ -1305,6 +1368,7 @@ const messages = {
           dialogRatingSuccess: "Resolver e Enviar Avaliação",
           dialogRatingWithoutFarewellMsg: "Resolver SEM Mensagem de Despedida",
           ratingTitle: "Escolha um menu de avaliação",
+          notMessage:"Nenhuma mensagem selecionada",
           buttons: {
             return: "Retornar",
             resolve: "Resolver",
@@ -1312,11 +1376,12 @@ const messages = {
             accept: "Aceitar",
             rating: "Enviar Avaliação",
             enableIntegration: "Habilitar/desabilitar integração",
+            requiredTag:"Você deve atribuir uma tag antes de fechar o ticket.",
           },
         },
       },
       messagesInput: {
-        placeholderOpen: "Digite uma mensagem",
+        placeholderOpen: "Digite uma mensagem ou aperte / para respostas rápidas",
         placeholderClosed:
           "Reabra ou aceite esse ticket para enviar uma mensagem.",
         signMessage: "Assinar",
@@ -1328,6 +1393,21 @@ const messages = {
           edit: "Editar contato",
         },
         extraInfo: "Outras informações",
+      },
+      messageVariablesPicker: {
+        label: "Variavéis disponíveis",
+        vars: {
+          contactFirstName: "Primeiro Nome",
+          contactName: "Nome",
+          user: "Atendente",
+          greeting: "Saudação",
+          protocolNumber: "Protocolo",
+          date: "Data",
+          hour: "Hora",
+          ticket_id: "Nº do Chamado",
+          queue: "Setor",
+          connection: "Conexão"
+        }
       },
       ticketOptionsMenu: {
         schedule: "Agendamento",

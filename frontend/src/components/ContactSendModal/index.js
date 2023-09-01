@@ -60,8 +60,9 @@ const ContactSendModal = ({ modalOpen, onClose }) => {
       const fetchContacts = async () => {
         try {
           const { data } = await api.get("contacts", {
-            params: { searchParam, channel: "whatsapp" },
+            params: { searchParam, channel: "whatsapp", isGroup: "false" },
           });
+
           setOptions(data.contacts);
           setLoading(false);
         } catch (err) {

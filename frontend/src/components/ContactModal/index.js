@@ -22,6 +22,7 @@ import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
+import { TagsContainer } from "../TagsContainer";
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -187,7 +188,9 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 										variant="outlined"
 									/>
 								</div>
-
+								<div>
+									<TagsContainer contact={contact} className={classes.textField} />
+								</div>
 								<Typography
 									style={{ marginBottom: 8, marginTop: 12 }}
 									variant="subtitle1"
@@ -199,7 +202,6 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 											setContact({ ...contact, disableBot: !contact.disableBot })
 										}
 										name="disableBot"
-										checked={values.disableBot}
 									/>
 									{i18n.t("contactModal.form.chatBotContact")}
 								</Typography>

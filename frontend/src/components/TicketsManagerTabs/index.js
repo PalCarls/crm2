@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
 import SearchIcon from "@material-ui/icons/Search";
-import { Group } from "@material-ui/icons";
+import { Add, ClearAllRounded, DoneAll, Facebook, Group, Instagram, OfflineBolt, WhatsApp } from "@material-ui/icons";
 import InputBase from "@material-ui/core/InputBase";
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
@@ -30,12 +30,14 @@ import { i18n } from "../../translate/i18n";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { Can } from "../Can";
 import TicketsQueueSelect from "../TicketsQueueSelect";
-import { Button } from "@material-ui/core";
+
 import { TagsFilter } from "../TagsFilter";
 import { UsersFilter } from "../UsersFilter";
 import { StatusFilter } from "../StatusFilter";
 import { WhatsappsFilter } from "../WhatsappsFilter";
 import api from "../../services/api";
+import { Button, Snackbar } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction } from "@mui/material";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -64,6 +66,40 @@ const useStyles = makeStyles((theme) => ({
   tab: {
     minWidth: 120,
     width: 120,
+  },
+
+  snackbar: {
+    backgroundColor: theme.palette.primary.main,
+    color: 'white',
+    borderRadius: 30,
+  },
+
+  yesButton: {
+    backgroundColor: '#FFF',
+    color: 'rgba(0, 100, 0, 1)',
+    padding: '4px 4px',
+    fontSize: '1em',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    marginRight: theme.spacing(1),
+    '&:hover': {
+      backgroundColor: 'darkGreen',
+      color: '#FFF',
+    },
+    borderRadius: 30,
+  },
+  noButton: {
+    backgroundColor: '#FFF',
+    color: 'rgba(139, 0, 0, 1)',
+    padding: '4px 4px',
+    fontSize: '1em',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    '&:hover': {
+      backgroundColor: 'darkRed',
+      color: '#FFF',
+    },
+    borderRadius: 30,
   },
 
   tabPanelItem: {
@@ -121,9 +157,15 @@ const useStyles = makeStyles((theme) => ({
   hide: {
     display: "none !important",
   },
+
+  speedDial: {
+    position: 'absolute',
+    bottom: theme.spacing(1),
+    right: theme.spacing(1),
+  },
 }));
 
-const TicketsManagerTabs = () => {
+const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -148,7 +190,10 @@ const TicketsManagerTabs = () => {
   const [forceSearch, setForceSearch] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState([]);
   const [filter, setFilter] = useState(false);
-  
+  const [open, setOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
   useEffect(() => {
     if (user.profile.toUpperCase() === "ADMIN" ) {
       setShowAllTickets(true);
@@ -156,6 +201,11 @@ const TicketsManagerTabs = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    setSelectedQueuesMessage(selectedQueueIds);
+
+  }, [selectedQueueIds]);
+    
   useEffect(() => {
     if (tab === "search") {
       searchInputRef.current.focus();
@@ -190,6 +240,14 @@ const TicketsManagerTabs = () => {
     history.push("/tickets");
   };
 
+  const handleSnackbarOpen = () => {
+    setSnackbarOpen(true);
+  };
+  
+  const handleSnackbarClose = () => {
+    setSnackbarOpen(false);
+  };
+
   const handleChangeTab = (e, newValue) => {
     setTab(newValue);
   };
@@ -212,10 +270,28 @@ const TicketsManagerTabs = () => {
   const CloseAllTicket = async () => {
     try {
       const { data } = await api.post("/tickets/closeAll", { status: tabOpen });
+      handleSnackbarClose();
     } catch (err) {
       console.log("Error: ", err);
     }
-  }
+  };
+
+  
+  const handleVisibility = () => {
+    setHidden((prevHidden) => !prevHidden);
+  };
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClosed = () => {
+    setOpen(false);
+  };
+
+  const tooltipTitleStyle = {
+    fontSize: '10px'
+  };
 
   const handleCloseOrOpenTicket = (ticket) => {
     setNewTicketModalOpen(false);
@@ -275,7 +351,7 @@ const TicketsManagerTabs = () => {
     
   };
 
-  const handleSelectedStatus = (selecteds) => {
+    const handleSelectedStatus = (selecteds) => {
 
     const statusFilter = selecteds.map((t) => t.status);
 
@@ -311,6 +387,24 @@ const TicketsManagerTabs = () => {
       variant="outlined"
       className={classes.ticketsWrapper}
     >
+      <Snackbar
+        open={snackbarOpen}
+        onClose={handleSnackbarClose}
+        message="VOCÊ DESEJA FECHAR TODOS OS TICKETS?"
+        ContentProps={{
+          className: classes.snackbar,
+        }}
+        action={
+          <>
+            <Button className={classes.yesButton} size="small" onClick={CloseAllTicket}>
+              SIM
+            </Button>
+            <Button className={classes.noButton} size="small" onClick={handleSnackbarClose}>
+              NÃO
+            </Button>
+          </>
+        }
+      />
       <NewTicketModal
         modalOpen={newTicketModalOpen}
         onClose={(ticket) => {
@@ -379,30 +473,7 @@ const TicketsManagerTabs = () => {
       </Paper>
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
           <>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => setNewTicketModalOpen(true)}
-            >
-              {i18n.t("ticketsManager.buttons.newTicket")}
-            </Button>
-            <Can
-              role={user.profile}
-              perform="tickets-manager:closeAll"
-              yes={() => (
-                <>
-                  <Button
-                    // className={classes.buttons}
-                    // style={{ border: "1px solid", marginLeft: "0px", marginRight: "0px", fontSize: "0.8em" }}
-                    variant="outlined"
-                    color="primary"
-                    onClick={async () => await CloseAllTicket()}
-                  >
-                    {i18n.t("ticketsManager.buttons.resolvAll")}
-                  </Button>
-                </>
-              )}
-            />
+           
             <Can
               role={user.profile}
               perform="tickets-manager:showall"
@@ -424,12 +495,47 @@ const TicketsManagerTabs = () => {
                 />
               )}
             />
+            <SpeedDial
+              ariaLabel="Menu Actions"
+              className={classes.speedDial}
+              hidden={hidden}
+              size="small"
+              icon={<OfflineBolt />}
+              onClose={handleClosed}
+              onOpen={handleOpen}
+              open={open}
+            >
+            {user.profile === 'admin' && (
+              <SpeedDialAction
+                icon={<DoneAll style={{ color: 'green' }} />}
+                className={classes.closeAllFab}
+                tooltipTitle={<span style={tooltipTitleStyle}>Fechar&nbsp;Todos</span>}
+                tooltipOpen
+                onClick={ (event) => {
+                  handleClosed();
+                  handleSnackbarOpen();
+                }}
+              />
+            )}
+            <SpeedDialAction
+              icon={<Add style={{ color: '#25D366' }} />}
+              tooltipTitle={<span style={tooltipTitleStyle}>Novo&nbsp;ticket</span>}
+              tooltipOpen
+              onClick={() => {
+                handleClosed();
+                setNewTicketModalOpen(true);
+              }}
+            />
+          </SpeedDial>  
           </>
         <TicketsQueueSelect
           style={{ marginLeft: 6 }}
           selectedQueueIds={selectedQueueIds}
           userQueues={user?.queues}
-          onChange={(values) => setSelectedQueueIds(values)}
+          onChange={(values) => {
+            setSelectedQueueIds(values);                       
+            history.push("/tickets");
+          }}
         />
       </Paper>
       <TabPanel

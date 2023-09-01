@@ -41,9 +41,9 @@ function SchedulesForm(props) {
     { weekday: i18n.t("queueModal.serviceHours.tuesday"), weekdayEn: "tuesday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
     { weekday: i18n.t("queueModal.serviceHours.wednesday"), weekdayEn: "wednesday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
     { weekday: i18n.t("queueModal.serviceHours.thursday"), weekdayEn: "thursday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
-    { weekday: i18n.t("queueModal.serviceHours.frinday"), weekdayEn: "friday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
-    { weekday: "Sábado", weekdayEn: "saturday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
-    { weekday: "Domingo", weekdayEn: "sunday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
+    { weekday: i18n.t("queueModal.serviceHours.friday"), weekdayEn: "friday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
+    { weekday: i18n.t("queueModal.serviceHours.saturday"), weekdayEn: "saturday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
+    { weekday: i18n.t("queueModal.serviceHours.sunday"), weekdayEn: "sunday", startTimeA: "", endTimeA: "", startTimeB: "", endTimeB: "", },
   ]);
 
   useEffect(() => {
@@ -109,7 +109,7 @@ function SchedulesForm(props) {
                         </Grid>
                         <Grid className={classes.control} xs={12} md={6} item>
                           <FastField
-                            label={i18n.t("queueModal.serviceHours.startTimeA")}
+                            label={i18n.t("queueModal.serviceHours.endTimeA")}
                             name={`schedules[${index}].endTimeA`}
                           >
                             {({ field }) => (
@@ -120,7 +120,7 @@ function SchedulesForm(props) {
                                 customInput={TextField}
                                 format="##:##"
                                 className={classes.fullWidth}
-                                label={i18n.t("queueModal.serviceHours.startTimeA")}
+                                label={i18n.t("queueModal.serviceHours.endTimeA")}
                               />
                             )}
                           </FastField>

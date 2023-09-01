@@ -40,38 +40,38 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 const reducer = (state, action) => {
     if (action.type === "LOAD_FILES") {
         const files = action.payload;
-        const newRatings = [];
+        const newFiles = [];
 
-        files.forEach((rating) => {
-            const ratingIndex = state.findIndex((s) => s.id === rating.id);
-            if (ratingIndex !== -1) {
-                state[ratingIndex] = rating;
+        files.forEach((fileList) => {
+            const fileListIndex = state.findIndex((s) => s.id === fileList.id);
+            if (fileListIndex !== -1) {
+                state[fileListIndex] = fileList;
             } else {
-                newRatings.push(rating);
+                newFiles.push(fileList);
             }
         });
 
-        return [...state, ...newRatings];
+        return [...state, ...newFiles];
     }
 
     if (action.type === "UPDATE_FILES") {
-        const rating = action.payload;
-        const ratingIndex = state.findIndex((s) => s.id === rating.id);
+        const fileList = action.payload;
+        const fileListIndex = state.findIndex((s) => s.id === fileList.id);
 
-        if (ratingIndex !== -1) {
-            state[ratingIndex] = rating;
+        if (fileListIndex !== -1) {
+            state[fileListIndex] = fileList;
             return [...state];
         } else {
-            return [rating, ...state];
+            return [fileList, ...state];
         }
     }
 
     if (action.type === "DELETE_TAG") {
-        const ratingId = action.payload;
+        const fileListId = action.payload;
 
-        const ratingIndex = state.findIndex((s) => s.id === ratingId);
-        if (ratingIndex !== -1) {
-            state.splice(ratingIndex, 1);
+        const fileListIndex = state.findIndex((s) => s.id === fileListId);
+        if (fileListIndex !== -1) {
+            state.splice(fileListIndex, 1);
         }
         return [...state];
     }
@@ -90,7 +90,7 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-const Ratings = () => {
+const FileLists = () => {
     const classes = useStyles();
 
     const { user } = useContext(AuthContext);
@@ -98,14 +98,14 @@ const Ratings = () => {
     const [loading, setLoading] = useState(false);
     const [pageNumber, setPageNumber] = useState(1);
     const [hasMore, setHasMore] = useState(false);
-    const [selectedRating, setSelectedRating] = useState(null);
-    const [deletingRating, setDeletingRating] = useState(null);
+    const [selectedFileList, setSelectedFileList] = useState(null);
+    const [deletingFileList, setDeletingFileList] = useState(null);
     const [confirmModalOpen, setConfirmModalOpen] = useState(false);
     const [searchParam, setSearchParam] = useState("");
     const [files, dispatch] = useReducer(reducer, []);
-    const [ratingModalOpen, setRatingModalOpen] = useState(false);
+    const [fileListModalOpen, setFileListModalOpen] = useState(false);
 
-    const fetchRatings = useCallback(async () => {
+    const fetchFileLists = useCallback(async () => {
         try {
             const { data } = await api.get("/files/", {
                 params: { searchParam, pageNumber },
@@ -126,15 +126,15 @@ const Ratings = () => {
     useEffect(() => {
         setLoading(true);
         const delayDebounceFn = setTimeout(() => {
-            fetchRatings();
+            fetchFileLists();
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchParam, pageNumber, fetchRatings]);
+    }, [searchParam, pageNumber, fetchFileLists]);
 
     useEffect(() => {
         const socket = socketConnection({ companyId: user.companyId });
 
-        socket.on("user", (data) => {
+        socket.on(`company-${user.companyId}-file`, (data) => {
             if (data.action === "update" || data.action === "create") {
                 dispatch({ type: "UPDATE_FILES", payload: data.files });
             }
@@ -149,39 +149,39 @@ const Ratings = () => {
         };
     }, [user]);
 
-    const handleOpenRatingModal = () => {
-        setSelectedRating(null);
-        setRatingModalOpen(true);
+    const handleOpenFileListModal = () => {
+        setSelectedFileList(null);
+        setFileListModalOpen(true);
     };
 
-    const handleCloseRatingModal = () => {
-        setSelectedRating(null);
-        setRatingModalOpen(false);
+    const handleCloseFileListModal = () => {
+        setSelectedFileList(null);
+        setFileListModalOpen(false);
     };
 
     const handleSearch = (event) => {
         setSearchParam(event.target.value.toLowerCase());
     };
 
-    const handleEditRating = (rating) => {
-        setSelectedRating(rating);
-        setRatingModalOpen(true);
+    const handleEditFileList = (fileList) => {
+        setSelectedFileList(fileList);
+        setFileListModalOpen(true);
     };
 
-    const handleDeleteRating = async (ratingId) => {
+    const handleDeleteFileList = async (fileListId) => {
         try {
-            await api.delete(`/files/${ratingId}`);
+            await api.delete(`/files/${fileListId}`);
             toast.success(i18n.t("files.toasts.deleted"));
         } catch (err) {
             toastError(err);
         }
-        setDeletingRating(null);
+        setDeletingFileList(null);
         setSearchParam("");
         setPageNumber(1);
 
         dispatch({ type: "RESET" });
         setPageNumber(1);
-        await fetchRatings();
+        await fetchFileLists();
     };
 
     const loadMore = () => {
@@ -199,19 +199,19 @@ const Ratings = () => {
     return (
         <MainContainer>
             <ConfirmationModal
-                title={deletingRating && `${i18n.t("files.confirmationModal.deleteTitle")}`}
+                title={deletingFileList && `${i18n.t("files.confirmationModal.deleteTitle")}`}
                 open={confirmModalOpen}
                 onClose={setConfirmModalOpen}
-                onConfirm={() => handleDeleteRating(deletingRating.id)}
+                onConfirm={() => handleDeleteFileList(deletingFileList.id)}
             >
                 {i18n.t("files.confirmationModal.deleteMessage")}
             </ConfirmationModal>
             <FileModal
-                open={ratingModalOpen}
-                onClose={handleCloseRatingModal}
-                reload={fetchRatings}
+                open={fileListModalOpen}
+                onClose={handleCloseFileListModal}
+                reload={fetchFileLists}
                 aria-labelledby="form-dialog-title"
-                ratingId={selectedRating && selectedRating.id}
+                fileListId={selectedFileList && selectedFileList.id}
             />
             <MainHeader>
                 <Title>{i18n.t("files.title")} ({files.length})</Title>
@@ -232,7 +232,7 @@ const Ratings = () => {
                     <Button
                         variant="contained"
                         color="primary"
-                        onClick={handleOpenRatingModal}
+                        onClick={handleOpenFileListModal}
                     >
                         {i18n.t("files.buttons.add")}
                     </Button>
@@ -254,13 +254,13 @@ const Ratings = () => {
                     </TableHead>
                     <TableBody>
                         <>
-                            {files.map((rating) => (
-                                <TableRow key={rating.id}>
+                            {files.map((fileList) => (
+                                <TableRow key={fileList.id}>
                                     <TableCell align="center">
-                                        {rating.name}
+                                        {fileList.name}
                                     </TableCell>
                                     <TableCell align="center">
-                                        <IconButton size="small" onClick={() => handleEditRating(rating)}>
+                                        <IconButton size="small" onClick={() => handleEditFileList(fileList)}>
                                             <EditIcon />
                                         </IconButton>
 
@@ -268,7 +268,7 @@ const Ratings = () => {
                                             size="small"
                                             onClick={(e) => {
                                                 setConfirmModalOpen(true);
-                                                setDeletingRating(rating);
+                                                setDeletingFileList(fileList);
                                             }}
                                         >
                                             <DeleteOutlineIcon />
@@ -285,4 +285,4 @@ const Ratings = () => {
     );
 };
 
-export default Ratings;
+export default FileLists;

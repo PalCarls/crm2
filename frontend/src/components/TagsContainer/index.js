@@ -40,7 +40,9 @@ export function TagsContainer({ contact }) {
 
     const loadTags = async () => {
         try {
-            const { data } = await api.get(`/tags/list`);
+            const { data } = await api.get(`/tags/list`, 
+            {params: { kanban: 0}
+        });
             setTags(data);
         } catch (err) {
             toastError(err);
@@ -61,8 +63,12 @@ export function TagsContainer({ contact }) {
         if (reason === 'create-option') {
             if (isArray(value)) {
                 for (let item of value) {
+                    if (item.length < 3) {
+                        toastError("Tag muito curta!");
+                        return;
+                    }
                     if (isString(item)) {
-                        const newTag = await createTag({ name: item })
+                        const newTag = await createTag({ name: item, kanban: 0, color: getRandomHexColor() })
                         optionsChanged.push(newTag);
                     } else {
                         optionsChanged.push(item);
@@ -75,6 +81,18 @@ export function TagsContainer({ contact }) {
         }
         setSelecteds(optionsChanged);
         await syncTags({ contactId: contact.id, tags: optionsChanged });
+    }
+
+    function getRandomHexColor() {
+        // Gerar valores aleatórios para os componentes de cor
+        const red = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+        const green = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+        const blue = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+      
+        // Converter os componentes de cor em uma cor hexadecimal
+        const hexColor = `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+      
+        return hexColor;
     }
 
     return (

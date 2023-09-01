@@ -42,6 +42,9 @@ import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
 import TransferTicketModalCustom from "../TransferTicketModalCustom";
 import ShowTicketOpen from "../ShowTicketOpenModal";
 import { isNil } from "lodash";
+import useSettings from "../../hooks/useSettings";
+import { toast } from "react-toastify";
+import { Done, HighlightOff, Replay, SwapHoriz, ThumbDown } from "@material-ui/icons";
 
 // import contrastColor from "../../helpers/contrastColor";
 
@@ -120,6 +123,15 @@ const useStyles = makeStyles((theme) => ({
         top: -30
     },
 
+    lastMessageTimeUnread: {
+        justifySelf: "flex-end",
+        textAlign: "right",
+        position: "relative",
+        top: -30,
+        color: "green",
+        fontWeight: "bold",
+    },
+
     closedBadge: {
         alignSelf: "center",
         justifySelf: "flex-end",
@@ -135,7 +147,7 @@ const useStyles = makeStyles((theme) => ({
     contactLastMessageUnread: {
         paddingRight: 20,
         fontWeight: "bold",
-        color: "black",
+        color: theme.mode === 'light'? "black" : "white",
         width: "50%"
     },
 
@@ -207,8 +219,8 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [ticketUser, setTicketUser] = useState(null);
-    const [ticketQueueName, setTicketQueueName] = useState(null);
-    const [ticketQueueColor, setTicketQueueColor] = useState(null);
+    // const [ticketQueueName, setTicketQueueName] = useState(null);
+    // const [ticketQueueColor, setTicketQueueColor] = useState(null);
     const [tag, setTag] = useState([]);
     
     const [whatsAppName, setWhatsAppName] = useState(null);
@@ -227,22 +239,36 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     
     const { profile } = user;
 
+    const { getAll: getAllSettings } = useSettings();
+    
     useEffect(() => {
-        async function fetchData() {
-
-           if (ticket.userId && ticket.user) {
-                setTicketUser(ticket.user?.name.toUpperCase());
-            }
-            else { setTicketUser(" ")}
-            setTicketQueueName(ticket.queue?.name.toUpperCase());
-            setTicketQueueColor(ticket.queue?.color);
-
-            return () => {
-                isMounted.current = false;
-            };
+        if (ticket.userId && ticket.user) {
+          setTicketUser(ticket.user.name.toUpperCase());
         }
-        fetchData();
-    }, [ticketId, user, history, ticket.queue, ticket.user, ticket.status]);
+        // setTicketQueueName(ticket.queue?.name.toUpperCase());
+        // setTicketQueueColor(ticket.queue?.color);
+        
+        return () => {
+          isMounted.current = false;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, []);
+    // useEffect(() => {
+    //     async function fetchData() {
+
+    //        if (ticket.userId && ticket.user) {
+    //             setTicketUser(ticket.user?.name.toUpperCase());
+    //         }
+    //         else { setTicketUser(" ")}
+    //         setTicketQueueName(ticket.queue?.name.toUpperCase());
+    //         setTicketQueueColor(ticket.queue?.color);
+
+    //         return () => {
+    //             isMounted.current = false;
+    //         };
+    //     }
+    //     fetchData();
+    // }, [ticketId, user, history, ticket.queue, ticket.user, ticket.status]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -274,21 +300,47 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
 	};
 
     const handleCloseTicket = async (id) => {
-        setLoading(true);
-        try {
-            await api.put(`/tickets/${id}`, {
-                status: "closed",
-                userId: user?.id || null,                
-            });
+        const settingList = await getAllSettings();
+        const requiredTag = settingList.find(setting => setting.key === "requiredTag");
+        if(requiredTag && requiredTag?.value === "enabled"){
+            //verificar se tem uma tag   
+            try {
+                const contactTags =  await api.get(`/contactTags/${ticket.contact.id}`);
+                if(!contactTags.data.tags){
+                    toast.warning(i18n.t("messagesList.header.buttons.requiredTag"))
+                } else {
+                    await api.put(`/tickets/${id}`, {
+                        status: "closed",
+                        userId: user?.id || null,                
+                    });
+                   
+                    if (isMounted.current) {
+                        setLoading(false);
+                    }
+                    history.push(`/tickets/`);
+                }
+            } catch (err) {
+                setLoading(false);
+                toastError(err);
+            }   
+        } else {
+            setLoading(true);
+            try {
+                await api.put(`/tickets/${id}`, {
+                    status: "closed",
+                    userId: user?.id || null,                
+                });
 
-        } catch (err) {
-            setLoading(false);
-            toastError(err);
+            } catch (err) {
+                setLoading(false);
+                toastError(err);
+            }
+            if (isMounted.current) {
+                setLoading(false);
+            }
+            history.push(`/tickets/`);
         }
-        if (isMounted.current) {
-            setLoading(false);
-        }
-        history.push(`/tickets/`);
+        
     };
 
     const handleCloseIgnoreTicket = async (id) => {
@@ -393,7 +445,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         
                 // handleChangeTab(null, "tickets");
                 handleChangeTab(null, ticket.isGroup? "group" : "open");
-                history.push(`/tickets/${ticket.uuid}`);
+                history.push(`/tickets/${ticket.uuid}`);                
             }
         } catch (err) {
             setLoading(false);
@@ -407,12 +459,12 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     };
 
     const handleSendMessage = async (id) => {
-        const msg = `{{ms}} *{{name}}*, meu nome é *${user?.name}* e darei continuidade em seu atendimento.`;
+        const msg = `{{ms}} *{{name}}*, ${i18n.t("mainDrawer.appBar.user.myName")} *${user?.name}* ${i18n.t("mainDrawer.appBar.user.continuity")}.`;
         const message = {
             read: 1,
             fromMe: true,
             mediaUrl: "",
-            body: `*Assistente Virtual:*\n${msg.trim()}`,
+            body: `*${i18n.t("mainDrawer.appBar.user.virtualAssistant")}:*\n${msg.trim()}`,
         };
         try {
             await api.post(`/messages/${id}`, message);
@@ -436,7 +488,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         if (ticketUser) {
             return (
                 <>
-                    {ticket.chatbot && (
+                    {!ticket.isBot && (
                         <Tooltip title="Chatbot">
                             <AndroidIcon
                                 fontSize="small"
@@ -451,7 +503,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         } else {
             return (
                 <>
-                    {ticket.chatbot && (
+                    {ticket.isBot && (
                         <Tooltip title="Chatbot">
                             <AndroidIcon
                                 fontSize="small"
@@ -510,11 +562,12 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 >
                     <Avatar
                         style={{
-                            width: "70px",
-                            height: "70px",
-                            borderRadius: "10%",
+                            width: "50px",
+                            height: "50px",
+                            borderRadius: "50%",
                         }}
-                        src={ticket?.contact?.profilePicUrl}
+                        src={`${ticket?.contact?.urlPicture}`}
+                        
                     />
                 </ListItemAvatar>
                 <ListItemText
@@ -545,9 +598,9 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                     </Tooltip> */}
                                 {/* )} */}
                             </Typography>
-                            <ListItemSecondaryAction>
+                            {/* <ListItemSecondaryAction>
                                 <Box className={classes.ticketInfo1}>{renderTicketInfo()}</Box>
-                            </ListItemSecondaryAction>
+                            </ListItemSecondaryAction> */}
                         </span>
                     }
                     secondary={
@@ -576,8 +629,8 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                     )}
                                 <span className={classes.secondaryContentSecond} >
                                     {whatsAppName ? <Badge className={classes.connectionTag}>{whatsAppName}</Badge> : <br></br>}
-                                    <Badge style={{ backgroundColor: ticketQueueColor || "#7c7c7c" }} className={classes.connectionTag}>{ticketQueueName || "SEM FILA"}</Badge>
-                                    {ticketUser ? <Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticketUser}</Badge> : <br></br>}
+                                    {<Badge style={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queue?.name.toUpperCase() || "SEM FILA"}</Badge>}
+                                    {ticketUser  && (<Badge style={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticketUser}</Badge> )}
                                 </span>
                                 <span className={classes.secondaryContentSecond} >
                                     {
@@ -606,7 +659,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                         <>
 
                             <Typography
-                                className={classes.lastMessageTime}
+                                className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
                                 component="span"
                                 variant="body2"
                                 color="textSecondary"
@@ -628,97 +681,105 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 <ListItemSecondaryAction>
                     <span className={classes.secondaryContentSecond}>
                         {(ticket.status === "pending"  && (ticket.queueId === null || ticket.queueId === undefined)) && (
-                            <ButtonWithSpinner
-                                //color="primary"
-                                style={{ backgroundColor: 'green', color: 'white', padding: '0px', borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-11px', width: '12px' }}
-                                variant="contained"
-                                className={classes.acceptButton}
-                                size="small"
-                                loading={loading}
-                                onClick={e => handleOpenAcceptTicketWithouSelectQueue()}
-                            >
-                                {i18n.t("ticketsList.buttons.accept")}
-                            </ButtonWithSpinner>
-                            
-
+                                <ButtonWithSpinner
+                                    //color="primary"
+                                    style={{  backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'green', padding: '0px',  borderRadius: "50%", right: '51px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
+                                    variant="contained"
+                                    className={classes.acceptButton}
+                                    size="small"
+                                    loading={loading}
+                                    onClick={e => handleOpenAcceptTicketWithouSelectQueue()}
+                                >
+                                <Tooltip title={`${i18n.t("ticketsList.buttons.accept")}`}>
+                                    <Done />
+                                </Tooltip>
+                                </ButtonWithSpinner>
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "pending" && ticket.queueId !== null) && (
-                            <ButtonWithSpinner
-                                //color="primary"
-                                style={{ backgroundColor: 'green', color: 'white', padding: '0px',  borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-11px', width: '12px' }}
-                                variant="contained"
-                                className={classes.acceptButton}
-                                size="small"
-                                loading={loading}
-                                onClick={e => handleAcepptTicket(ticket.id, handleChangeTab)}
-                            >
-                                {i18n.t("ticketsList.buttons.accept")}
-                            </ButtonWithSpinner>
-
+                                <ButtonWithSpinner
+                                    //color="primary"
+                                    style={{  backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'green', padding: '0px',  borderRadius: "50%", right: '51px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
+                                    variant="contained"
+                                    className={classes.acceptButton}
+                                    size="small"
+                                    loading={loading}
+                                    onClick={e => handleAcepptTicket(ticket.id, handleChangeTab)}
+                                >
+                                <Tooltip title={`${i18n.t("ticketsList.buttons.accept")}`}>
+                                    <Done />
+                                </Tooltip>
+                                </ButtonWithSpinner>
                         )}
                     </span>
-                    <span className={classes.secondaryContentSecond} >
-                         {(ticket.status === "pending" ) && (
+                    <span className={classes.secondaryContentSecond1} >
+                         {(ticket.status === "pending" || ticket.status === "open" || ticket.status === "group") && (
                             <ButtonWithSpinner
                                 //color="primary"
-                                style={{ backgroundColor: 'purple', color: 'white', padding: '0px', borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '7px', width: '12px' }}
+                                style={{ backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'purple', padding: '0px', borderRadius: "50%", right: '26px', position: 'absolute', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
                                 variant="contained"
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
                                 onClick={handleOpenTransferModal}
                             >
-                                {i18n.t("ticketsList.buttons.transfer")}
+                                {/* {i18n.t("ticketsList.buttons.transfer")} */}
+                                <Tooltip title={`${i18n.t("ticketsList.buttons.transfer")}`}>
+                                    <SwapHoriz/>
+                                </Tooltip>
                             </ButtonWithSpinner>
-
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "open" || ticket.status === "group") && (
                             <ButtonWithSpinner
                                 //color="primary"
-                                style={{ backgroundColor: 'red', color: 'white', padding: '0px', bottom: '0px', borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-30px', width: '12px'}}
+                                style={{ backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'red', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
                                 variant="contained"
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
                                 onClick={e => handleCloseTicket(ticket.id)}
                             >
-                                {i18n.t("ticketsList.buttons.closed")}
+                                <Tooltip title={`${i18n.t("ticketsList.buttons.closed")}`}>
+                                    <HighlightOff />
+                                    {/*  */}
+                                </Tooltip>
                             </ButtonWithSpinner>
-
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "pending") && (
                             <ButtonWithSpinner
                                 //color="primary"
-                                style={{ backgroundColor: 'red', color: 'white', padding: '0px', bottom: '0px', borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-30px', width: '12px'}}
+                                style={{ backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'red', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
                                 variant="contained"
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
                                 onClick={e => handleCloseIgnoreTicket(ticket.id)}
                             >
-                                {i18n.t("ticketsList.buttons.ignore")}
+                            <Tooltip title={`${i18n.t("ticketsList.buttons.ignore")}`}>
+                                <HighlightOff />
+                            </Tooltip>  
                             </ButtonWithSpinner>
-
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
                         {(ticket.status === "closed" && (ticket.queueId === null || ticket.queueId=== undefined) ) && (
                             <ButtonWithSpinner
                                 //color="primary"
-                                style={{ backgroundColor: 'red', color: 'white', padding: '0px', borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-30px', width: '12px' }}
+                                style={{ backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'orange', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
                                 variant="contained"
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
                                 onClick={e => handleOpenAcceptTicketWithouSelectQueue()}
                             >
-                                {i18n.t("ticketsList.buttons.reopen")}
+                            <Tooltip title={`${i18n.t("ticketsList.buttons.reopen")}`}>
+                                <Replay />
+                            </Tooltip>
                             </ButtonWithSpinner>
 
                         )}
@@ -727,14 +788,16 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                         {(ticket.status === "closed" && ticket.queueId !== null ) && (
                             <ButtonWithSpinner
                                 //color="primary"
-                                style={{ backgroundColor: 'red', color: 'white', padding: '0px',  borderRadius: "10%", right: '1px', fontSize: '0.6rem', bottom: '-30px', width: '12px' }}
+                                style={{ backgroundColor: 'transparent',boxShadow: 'none', border: 'none', color: 'orange', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}
                                 variant="contained"
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
                                 onClick={e => handleAcepptTicket(ticket.id, handleChangeTab)}
                             >
-                                {i18n.t("ticketsList.buttons.reopen")}
+                            <Tooltip title={`${i18n.t("ticketsList.buttons.reopen")}`}>
+                                <Replay />
+                            </Tooltip>
                             </ButtonWithSpinner>
 
                         )}

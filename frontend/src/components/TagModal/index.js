@@ -21,7 +21,7 @@ import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import { IconButton, InputAdornment } from "@material-ui/core";
+import { Checkbox, FormControlLabel, IconButton, InputAdornment } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -63,14 +63,14 @@ const TagSchema = Yup.object().shape({
 		.required("Obrigatório")
 });
 
-const TagModal = ({ open, onClose, tagId, reload }) => {
+const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 	const classes = useStyles();
 	const { user } = useContext(AuthContext);
 	const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
 
 	const initialState = {
 		name: "",
-		color: ""
+		color: "",
 	};
 
 	const [tag, setTag] = useState(initialState);
@@ -84,6 +84,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 				setTag(prevState => {
 					return { ...prevState, ...data };
 				});
+				
 			})()
 		} catch (err) {
 			toastError(err);
@@ -97,14 +98,14 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 	};
 
 	const handleSaveTag = async values => {
-		const tagData = { ...values, userId: user.id };
+		const tagData = { ...values, userId: user.id, kanban };
 		try {
 			if (tagId) {
 				await api.put(`/tags/${tagId}`, tagData);
 			} else {
 				await api.post("/tags", tagData);
 			}
-			toast.success(i18n.t("tagModal.success"));
+			toast.success(kanban === 0 ? `${i18n.t("tagModal.title.success")}`: `${i18n.t("tagModal.title.successKanban")}`);
 			if (typeof reload == 'function') {
 				reload();
 			}
@@ -113,7 +114,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 		}
 		handleClose();
 	};
-
+	
 	return (
 		<div className={classes.root}>
 			<Dialog
@@ -124,7 +125,8 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 				scroll="paper"
 			>
 				<DialogTitle id="form-dialog-title">
-					{ (tagId ? `${i18n.t("tagModal.title.edit")}` : `${i18n.t("tagModal.title.add")}`) }
+					{ (tagId ? (kanban === 0 ? `${i18n.t("tagModal.title.edit")}`: `${i18n.t("tagModal.title.editKanban")}`) : 
+							   (kanban === 0 ? `${i18n.t("tagModal.title.add")}`: `${i18n.t("tagModal.title.addKanban")}`)) }
 				</DialogTitle>
 				<Formik
 					initialValues={tag}
@@ -186,7 +188,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 										margin="dense"
 									/>
 								</div>
-
+								
 								{ colorPickerModalOpen && (
 									<div>
 										<ColorBox
@@ -200,6 +202,7 @@ const TagModal = ({ open, onClose, tagId, reload }) => {
 										/>
 									</div>
 								)}
+								
 							</DialogContent>
 							<DialogActions>
 								<Button

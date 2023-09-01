@@ -110,7 +110,7 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
 
       if (selectedUser) {
         data.userId = selectedUser.id;
-        data.status = "open";
+        data.status = ticket.isGroup ? "group" : "open";
       }
 
       if (selectedQueue && selectedQueue !== null) {
