@@ -140,8 +140,9 @@ const Tags = () => {
     const socket = socketConnection({ companyId: user.companyId });
 
     socket.on(`company${user.companyId}-tag`, (data) => {
+      console.log(data)
       if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_TAGS", payload: data.tags });
+        dispatch({ type: "UPDATE_TAGS", payload: data.tag });
       }
 
       if (data.action === "delete") {

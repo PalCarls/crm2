@@ -109,7 +109,7 @@ const Tags = () => {
 
   const fetchTags = useCallback(async () => {
     try {
-      const { data } = await api.get("/tags", {
+      const { data } = await api.get("/tags/", {
         params: { searchParam, pageNumber, kanban: 1 },
       });
       dispatch({ type: "LOAD_TAGS", payload: data.tags });
@@ -138,7 +138,7 @@ const Tags = () => {
 
     socket.on(`company${user.companyId}-tag`, (data) => {
       if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_TAGS", payload: data.tags });
+        dispatch({ type: "UPDATE_TAGS", payload: data.tag });
       }
 
       if (data.action === "delete") {
@@ -270,7 +270,7 @@ const Tags = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell align="center">{tag.ticketTags.length ? (<span>{tag.ticketTags.length}</span>) : <span>0</span>}</TableCell>
+                  <TableCell align="center">{tag.ticketTags?.length ? (<span>{tag.ticketTags?.length}</span>) : <span>0</span>}</TableCell>
                   <TableCell align="center">
                     <IconButton size="small" onClick={() => handleEditTag(tag)}>
                       <EditIcon />

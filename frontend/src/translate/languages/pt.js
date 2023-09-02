@@ -551,8 +551,8 @@ const messages = {
           okEdit: "Salvar",
           cancel: "Cancelar",
         },
-        success: "Tag salvo com sucesso.",
-        successKanban: "Lane salvo com sucesso.",
+        success: "Tag salva com sucesso.",
+        successKanban: "Lane salva com sucesso.",
       },
       fileModal: {
         title: {

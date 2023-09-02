@@ -71,6 +71,7 @@ const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 	const initialState = {
 		name: "",
 		color: "",
+		kanban: kanban
 	};
 
 	const [tag, setTag] = useState(initialState);
@@ -84,7 +85,7 @@ const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 				setTag(prevState => {
 					return { ...prevState, ...data };
 				});
-				
+
 			})()
 		} catch (err) {
 			toastError(err);
@@ -98,14 +99,15 @@ const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 	};
 
 	const handleSaveTag = async values => {
-		const tagData = { ...values, userId: user.id, kanban };
+		const tagData = { ...values, userId: user?.id, kanban: kanban };
+
 		try {
 			if (tagId) {
 				await api.put(`/tags/${tagId}`, tagData);
 			} else {
 				await api.post("/tags", tagData);
 			}
-			toast.success(kanban === 0 ? `${i18n.t("tagModal.title.success")}`: `${i18n.t("tagModal.title.successKanban")}`);
+			toast.success(kanban === 0 ? `${i18n.t("tagModal.success")}`: `${i18n.t("tagModal.successKanban")}`);
 			if (typeof reload == 'function') {
 				reload();
 			}
@@ -126,7 +128,8 @@ const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 			>
 				<DialogTitle id="form-dialog-title">
 					{ (tagId ? (kanban === 0 ? `${i18n.t("tagModal.title.edit")}`: `${i18n.t("tagModal.title.editKanban")}`) : 
-							   (kanban === 0 ? `${i18n.t("tagModal.title.add")}`: `${i18n.t("tagModal.title.addKanban")}`)) }
+							   (kanban === 0 ? `${i18n.t("tagModal.title.add")}`: `${i18n.t("tagModal.title.addKanban")}`)) 
+					}
 				</DialogTitle>
 				<Formik
 					initialValues={tag}

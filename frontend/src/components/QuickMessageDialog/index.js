@@ -33,6 +33,8 @@ import {
 } from "@material-ui/core";
 import ConfirmationModal from "../ConfirmationModal";
 
+const path = require('path');
+
 const useStyles = makeStyles((theme) => ({
   root: {
     display: "flex",
@@ -121,7 +123,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
   };
 
   const handleSaveQuickeMessage = async (values) => {
-    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? attachment.name : null };
+    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? attachment.name : path.basename(values.mediaPath) };
     try {
       if (quickemessageId) {
         await api.put(`/quick-messages/${quickemessageId}`, quickemessageData);
@@ -258,7 +260,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                       multiline={true}
                       rows={7}
                       fullWidth
-                      disabled={quickemessage.mediaPath || attachment ? true : false}
+                      // disabled={quickemessage.mediaPath || attachment ? true : false}
                     />
                   </Grid>
                   <Grid item>

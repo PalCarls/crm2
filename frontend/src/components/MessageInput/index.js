@@ -388,7 +388,7 @@ const backendUrl = getBackendUrl();
 				responseType: "blob",
 			});
 			
-			 handleUploadQuickMessageMedia(data)
+			 handleUploadQuickMessageMedia(data, value.value)
 			 setInputMessage("")
 			 return
 			//  handleChangeMedias(response)
@@ -634,7 +634,7 @@ const backendUrl = getBackendUrl();
 		setLoading(false);
 	};
 
-	const handleUploadQuickMessageMedia = async (blob) => {
+	const handleUploadQuickMessageMedia = async (blob, message) => {
 		setLoading(true);
 		try {
 		const extension = blob.type.split("/")[1];
@@ -642,7 +642,7 @@ const backendUrl = getBackendUrl();
 		 const formData = new FormData();
 		  const filename = `${new Date().getTime()}.${extension}`;
 		  formData.append("medias", blob, filename);
-		  formData.append("body", privateMessage ? `\u200d` : "");
+		  formData.append("body", privateMessage ? `\u200d${message}` : message);
 		  formData.append("fromMe", true);
 	
 		  await api.post(`/messages/${ticketId}`, formData);
