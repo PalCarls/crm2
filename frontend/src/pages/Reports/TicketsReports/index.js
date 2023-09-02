@@ -112,8 +112,7 @@ const TicketsReports = () => {
       const newDateTime = new Date().toLocaleTimeString('pt-BR');
       const date = `${newDate}${newDateTime}`;
       const formattedDate = date.replace(/[\W_]+/g, '');
-      console.log(date);
-      console.log(totalData);
+      
       if (totalData > 1000) {
         toast.info('Gerando relatório compactado, por favor aguarde.');
         const filesArray = [];

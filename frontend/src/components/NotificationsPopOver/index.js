@@ -15,7 +15,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Badge from "@material-ui/core/Badge";
 import ChatIcon from "@material-ui/icons/Chat";
 
-import TicketListItem from "../TicketListItem";
+import TicketListItem from "../TicketListItemCustom";
 import useTickets from "../../hooks/useTickets";
 import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -169,138 +169,12 @@ const NotificationsPopOver = () => {
 		};
 	}, [user, showPendingTickets]);
 
-	// useEffect(() => {
-	// 	const socket = openSQSSocket();
-	// 	socket.on("connect", () => socket.emit("joinNotification"));
-
-	// 	socket.on(`ticket${user.user.companyId}`, data => {
-	// 		if (data.action === "updateUnread" || data.action === "delete") {
-	// 			setNotifications(prevState => {
-	// 				const ticketIndex = prevState.findIndex(t => t.id === data.ticketId);
-	// 				if (ticketIndex !== -1) {
-	// 					prevState.splice(ticketIndex, 1);
-	// 					return [...prevState];
-	// 				}
-	// 				return prevState;
-	// 			});
-
-	// 			setDesktopNotifications(prevState => {
-	// 				const notfiticationIndex = prevState.findIndex(
-	// 					n => n.tag === String(data.ticketId)
-	// 				);
-	// 				if (notfiticationIndex !== -1) {
-	// 					prevState[notfiticationIndex].close();
-	// 					prevState.splice(notfiticationIndex, 1);
-	// 					return [...prevState];
-	// 				}
-	// 				return prevState;
-	// 			});
-	// 		}
-	// 	});
-
-	// 	socket.on(`appMessage${user.user.companyId}`, data => {
-	// 		if (
-	// 			data.action === "create" &&
-	// 			(data.ticket.status !== "pending" || (data.ticket.status === "pending" && showPendingTickets)) &&
-	// 			(!data.message.read || data.ticket.status === "pending") &&
-	// 			(data.ticket.userId === user?.id || !data.ticket.userId) &&
-	// 			(user?.queues?.some(queue => (queue.id === data.ticket.queueId)) || !data.ticket.queueId)
-	// 		) {
-	// 			setNotifications(prevState => {
-	// 				const ticketIndex = prevState.findIndex(t => t.id === data.ticket.id);
-	// 				if (ticketIndex !== -1) {
-	// 					prevState[ticketIndex] = data.ticket;
-	// 					return [...prevState];
-	// 				}
-	// 				return [data.ticket, ...prevState];
-	// 			});
-
-	// 			const shouldNotNotificate =
-	// 				(data.message.ticketId === ticketIdRef.current &&
-	// 					document.visibilityState === "visible") ||
-	// 				(data.ticket.userId && data.ticket.userId !== user?.id) ||
-	// 				data.ticket.isGroup;
-
-	// 			if (shouldNotNotificate) return;
-
-	// 			handleNotifications(data);
-	// 		}
-	// 	});
-
-	// 	return () => {
-	// 		socket.disconnect();
-	// 	};
-	// }, [user, showPendingTickets]);
-
-	// useEffect(() => {
-	// 	const socket = openWorkerSocket();
-	// 	socket.on("connect", () => socket.emit("joinNotification"));
-
-	// 	socket.on(`ticket${user.user.companyId}`, data => {
-	// 		if (data.action === "updateUnread" || data.action === "delete") {
-	// 			setNotifications(prevState => {
-	// 				const ticketIndex = prevState.findIndex(t => t.id === data.ticketId);
-	// 				if (ticketIndex !== -1) {
-	// 					prevState.splice(ticketIndex, 1);
-	// 					return [...prevState];
-	// 				}
-	// 				return prevState;
-	// 			});
-
-	// 			setDesktopNotifications(prevState => {
-	// 				const notfiticationIndex = prevState.findIndex(
-	// 					n => n.tag === String(data.ticketId)
-	// 				);
-	// 				if (notfiticationIndex !== -1) {
-	// 					prevState[notfiticationIndex].close();
-	// 					prevState.splice(notfiticationIndex, 1);
-	// 					return [...prevState];
-	// 				}
-	// 				return prevState;
-	// 			});
-	// 		}
-	// 	});
-
-	// 	socket.on(`appMessage${user.user.companyId}`, data => {
-	// 		if (
-	// 			data.action === "create" &&
-	// 			(data.ticket.status !== "pending" || (data.ticket.status === "pending" && showPendingTickets)) &&
-	// 			(!data.message.read || data.ticket.status === "pending") &&
-	// 			(data.ticket.userId === user?.id || !data.ticket.userId) &&
-	// 			(user?.queues?.some(queue => (queue.id === data.ticket.queueId)) || !data.ticket.queueId)
-	// 		) {
-	// 			setNotifications(prevState => {
-	// 				const ticketIndex = prevState.findIndex(t => t.id === data.ticket.id);
-	// 				if (ticketIndex !== -1) {
-	// 					prevState[ticketIndex] = data.ticket;
-	// 					return [...prevState];
-	// 				}
-	// 				return [data.ticket, ...prevState];
-	// 			});
-
-	// 			const shouldNotNotificate =
-	// 				(data.message.ticketId === ticketIdRef.current &&
-	// 					document.visibilityState === "visible") ||
-	// 				(data.ticket.userId && data.ticket.userId !== user?.id) ||
-	// 				data.ticket.isGroup;
-
-	// 			if (shouldNotNotificate) return;
-
-	// 			handleNotifications(data);
-	// 		}
-	// 	});
-
-	// 	return () => {
-	// 		socket.disconnect();
-	// 	};
-	// }, [user, showPendingTickets]);
-
 	const handleNotifications = data => {
 		const { message, contact, ticket } = data;
 
 		const options = {
 			body: `${message.body} - ${format(new Date(), "HH:mm")}`,
-			icon: contact.profilePicUrl,
+			icon: contact.urlPicture,
 			tag: ticket.id,
 			renotify: true,
 		};
@@ -314,6 +188,7 @@ const NotificationsPopOver = () => {
 			e.preventDefault();
 			window.focus();
 			historyRef.current.push(`/tickets/${ticket.uuid}`);
+			// handleChangeTab(null, ticket.isGroup? "group" : "open");
 		};
 
 		setDesktopNotifications(prevState => {
@@ -328,6 +203,10 @@ const NotificationsPopOver = () => {
 		});
 
 		soundAlertRef.current();
+	};
+
+	const handleChangeTab = () => {
+		setIsOpen(prevState => !prevState);
 	};
 
 	const handleClick = () => {
@@ -378,7 +257,7 @@ const NotificationsPopOver = () => {
 					) : (
 						notifications.map(ticket => (
 							<NotificationTicket key={ticket.id}>
-								<TicketListItem ticket={ticket} />
+								<TicketListItem handleChangeTab ticket={ticket} />
 							</NotificationTicket>
 						))
 					)}

@@ -10,18 +10,22 @@ import {
 import { toast } from "react-toastify";
 
 import {
+    Box,
     Button,
     CircularProgress,
     Dialog,
     DialogActions,
     DialogContent,
     DialogTitle,
+    Divider,
+    Grid,
     makeStyles,
     TextField
 } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import AttachFileIcon from "@material-ui/icons/AttachFile";
 
 import { green } from "@material-ui/core/colors";
 
@@ -35,6 +39,7 @@ const useStyles = makeStyles(theme => ({
     root: {
         display: "flex",
         flexWrap: "wrap",
+        gap: 4
     },
     multFieldLine: {
         display: "flex",
@@ -67,7 +72,7 @@ const useStyles = makeStyles(theme => ({
     },
     formControl: {
         margin: theme.spacing(1),
-        minWidth: 120,
+        minWidth: 2000,
     },
     colorAdorment: {
         width: 20,
@@ -75,7 +80,7 @@ const useStyles = makeStyles(theme => ({
     },
 }));
 
-const RatingSchema = Yup.object().shape({
+const FileListSchema = Yup.object().shape({
     name: Yup.string()
         .min(3, "nome muito curto")
         .required("Obrigatório"),
@@ -83,49 +88,100 @@ const RatingSchema = Yup.object().shape({
         .required("Obrigatório")
 });
 
-const RatingModal = ({ open, onClose, ratingId, reload }) => {
+const FilesModal = ({ open, onClose, fileListId, reload }) => {
     const classes = useStyles();
     const { user } = useContext(AuthContext);
+    const [ files, setFiles ] = useState([]);
+    const [selectedFileNames, setSelectedFileNames] = useState([]);
+
 
     const initialState = {
         name: "",
-        message: ""
+        message: "",
+        options: [{ name: "", path:"", mediaType:"" }],
     };
 
-    const [rating, setRating] = useState(initialState);
+    const [fileList, setFileList] = useState(initialState);
 
     useEffect(() => {
         try {
             (async () => {
-                if (!ratingId) return;
+                if (!fileListId) return;
 
-                const { data } = await api.get(`/files/${ratingId}`);
-                setRating(prevState => {
-                    return { ...prevState, ...data };
-                });
+                const { data } = await api.get(`/files/${fileListId}`);
+                setFileList(data);
             })()
         } catch (err) {
             toastError(err);
         }
-    }, [ratingId, open]);
+    }, [fileListId, open]);
 
     const handleClose = () => {
-        setRating(initialState);
+        setFileList(initialState);
+        setFiles([]);
         onClose();
     };
+    const handleChangeMedias = (e, index) => {
+        if (!e.target.files) {
+          return;
+        }       
+        const selectedMedias = Array.from(e.target.files);
+        
+        setFiles((prevFiles) => {
+            const newFiles = [...prevFiles];
+            newFiles[index] = selectedMedias[0];
+            return newFiles;
+          });
 
-    const handleSaveRating = async (values) => {
+        setSelectedFileNames((prevNames) => {
+        const newNames = [...prevNames];
+        newNames[index] = selectedMedias[0].name;
+        return newNames;
+        });
+    };
+
+    const handleSaveFileList = async (values) => {
+
+        const uploadFiles = async (options, filesOptions, id) => {
+                const formData = new FormData();
+                formData.append("fileId", id);
+                formData.append("typeArch", "fileList")
+                filesOptions.forEach((fileOption, index) => {
+                    if (fileOption.file) {
+                        formData.append("files", fileOption.file);
+                        formData.append("mediaType", fileOption.file.type)
+                        formData.append("name", options[index].name);
+                        formData.append("id", options[index].id);
+                    }
+                });
+      
+              try {
+                const { data } = await api.post(`/files/uploadList/${id}`, formData);
+                setFiles([]);
+                return data;
+              } catch (err) {
+                toastError(err);
+              }
+            return null;
+        }
+
         const fileData = { ...values, userId: user.id };
+        
         try {
-            if (ratingId) {
-                await api.put(`/files/${ratingId}`, fileData);
+            if (fileListId) {
+                const { data } = await api.put(`/files/${fileListId}`, fileData)
+                if (data.options.length > 0)
+                    // console.log(values.options)
+                    uploadFiles(data.options, values.options, fileListId)
             } else {
-                await api.post("/files", fileData);
+                const { data } = await api.post("/files", fileData);
+                if (data.options.length > 0)
+                    uploadFiles(data.options, values.options, data.id)
             }
             toast.success(i18n.t("fileModal.success"));
             if (typeof reload == 'function') {
                 reload();
-            }
+            }            
         } catch (err) {
             toastError(err);
         }
@@ -137,19 +193,19 @@ const RatingModal = ({ open, onClose, ratingId, reload }) => {
             <Dialog
                 open={open}
                 onClose={handleClose}
-                maxWidth="xs"
+                maxWidth="md"
                 fullWidth
                 scroll="paper">
                 <DialogTitle id="form-dialog-title">
-                    {(ratingId ? `${i18n.t("fileModal.title.edit")}` : `${i18n.t("fileModal.title.add")}`)}
+                    {(fileListId ? `${i18n.t("fileModal.title.edit")}` : `${i18n.t("fileModal.title.add")}`)}
                 </DialogTitle>
                 <Formik
-                    initialValues={rating}
+                    initialValues={fileList}
                     enableReinitialize={true}
-                    validationSchema={RatingSchema}
+                    validationSchema={FileListSchema}
                     onSubmit={(values, actions) => {
                         setTimeout(() => {
-                            handleSaveRating(values);
+                            handleSaveFileList(values);
                             actions.setSubmitting(false);
                         }, 400);
                     }}
@@ -193,7 +249,7 @@ const RatingModal = ({ open, onClose, ratingId, reload }) => {
                                     style={{ marginBottom: 8, marginTop: 12 }}
                                     variant="subtitle1"
                                 >
-                                    {i18n.t("fileModal.form.options")}
+                                    {i18n.t("fileModal.form.fileOptions")}
                                 </Typography>
 
                                 <FieldArray name="options">
@@ -201,43 +257,73 @@ const RatingModal = ({ open, onClose, ratingId, reload }) => {
                                         <>
                                             {values.options &&
                                                 values.options.length > 0 &&
-                                                values.options.map((info, index) => (
+                                                values.options.map((info, index) => (    
                                                     <div
                                                         className={classes.extraAttr}
                                                         key={`${index}-info`}
                                                     >
-                                                        <Field
-                                                            as={TextField}
-                                                            label={i18n.t("fileModal.form.extraName")}
-                                                            name={`options[${index}].name`}
-                                                            variant="outlined"
-                                                            margin="dense"
-                                                            className={classes.textField}
-                                                        />
-                                                        <Field
-                                                            as={TextField}
-                                                            label={i18n.t("fileModal.form.extraValue")}
-                                                            name={`options[${index}].value`}
-                                                            variant="outlined"
-                                                            margin="dense"
-                                                            className={classes.textField}
-                                                        />
-                                                        <IconButton
-                                                            size="small"
-                                                            onClick={() => remove(index)}
-                                                        >
-                                                            <DeleteOutlineIcon />
-                                                        </IconButton>
-                                                    </div>
+                                                        <Grid container  spacing={0}>
+                                                            <Grid xs={6} md={10} item> 
+                                                                <Field
+                                                                    as={TextField}
+                                                                    label={i18n.t("fileModal.form.extraName")}
+                                                                    name={`options[${index}].name`}
+                                                                    variant="outlined"
+                                                                    margin="dense"
+                                                                    multiline
+                                                                    fullWidth
+                                                                    minRows={2}
+                                                                    className={classes.textField}
+                                                                />
+                                                            </Grid>     
+                                                            <Grid xs={2} md={2} item style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                                                <input
+                                                                    type="file"
+                                                                    onChange={(e) => {
+                                                                        const selectedFile = e.target.files[0];
+                                                                        const updatedOptions = [...values.options];                                                                
+                                                                        updatedOptions[index].file = selectedFile;
+                                                                        console.log(updatedOptions)
+                                                                        setFiles('options', updatedOptions);
+
+                                                                        // Atualize a lista selectedFileNames para o campo específico
+                                                                        const updatedFileNames = [...selectedFileNames];
+                                                                        updatedFileNames[index] = selectedFile ? selectedFile.name : '';
+                                                                        setSelectedFileNames(updatedFileNames);
+                                                                    }}
+                                                                    style={{ display: 'none' }}
+                                                                    name={`options[${index}].file`}
+                                                                    id={`file-upload-${index}`}
+                                                                />
+                                                                <label htmlFor={`file-upload-${index}`}>
+                                                                    <IconButton component="span">
+                                                                        <AttachFileIcon />
+                                                                    </IconButton>
+                                                                </label>
+                                                                <IconButton
+                                                                    size="small"
+                                                                    onClick={() => remove(index)}
+                                                                >
+                                                                    <DeleteOutlineIcon />
+                                                                </IconButton>    
+                                                            </Grid>
+                                                            <Grid xs={12} md={12} item>
+                                                                {info.path? info.path : selectedFileNames}                               
+                                                            </Grid> 
+                                                        </Grid>                                                    
+                                                </div>                     
+                                                                                           
                                                 ))}
                                             <div className={classes.extraAttr}>
                                                 <Button
                                                     style={{ flex: 1, marginTop: 8 }}
                                                     variant="outlined"
                                                     color="primary"
-                                                    onClick={() => push({ name: "", value: "" })}
+                                                    onClick={() => {push({ name: "", path: ""});
+                                                    setSelectedFileNames([...selectedFileNames, ""]);
+                                                }}
                                                 >
-                                                    {`+ ${i18n.t("fileModal.buttons.options")}`}
+                                                    {`+ ${i18n.t("fileModal.buttons.fileOptions")}`}
                                                 </Button>
                                             </div>
                                         </>
@@ -260,7 +346,7 @@ const RatingModal = ({ open, onClose, ratingId, reload }) => {
                                     variant="contained"
                                     className={classes.btnWrapper}
                                 >
-                                    {ratingId
+                                    {fileListId
                                         ? `${i18n.t("fileModal.buttons.okEdit")}`
                                         : `${i18n.t("fileModal.buttons.okAdd")}`}
                                     {isSubmitting && (
@@ -279,4 +365,4 @@ const RatingModal = ({ open, onClose, ratingId, reload }) => {
     );
 };
 
-export default RatingModal;
+export default FilesModal;

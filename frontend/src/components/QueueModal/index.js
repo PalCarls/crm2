@@ -116,6 +116,8 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
     chatbots: [],
     outOfHoursMessage: "",
     orderQueue: "",
+    tempoRoteador: 0,
+    ativarRoteador: false,
   };
 
   const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
@@ -132,6 +134,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   const [integrations, setIntegrations] = useState([]);
   const [schedulesEnabled, setSchedulesEnabled] = useState(false);
   const [tab, setTab] = useState(0);
+  const [file, setFile] = useState(null);
 
   const [schedules, setSchedules] = useState([
     { weekday: i18n.t("queueModal.serviceHours.monday"),weekdayEn: "monday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
@@ -157,6 +160,20 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   }, []);
 
   useEffect(() => {
+		(async () => {
+			try {
+				const { data } = await api.get("/files/", {
+					params: { companyId }
+				});
+
+        setFile(data.files);
+			} catch (err) {
+				toastError(err);
+			}
+		})();
+	}, []);
+
+  useEffect(() => {
     (async () => {
       if (!queueId) return;
       try {
@@ -177,7 +194,9 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
         greetingMessage: "",
         chatbots: [],
         outOfHoursMessage: "",
-        orderQueue: ""
+        orderQueue: "",
+        tempoRoteador: "",
+        ativarRoteador: false,
       });
     };
   }, [queueId, open]);
@@ -201,8 +220,8 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
 				const { data } = await api.get("/users/", {
 					params: { companyId }
 				});
-        console.log(data)
-				setUsers(data.users);
+
+        setUsers(data.users);
 			} catch (err) {
 				toastError(err);
 			}
@@ -215,8 +234,8 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
 				const { data } = await api.get("/queueIntegration", {
 					params: { companyId }
 				});
-        console.log(data)
-				setIntegrations(data.integrations);
+
+        setIntegrations(data.integrations);
 			} catch (err) {
 				toastError(err);
 			}
@@ -279,6 +298,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   };
 
   const handleSaveBot = async (values) => {
+    console.log(values)
     try {
       if (queueId) {
         const {data} = await api.put(`/queue/${queueId}`, values);
@@ -336,11 +356,11 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
           value={tab}
           indicatorColor="primary"
           textColor="primary"
-          onChange={(_, v) => setTab(v)}
+          onChange={(e, v) => setTab(v)}
           aria-label="disabled tabs example"
         >
           <Tab label="Dados da Fila" />
-          {schedulesEnabled && <Tab label={i18n.t("queueModal.title.text")} />} />}
+          {schedulesEnabled && <Tab label={i18n.t("queueModal.title.text")} />}
         </Tabs>
           {tab === 0 && (
             <Formik
@@ -416,12 +436,44 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                       as={TextField}
                       label={i18n.t("queueModal.form.orderQueue")}
                       name="orderQueue"
+                      type="orderQueue"
                       error={touched.orderQueue && Boolean(errors.orderQueue)}
                       helperText={touched.orderQueue && errors.orderQueue}
                       variant="outlined"
                       margin="dense"
                       className={classes.textField1}
                     />
+                    <div>
+                      <FormControlLabel 
+                        control={
+                          <Field
+                            as={Switch}
+                            color="primary"
+                            name="ativarRoteador"
+                            checked={values.ativarRoteador}
+                          />
+                        }
+                        label={i18n.t("queueModal.form.rotate")}
+                      />
+                      <Field
+                        as={Select}
+                        label={i18n.t("queueModal.form.tempoRoteador")}
+                        name="tempoRoteador"
+                        id="tempoRoteador"
+                        variant="outlined"
+                        margin="dense"
+                        className={classes.selectField}
+                      >
+                      <MenuItem value="0" selected disabled>Tempo de Rodízio</MenuItem>
+                                  <MenuItem value="2">2 minutos</MenuItem>
+                        <MenuItem value="5">5 minutos</MenuItem>
+                        <MenuItem value="10">10 minutos</MenuItem>
+                        <MenuItem value="15">15 minutos</MenuItem>
+                                  <MenuItem value="30">30 minutos</MenuItem>
+                        <MenuItem value="45">45 minutos</MenuItem>
+                        <MenuItem value="60">60 minutos</MenuItem>
+                      </Field>
+                    </div>
                     <div>
                       <Field
                         as={TextField}
@@ -780,6 +832,42 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                                                     </Field>
                                                   </>
                                                 )} 
+                                              {queue.chatbots[index].queueType  === "file"  && (
+                                                <>
+                                                  <Field
+                                                    as={TextField}
+                                                    name={`chatbots[${index}].greetingMessage`}
+                                                    variant="standard"
+                                                    margin="dense"
+                                                    fullWidth
+                                                    multiline
+                                                    error={
+                                                      touched.greetingMessage &&
+                                                      Boolean(errors.greetingMessage)
+                                                    }
+                                                    helperText={
+                                                      touched.greetingMessage &&
+                                                      errors.greetingMessage
+                                                    }
+                                                    className={classes.textField}
+                                                  />
+                                                  <InputLabel>{"Selecione um Arquivo"}</InputLabel>
+                                                  <Field
+                                                      as={Select}
+                                                      name={`chatbots[${index}].optFileId`}
+                                                      error={touched?.chatbots?.[index]?.optFileId && 
+                                                        Boolean(errors?.chatbots?.[index]?.optFileId)}
+                                                      helpertext={touched?.chatbots?.[index]?.optFileId && errors?.chatbots?.[index]?.optFileId}
+                                                      className={classes.textField1}
+                                                    >
+                                                      {file.map(f => (
+                                                        <MenuItem key={f.id} value={f.id}>
+                                                          {f.name}
+                                                        </MenuItem>
+                                                      ))}
+                                                  </Field>
+                                                </>
+                                              )} 
                                               <IconButton
                                                 size="small"
                                                 onClick={() =>

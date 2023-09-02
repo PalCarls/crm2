@@ -175,13 +175,13 @@ const Schedules = () => {
     handleOpenScheduleModalFromContactId();
     const socket = socketConnection({ companyId: user.companyId });
 
-    socket.on("user", (data) => {
+    socket.on(`company${user.companyId}-schedule`, (data) => {
       if (data.action === "update" || data.action === "create") {
         dispatch({ type: "UPDATE_SCHEDULES", payload: data.schedules });
       }
 
       if (data.action === "delete") {
-        dispatch({ type: "DELETE_USER", payload: +data.scheduleId });
+        dispatch({ type: "DELETE_SCHEDULE", payload: +data.scheduleId });
       }
     });
 

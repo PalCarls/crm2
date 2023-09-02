@@ -17,7 +17,7 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 
 import wave from '../../assets/wave.png'
 import bg from '../../assets/bg.svg'
-// import avatar from '../../assets/avatar.svg'
+import avatar from '../../assets/avatar.svg'
 import logo from '../../assets/logo.png';
 
 const Login = () => {
@@ -44,7 +44,7 @@ const Login = () => {
                 </div>
                 <div className="login-content" style={{ alignItems: "center" }}>
                     <form noValidate onSubmit={handlSubmit} style={{ display: "grid" }}>
-                        {/* <img src={avatar} /> */}
+                        {/* <img src={avatar} /> */} 
                         <img alt="logo" style={{ maxWidth: 500, marginBottom: 20 }} src={logo}></img>
                         <TextField
                             variant="standard"

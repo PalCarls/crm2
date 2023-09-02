@@ -73,12 +73,8 @@ export default function Options(props) {
   const [loadingUserRating, setLoadingUserRating] = useState(false);
   const [loadingScheduleType, setLoadingScheduleType] = useState(false);
 
-  const [UserCreation, setUserCreation] = useState("disabled");
+  const [userCreation, setUserCreation] = useState("disabled");
   const [loadingUserCreation, setLoadingUserCreation] = useState(false);
-
-  // recursos a mais
-  const [uniqueTicket, setuniqueTicket] = useState("enabled");
-  const [loadinguniqueTicket, setLoadinguniqueTicket] = useState(false);
 
   const [SendGreetingAccepted, setSendGreetingAccepted] = useState("enabled");
   const [loadingSendGreetingAccepted, setLoadingSendGreetingAccepted] = useState(false);
@@ -111,7 +107,7 @@ export default function Options(props) {
   const [loadingAcceptAudioMessageContact, setLoadingAcceptAudioMessageContact] = useState(false);
 
   //LGPD
-  const [enableLGPD, setEnableLGPD] = useState("");
+  const [enableLGPD, setEnableLGPD] = useState("disabled");
   const [loadingEnableLGPD, setLoadingEnableLGPD] = useState(false);
 
   const [lgpdMessage, setLGPDMessage] = useState("");
@@ -120,14 +116,18 @@ export default function Options(props) {
   const [lgpdLink, setLGPDLink] = useState("");
   const [loadingLGPDLink, setLoadingLGPDLink] = useState(false);
 
-  const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState("");
+  const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState("disabled");
   const [loadingLGPDDeleteMessage, setLoadingLGPDDeleteMessage] = useState(false);
 
-  const [lgpdConsent, setLGPDConsent] = useState("");
+  const [lgpdConsent, setLGPDConsent] = useState("disabled");
   const [loadingLGPDConsent, setLoadingLGPDConsent] = useState(false);
 
-  const [lgpdHideNumber, setLGPDHideNumber] = useState("");
+  const [lgpdHideNumber, setLGPDHideNumber] = useState("disabled");
   const [loadingLGPDHideNumber, setLoadingLGPDHideNumber] = useState(false);
+
+  // Tag obrigatoria
+  const [requiredTag, setRequiredTag] = useState("enabled")
+  const [loadingRequiredTag, setLoadingRequiredTag] = useState(false)
 
   const { update } = useSettings();
 
@@ -140,7 +140,7 @@ export default function Options(props) {
 
       const userCreation = settings.find((s) => s.key === "userCreation");
       if (userCreation) {
-        setUserRating(userCreation.value);
+        setUserCreation(userCreation.value);
       }
 
       const userRating = settings.find((s) => s.key === "userRating");
@@ -156,11 +156,6 @@ export default function Options(props) {
       const chatBotType = settings.find((s) => s.key === "chatBotType");
       if (chatBotType) {
         setChatBotType(chatBotType.value);
-      }
-
-      const uniqueTicket = settings.find((s) => s.key === "uniqueTicket");
-      if (uniqueTicket) {
-        setuniqueTicket(uniqueTicket.value);
       }
 
       const SendGreetingAccepted = settings.find((s) => s.key === "sendGreetingAccepted");
@@ -181,11 +176,6 @@ export default function Options(props) {
       const AcceptCallWhatsapp = settings.find((s) => s.key === "acceptCallWhatsapp");
       if (AcceptCallWhatsapp) {
         setAcceptCallWhatsapp(AcceptCallWhatsapp.value);
-      }
-
-      const HoursCloseTicketsAuto = settings.find((s) => s.key === "hoursCloseTicketsAuto");
-      if (HoursCloseTicketsAuto) {
-        setHoursCloseTicketsAuto(HoursCloseTicketsAuto.value);
       }
 
       const sendSignMessage = settings.find((s) => s.key === "sendSignMessage");
@@ -241,6 +231,11 @@ export default function Options(props) {
       const lgpdHideNumber = settings.find((s) => s.key === "lgpdHideNumber");
       if (lgpdHideNumber) {
         setLGPDHideNumber(lgpdHideNumber.value)
+      }
+
+      const requiredTag = settings.find((s) => s.key === "requiredTag");
+      if (requiredTag) {
+        setRequiredTag(requiredTag.value)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -397,6 +392,7 @@ export default function Options(props) {
       key: "sendSignMessage",
       value,
     });
+    localStorage.setItem("sendSignMessage", value === "enabled" ? true: false); //atualiza localstorage para sessão
     setLoadingSendSignMessage(false);
   }
 
@@ -450,6 +446,16 @@ export default function Options(props) {
     setLoadingEnableLGPD(false);
   }
 
+  async function handleRequiredTag(value) {
+    setRequiredTag(value);
+    setLoadingRequiredTag(true);
+    await update({
+      key: "requiredTag",
+      value,
+    });
+    setLoadingRequiredTag(false);
+  }
+
 
   return (
     <>
@@ -464,7 +470,7 @@ export default function Options(props) {
               </InputLabel>
               <Select
                 labelId="UserCreation-label"
-                value={UserCreation}
+                value={userCreation}
                 onChange={async (e) => {
                   handleChangeUserCreation(e.target.value);
                 }}
@@ -560,8 +566,8 @@ export default function Options(props) {
         {/* ESCOLHER OPERADOR ALEATORIO */}
         <Grid xs={12} sm={6} md={4} item>
           <FormControl className={classes.selectContainer}>
-            <InputLabel id="sendMsgTransfTicket-label">
-              {i18n.t("settings.settings.options.sendMsgTransfTicket")}
+            <InputLabel id="userRandom-label">
+              {i18n.t("settings.settings.options.userRandom")}
             </InputLabel>
             <Select
               labelId="userRandom-label"
@@ -800,6 +806,25 @@ export default function Options(props) {
             </Select>
             <FormHelperText>
               {loadingEnableLGPD && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
+
+        <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="requiredTag-label"> {i18n.t("settings.settings.options.requiredTag")}</InputLabel>
+            <Select
+              labelId="requiredTag-label"
+              value={requiredTag}
+              onChange={async (e) => {
+                handleRequiredTag(e.target.value);
+              }}
+            >
+              <MenuItem value={"disabled"}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
+              <MenuItem value={"enabled"}>{i18n.t("settings.settings.options.enabled")}</MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingRequiredTag && i18n.t("settings.settings.options.updating")}
             </FormHelperText>
           </FormControl>
         </Grid>

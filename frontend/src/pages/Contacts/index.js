@@ -43,11 +43,14 @@ import Title from "../../components/Title";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import MainContainer from "../../components/MainContainer";
 import toastError from "../../errors/toastError";
+
+import useSettings from "../../hooks/useSettings";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { Can } from "../../components/Can";
 import NewTicketModal from "../../components/NewTicketModal";
 import { TagsFilter } from "../../components/TagsFilter";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
+import formatSerializedId from '../../utils/formatSerializedId';
 
 import {
     ArrowDropDown,
@@ -139,6 +142,23 @@ const Contacts = () => {
     const fileUploadRef = useRef(null);
     const [selectedTags, setSelectedTags] = useState([]);
 
+
+    const { getAll: getAllSettings } = useSettings();
+	const [hideNum, setHideNum] = useState(false);
+
+    useEffect(() => {
+
+        async function fetchData() {
+            const settingList = await getAllSettings();
+            const setting = settingList.find(setting => setting.key === "lgpdHideNumber");
+            if (setting && setting?.value === "enabled") {
+                setHideNum(true);
+            }
+        }
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
     const handleImportExcel = async () => {
         try {
             const formData = new FormData();
@@ -181,7 +201,7 @@ const Contacts = () => {
 
     useEffect(() => {
         const companyId = localStorage.getItem("companyId");
-        const socket = socketConnection({ companyId });
+        const socket = socketConnection({ companyId }); 
 
         socket.on(`company-${companyId}-contact`, (data) => {
             if (data.action === "update" || data.action === "create") {
@@ -224,22 +244,6 @@ const Contacts = () => {
         setContactModalOpen(false);
     };
 
-    const handleSaveTicket = async (contactId) => {
-        if (!contactId) return;
-        setLoading(true);
-        try {
-            const { data: ticket } = await api.post("/tickets", {
-                contactId: contactId,
-                userId: user?.id,
-                status: "open",
-            });
-            history.push(`/tickets/${ticket.uuid}`);
-        } catch (err) {
-            toastError(err);
-        }
-        setLoading(false);
-    };
-
     const hadleEditContact = (contactId) => {
         setSelectedContactId(contactId);
         setContactModalOpen(true);
@@ -267,6 +271,7 @@ const Contacts = () => {
         setDeletingContact(null);
         setSearchParam("");
         setPageNumber(1);
+        setBlockingContact(null);
     };
 
     const handleUnBlockContact = async (contactId) => {
@@ -279,6 +284,7 @@ const Contacts = () => {
         setDeletingContact(null);
         setSearchParam("");
         setPageNumber(1);
+        setUnBlockingContact(null);
     };
 
     const handleimportContact = async () => {
@@ -388,7 +394,7 @@ const Contacts = () => {
                     : blockingContact
                         ? `${i18n.t("contacts.confirmationModal.blockContact")}`
                         : unBlockingContact
-                            ? `${i18n.t("contacts.confirmationModal.blockContact")}`
+                            ? `${i18n.t("contacts.confirmationModal.unblockContact")}`
                             : ImportContacts
                                 ? `${i18n.t("contacts.confirmationModal.importMessage")}`
                                 : `${i18n.t(
@@ -464,7 +470,7 @@ const Contacts = () => {
                                         {i18n.t("contacts.menu.importToExcel")}
 
                                     </MenuItem>
-                                    {<MenuItem>
+                                    {/* {<MenuItem>
                         
                                        <CSVLink
                                             className={classes.csvbtn}
@@ -472,7 +478,7 @@ const Contacts = () => {
                                             filename={'contacts.csv'}
                                             data={
                                                 contacts.map((contact) => ({
-                                                    number: contact.number,
+                                                    number: hideNum && user.profile === "user" ? contact.isGroup ? contact.number : formatSerializedId(contact.number).slice(0,-6)+"**-**"+ contact.number.slice(-2): contact.isGroup ? contact.number : formatSerializedId(contact.number),
                                                     firstName: contact.name.split(' ')[0],
                                                     lastname: String(contact.name).replace(contact.name.split(' ')[0],''),
                                                     tags: contact?.tags?.name
@@ -492,7 +498,7 @@ const Contacts = () => {
                                         Exportar Excel                                
                                    </CSVLink>
                                         
-                                    </MenuItem> }
+                                    </MenuItem> } */}
                                 </Menu>
                             </React.Fragment>
                         )}
@@ -510,6 +516,9 @@ const Contacts = () => {
             <ContactImportWpModal
             isOpen={importContactModalOpen}
             handleClose={()=>setImportContactModalOpen(false)}
+            selectedTags={selectedTags}
+            hideNum={hideNum}
+            userProfile={user.profile}
             />
             <Paper
                 className={classes.mainPaper}
@@ -556,11 +565,11 @@ const Contacts = () => {
                             {contacts.map((contact) => (
                                 <TableRow key={contact.id}>
                                     <TableCell style={{ paddingRight: 0 }}>
-                                        {<Avatar src={contact.profilePicUrl} />}
+                                        {<Avatar src={`${contact?.urlPicture}`} />}
                                     </TableCell>
                                     <TableCell>{contact.name}</TableCell>
                                     <TableCell align="center">
-                                        {contact.number}
+                                        {(hideNum && user.profile === "user" ? contact.isGroup ? contact.number : formatSerializedId(contact.number).slice(0,-6)+"**-**"+ contact.number.slice(-2): contact.isGroup ? contact.number : formatSerializedId(contact.number))}
                                     </TableCell>
                                     <TableCell align="center">
                                         {contact.email}

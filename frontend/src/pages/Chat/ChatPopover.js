@@ -142,7 +142,9 @@ export default function ChatPopover() {
     socket.on(`company-${companyId}-chat`, (data) => {
       if (data.action === "new-message") {
         dispatch({ type: "CHANGE_CHAT", payload: data });
-        if (data.newMessage.senderId !== user.id) {
+        const userIds = data.newMessage.chat.users.map(userObj => userObj.userId);
+
+        if (userIds.includes(user.id) && data.newMessage.senderId !== user.id) {
           soundAlertRef.current();
         }
       }

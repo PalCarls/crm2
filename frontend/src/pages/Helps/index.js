@@ -31,6 +31,7 @@ const useStyles = makeStyles(theme => ({
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
+    maxWidth: '340px',
   },
   paperHover: {
     transition: 'transform 0.3s, box-shadow 0.3s',

@@ -78,6 +78,7 @@ export default function VerticalLinearStepper(props) {
   const [queues, setQueues] = React.useState([]);
   const [users, setUsers] = React.useState([]);
   const [integrations, setIntegrations] = React.useState([]);
+  const [file, setFile] = React.useState([]);
 
   const companyId = localStorage.getItem("companyId");
 
@@ -109,8 +110,22 @@ export default function VerticalLinearStepper(props) {
 				const { data } = await api.get("/queue", {
 					params: { companyId }
 				});
-        console.log(data)
-				setQueues(data);
+
+        setQueues(data);
+			} catch (err) {
+				toastError(err);
+			}
+		})();
+	}, []);
+
+  React.useEffect(() => {
+		(async () => {
+			try {
+				const { data } = await api.get("/files/", {
+					params: { companyId }
+				});
+
+        setFile(data.files);
 			} catch (err) {
 				toastError(err);
 			}
@@ -123,8 +138,8 @@ export default function VerticalLinearStepper(props) {
 				const { data } = await api.get("/users/", {
 					params: { companyId }
 				});
-        console.log(data)
-				setUsers(data.users);
+
+        setUsers(data.users);
 			} catch (err) {
 				toastError(err);
 			}
@@ -137,8 +152,8 @@ export default function VerticalLinearStepper(props) {
 				const { data } = await api.get("/queueIntegration", {
 					params: { companyId }
 				});
-        console.log(data)
-				setIntegrations(data.integrations);
+
+        setIntegrations(data.integrations);
 			} catch (err) {
 				toastError(err);
 			}
@@ -338,6 +353,16 @@ export default function VerticalLinearStepper(props) {
                             {isStepContent && steps.options[index] && (
                               <StepContent>
                                 <>
+                                  <CustomToolTip
+                                    title="A mensagem é obrigatória para seguir ao próximo nível"
+                                    content="Se a mensagem não estiver definida, o bot não seguirá adiante"
+                                  >
+                                    <HelpOutlineOutlinedIcon
+                                      color="secondary"
+                                      style={{ marginLeft: "4px" }}
+                                      fontSize="small"
+                                    />
+                                  </CustomToolTip>
                                   {isGreetingMessageEdit !== index ? (
                                     <div className={classes.greetingMessage}>
                                       <Typography
@@ -348,20 +373,6 @@ export default function VerticalLinearStepper(props) {
                                       </Typography>
 
                                       {values.options[index].greetingMessage}
-
-                                      {!steps.options[index]
-                                        ?.greetingMessage && (
-                                        <CustomToolTip
-                                          title="A mensagem é obrigatória para seguir ao próximo nível"
-                                          content="Se a mensagem não estiver definida, o bot não seguirá adiante"
-                                        >
-                                          <HelpOutlineOutlinedIcon
-                                            color="secondary"
-                                            style={{ marginLeft: "4px" }}
-                                            fontSize="small"
-                                          />
-                                        </CustomToolTip>
-                                      )}
 
                                       <IconButton
                                         size="small"
@@ -525,6 +536,43 @@ export default function VerticalLinearStepper(props) {
                                           </Field>
                                         </>
                                       )} 
+                                      {steps.options[index].queueType === "file"  && (
+                                        <>
+                                          <Field
+                                            as={TextField}
+                                            name={`options[${index}].greetingMessage`}
+                                            variant="standard"
+                                            margin="dense"
+                                            fullWidth
+                                            multiline
+                                            error={
+                                              touched.greetingMessage &&
+                                              Boolean(errors.greetingMessage)
+                                            }
+                                            helperText={
+                                              touched.greetingMessage &&
+                                              errors.greetingMessage
+                                            }
+                                            className={classes.textField}
+                                          />
+                                          <InputLabel>{"Selecione um Arquivo"}</InputLabel>
+                                          <Field
+                                              as={Select}
+                                              name={`options[${index}].optFileId`}
+                                              error={touched?.options?.[index]?.optFileId && 
+                                                Boolean(errors?.options?.[index]?.optFileId)}
+                                              helpertext={touched?.options?.[index]?.optFileId && errors?.options?.[index]?.optFileId}
+                                              // value={`options[${index}].optQueueId`}
+                                              className={classes.textField1}
+                                            >
+                                                {file.map(f => (
+                                                  <MenuItem key={f.id} value={f.id}>
+                                                    {f.name}
+                                                  </MenuItem>
+                                                ))}
+                                          </Field>
+                                        </>
+                                      )} 
 
                                       <IconButton
                                         size="small"
@@ -553,7 +601,7 @@ export default function VerticalLinearStepper(props) {
                             })
                           }
                         >
-                          {i18n.t("ratingModal.buttons.options")}
+                          {i18n.t("fileModal.buttons.fileOptions")}
                         </StepLabel>
                       </Step>
                     </Stepper>

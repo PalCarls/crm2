@@ -104,7 +104,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
         async function fetchData() {
             const settingList = await getAllSettings();
             const setting = settingList.find(setting => setting.key === "lgpdHideNumber");
-            if (setting.value === "enabled") {
+            if (setting && setting?.value === "enabled") {
                 setHideNum(true);
             }
         }
@@ -146,7 +146,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 				) : (
 					<div className={classes.content}>
 						<Paper square variant="outlined" className={classes.contactHeader}>
-							<ModalImageCors imageUrl={contact.profilePicUrl} />
+							<ModalImageCors imageUrl={contact?.urlPicture} />
 							<CardHeader
 								onClick={() => { }}
 								style={{ cursor: "pointer", width: '100%' }}
@@ -181,7 +181,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 							</Button>
 							{(contact.id && openForm) && <ContactForm initialContact={contact} onCancel={() => setOpenForm(false)} />}
 						</Paper>
-						<TagsContainer contact={contact} className={classes.contactTags} />
+						{/* <TagsContainer contact={contact} className={classes.contactTags} /> */}
 						<Paper square variant="outlined" className={classes.contactDetails}>
 							<Typography variant="subtitle1" style={{ marginBottom: 10 }}>
 								{i18n.t("ticketOptionsMenu.appointmentsModal.title")}

@@ -15,8 +15,6 @@ import {
 
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 
-import { i18n } from "../../translate/i18n";
-
 function QuickMessagesTable(props) {
     const { messages, showLoading, editMessage, deleteMessage, readOnly } = props
     const [loading, setLoading] = useState(true)
@@ -71,10 +69,10 @@ function QuickMessagesTable(props) {
         <Table size="small">
             <TableHead>
                 <TableRow>
-                    <TableCell align="center">{i18n.t("quickMessages.table.shortcode")}</TableCell>
-                    <TableCell align="left">{i18n.t("quickMessages.table.message")}</TableCell>
+                    <TableCell align="center">Atalho</TableCell>
+                    <TableCell align="left">Mensagem</TableCell>
                     { !readOnly ? (
-                        <TableCell align="center">{i18n.t("quickMessages.table.actions")}</TableCell>
+                        <TableCell align="center">Ações</TableCell>
                     ) : null}
                 </TableRow>
             </TableHead>

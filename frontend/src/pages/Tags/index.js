@@ -37,6 +37,7 @@ import toastError from "../../errors/toastError";
 import { Chip } from "@material-ui/core";
 import { socketConnection } from "../../services/socket";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { CheckCircle } from "@material-ui/icons";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TAGS") {
@@ -109,8 +110,11 @@ const Tags = () => {
   const fetchTags = useCallback(async () => {
     try {
       const { data } = await api.get("/tags/", {
-        params: { searchParam, pageNumber },
+        params: { searchParam, pageNumber, kanban: 0 },
       });
+
+      console.log(data.tags)
+      
       dispatch({ type: "LOAD_TAGS", payload: data.tags });
       setHasMore(data.hasMore);
       setLoading(false);
@@ -135,9 +139,10 @@ const Tags = () => {
   useEffect(() => {
     const socket = socketConnection({ companyId: user.companyId });
 
-    socket.on("user", (data) => {
+    socket.on(`company${user.companyId}-tag`, (data) => {
+      console.log(data)
       if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_TAGS", payload: data.tags });
+        dispatch({ type: "UPDATE_TAGS", payload: data.tag });
       }
 
       if (data.action === "delete") {
@@ -213,6 +218,7 @@ const Tags = () => {
         reload={fetchTags}
         aria-labelledby="form-dialog-title"
         tagId={selectedTag && selectedTag.id}
+        kanban={0}
       />
       <MainHeader>
         <Title>{i18n.t("tags.title")} ({tags.length})</Title>
@@ -267,8 +273,8 @@ const Tags = () => {
                       label={tag.name}
                       size="small"
                     />
-                  </TableCell>
-                  <TableCell align="center">{tag.contactTags.length ? (<span>{tag.contactTags.length}</span>) : <span>0</span>}</TableCell>
+                  </TableCell>                 
+                  <TableCell align="center">{tag.contactTags?.length ? (<span>{tag.contactTags?.length}</span>) : <span>0</span>}</TableCell>
                   <TableCell align="center">
                     <IconButton size="small" onClick={() => handleEditTag(tag)}>
                       <EditIcon />

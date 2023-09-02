@@ -398,7 +398,7 @@ const TicketListItem = ({ ticket }) => {
                     >
                         <Avatar
                             alt={ticket?.contact?.name}
-                            src={ticket?.contact?.profilePicUrl}
+                            src={ticket?.contact?.urlPicture}
                         />
                     </Badge>
                 </ListItemAvatar>

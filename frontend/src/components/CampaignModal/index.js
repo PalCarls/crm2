@@ -17,6 +17,7 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
+import Chip from '@material-ui/core/Chip';
 
 import { i18n } from "../../translate/i18n";
 import moment from "moment";
@@ -41,18 +42,22 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexWrap: "wrap",
   },
+
   textField: {
     marginRight: theme.spacing(1),
     flex: 1,
   },
+
   extraAttr: {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
   },
+
   btnWrapper: {
     position: "relative",
   },
+
   buttonProgress: {
     color: green[500],
     position: "absolute",
@@ -61,11 +66,6 @@ const useStyles = makeStyles((theme) => ({
     marginTop: -12,
     marginLeft: -12,
   },
-  tabs: {
-    background: theme.mode === 'light' ? "#f2f2f2" : "#7f7f7f",
-    border: "1px solid #e6e6e6",
-    borderRadius: 2,
-  }
 }));
 
 const CampaignSchema = Yup.object().shape({
@@ -103,14 +103,17 @@ const CampaignModal = ({
     status: "INATIVA", // INATIVA, PROGRAMADA, EM_ANDAMENTO, CANCELADA, FINALIZADA,
     confirmation: false,
     scheduledAt: "",
-    whatsappId: "",
+    //whatsappId: "",
     contactListId: "",
+    tagListId: "Nenhuma",
     companyId,
   };
 
   const [campaign, setCampaign] = useState(initialState);
   const [whatsapps, setWhatsapps] = useState([]);
+  const [selectedWhatsapps, setSelectedWhatsapps] = useState([]);
   const [contactLists, setContactLists] = useState([]);
+  const [tagLists, setTagLists] = useState([]);
   const [messageTab, setMessageTab] = useState(0);
   const [attachment, setAttachment] = useState(null);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -136,9 +139,31 @@ const CampaignModal = ({
         .then(({ data }) => setContactLists(data));
 
       api
-        .get(`/whatsapp`, { params: { companyId, session: 0 } })
-        .then(({ data }) => setWhatsapps(data));
+  		.get(`/whatsapp`, { params: { companyId, session: 0 } })
+  		.then(({ data }) => {
+    		// Mapear os dados recebidos da API para adicionar a propriedade 'selected'
+    		const mappedWhatsapps = data.map((whatsapp) => ({
+      		...whatsapp,
+      		selected: false,
+    	}));
 
+        setWhatsapps(mappedWhatsapps);
+      });
+
+      api.get(`/tags`, { params: { companyId, kanban: 0 } })
+      .then(({ data }) => {
+        const fetchedTags = data.tags;
+        // Perform any necessary data transformation here
+        const formattedTagLists = fetchedTags.map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+        }));
+        setTagLists(formattedTagLists);
+      })
+      .catch((error) => {
+        console.error("Error retrieving tags:", error);
+      });
+      
       if (!campaignId) return;
 
       api.get(`/campaigns/${campaignId}`).then(({ data }) => {
@@ -158,6 +183,8 @@ const CampaignModal = ({
       });
     }
   }, [campaignId, open, initialValues, companyId]);
+
+  
 
   useEffect(() => {
     const now = moment();
@@ -185,7 +212,14 @@ const CampaignModal = ({
 
   const handleSaveCampaign = async (values) => {
     try {
-      const dataValues = {};
+      const dataValues = {
+        ...values,  // Merge the existing values object
+        whatsappId: selectedWhatsapps.join(","),
+      };
+    
+      //console.log(values);
+      //console.log(selectedWhatsapps);
+    
       Object.entries(values).forEach(([key, value]) => {
         if (key === "scheduledAt" && value !== "" && value !== null) {
           dataValues[key] = moment(value).format("YYYY-MM-DD HH:mm:ss");
@@ -248,7 +282,7 @@ const CampaignModal = ({
         placeholder={i18n.t("campaigns.dialog.form.messagePlaceholder")}
         multiline={true}
         variant="outlined"
-        helperText={i18n.t("campaigns.dialog.help")}
+        helperText="Utilize variáveis como {nome}, {numero}, {email} ou defina variáveis personalizadas."
         disabled={!campaignEditable && campaign.status !== "CANCELADA"}
       />
     );
@@ -343,7 +377,7 @@ const CampaignModal = ({
             <Form>
               <DialogContent dividers>
                 <Grid spacing={2} container>
-                  <Grid xs={12} md={9} item>
+                  <Grid xs={12} md={4} item>
                     <Field
                       as={TextField}
                       label={i18n.t("campaigns.dialog.form.name")}
@@ -357,7 +391,7 @@ const CampaignModal = ({
                       disabled={!campaignEditable}
                     />
                   </Grid>
-                  <Grid xs={12} md={3} item>
+                  <Grid xs={12} md={4} item>
                     <FormControl
                       variant="outlined"
                       margin="dense"
@@ -381,8 +415,8 @@ const CampaignModal = ({
                         }
                         disabled={!campaignEditable}
                       >
-                        <MenuItem value={false}>{i18n.t("campaigns.table.disabled")}</MenuItem>
-                        <MenuItem value={true}>{i18n.t("campaigns.table.enabled")}</MenuItem>
+                        <MenuItem value={false}>Desabilitada</MenuItem>
+                        <MenuItem value={true}>Habilitada</MenuItem>
                       </Field>
                     </FormControl>
                   </Grid>
@@ -410,7 +444,7 @@ const CampaignModal = ({
                         }
                         disabled={!campaignEditable}
                       >
-                        <MenuItem value="">{i18n.t("campaigns.table.option")}</MenuItem>
+                        <MenuItem value="">Nenhuma</MenuItem>
                         {contactLists &&
                           contactLists.map((contactList) => (
                             <MenuItem
@@ -424,35 +458,77 @@ const CampaignModal = ({
                     </FormControl>
                   </Grid>
                   <Grid xs={12} md={4} item>
-                    <FormControl
-                      variant="outlined"
-                      margin="dense"
-                      fullWidth
-                      className={classes.formControl}
+                  <FormControl
+                    variant="outlined"
+                    margin="dense"
+                    fullWidth
+                    className={classes.formControl}
+                  >
+                    <InputLabel id="tagList-selection-label">
+                      {i18n.t("campaigns.dialog.form.tagList")}
+                    </InputLabel>
+                    <Field
+                      as={Select}
+                      label={i18n.t("campaigns.dialog.form.tagList")}
+                      placeholder={i18n.t("campaigns.dialog.form.tagList")}
+                      labelId="tagList-selection-label"
+                      id="tagListId"
+                      name="tagListId"
+                      error={touched.tagListId && Boolean(errors.tagListId)}
+                      disabled={!campaignEditable}
                     >
-                      <InputLabel id="whatsapp-selection-label">
-                        {i18n.t("campaigns.dialog.form.whatsapp")}
-                      </InputLabel>
-                      <Field
-                        as={Select}
-                        label={i18n.t("campaigns.dialog.form.whatsapp")}
-                        placeholder={i18n.t("campaigns.dialog.form.whatsapp")}
-                        labelId="whatsapp-selection-label"
-                        id="whatsappId"
-                        name="whatsappId"
-                        error={touched.whatsappId && Boolean(errors.whatsappId)}
-                        disabled={!campaignEditable}
-                      >
-                        <MenuItem value="">{i18n.t("campaigns.table.option")}</MenuItem>
-                        {whatsapps &&
-                          whatsapps.map((whatsapp) => (
-                            <MenuItem key={whatsapp.id} value={whatsapp.id}>
-                              {whatsapp.name}
-                            </MenuItem>
-                          ))}
-                      </Field>
-                    </FormControl>
-                  </Grid>
+                      {/* <MenuItem value="">Nenhuma</MenuItem> */}
+                      {Array.isArray(tagLists) &&
+                        tagLists.map((tagList) => (
+                          <MenuItem key={tagList.id} value={tagList.id}>
+                            {tagList.name}
+                          </MenuItem>
+                        ))}
+                    </Field>
+                  </FormControl>
+                </Grid>
+
+<Grid xs={12} md={4} item>
+  <FormControl
+    variant="outlined"
+    margin="dense"
+    fullWidth
+    className={classes.formControl}
+  >
+    <InputLabel id="whatsapp-selection-label">
+      {i18n.t("campaigns.dialog.form.whatsapp")}
+    </InputLabel>
+    <Field
+      as={Select}
+      multiple 
+      label={i18n.t("campaigns.dialog.form.whatsapp")}
+      placeholder={i18n.t("campaigns.dialog.form.whatsapp")}
+      labelId="whatsapp-selection-label"
+      id="whatsappIds"
+      name="whatsappIds"
+      required
+      error={touched.whatsappId && Boolean(errors.whatsappId)}
+      disabled={!campaignEditable}
+      value={selectedWhatsapps}  
+      onChange={(event) => setSelectedWhatsapps(event.target.value)} 
+      renderValue={(selected) => (
+        <div>
+          {selected.map((value) => (
+            <Chip key={value} label={whatsapps.find((whatsapp) => whatsapp.id === value).name} />
+          ))}
+        </div>
+      )}
+    >
+      {whatsapps &&
+        whatsapps.map((whatsapp) => (
+          <MenuItem key={whatsapp.id} value={whatsapp.id}>
+            {whatsapp.name}
+          </MenuItem>
+        ))}
+    </Field>
+  </FormControl>
+</Grid>
+
                   <Grid xs={12} md={4} item>
                     <Field
                       as={TextField}
@@ -479,12 +555,11 @@ const CampaignModal = ({
                       onChange={(e, v) => setMessageTab(v)}
                       variant="fullWidth"
                       centered
-                      className={classes.tabs}
-                    // style={{
-                    //   background: "#f2f2f2",
-                    //   border: "1px solid #e6e6e6",
-                    //   borderRadius: 2,
-                    // }}
+                      style={{
+                        background: "#f2f2f2",
+                        border: "1px solid #e6e6e6",
+                        borderRadius: 2,
+                      }}
                     >
                       <Tab label="Msg. 1" index={0} />
                       <Tab label="Msg. 2" index={1} />
@@ -605,9 +680,9 @@ const CampaignModal = ({
                       {campaignEditable && (
                         <IconButton
                           onClick={() => setConfirmationOpen(true)}
-                          color="secondary"
+                          color="primary"
                         >
-                          <DeleteOutlineIcon />
+                          <DeleteOutlineIcon color="secondary" />
                         </IconButton>
                       )}
                     </Grid>
@@ -645,7 +720,7 @@ const CampaignModal = ({
                 )}
                 <Button
                   onClick={handleClose}
-                  color="secondary"
+                  color="primary"
                   disabled={isSubmitting}
                   variant="outlined"
                 >

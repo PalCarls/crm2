@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { toast } from "react-toastify";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -16,11 +16,13 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import EditIcon from "@material-ui/icons/Edit";
+import { AccountCircle } from "@material-ui/icons";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
 import Title from "../../components/Title";
+import whatsappIcon from '../../assets/nopicture.png'
 
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
@@ -30,6 +32,11 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import toastError from "../../errors/toastError";
 import { socketConnection } from "../../services/socket";
 import UserStatusIcon from "../../components/UserModal/statusIcon";
+import { getBackendUrl } from "../../config";
+import { AuthContext } from "../../context/Auth/AuthContext";
+import { Avatar } from "@material-ui/core";
+
+const backendUrl = getBackendUrl();
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_USERS") {
@@ -96,6 +103,8 @@ const Users = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [users, dispatch] = useReducer(reducer, []);
+  const { user: loggedInUser } = useContext(AuthContext)
+  const { profileImage } = loggedInUser;
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -110,6 +119,7 @@ const Users = () => {
           const { data } = await api.get("/users/", {
             params: { searchParam, pageNumber },
           });
+          
           dispatch({ type: "LOAD_USERS", payload: data.users });
           setHasMore(data.hasMore);
           setLoading(false);
@@ -184,6 +194,30 @@ const Users = () => {
     }
   };
 
+  const renderProfileImage = (user) => {
+    if (user.id === loggedInUser.id ) {
+      return (
+        <Avatar
+          src={`${backendUrl}/public/company${user.companyId}/user/${profileImage ? profileImage: whatsappIcon}`}
+          alt={user.name}
+          className={classes.userAvatar}
+        />
+      )
+    }
+    if (user.id !== loggedInUser.id) {
+      return (
+        <Avatar
+        src={user.profileImage ? `${backendUrl}/public/company${user.companyId}/user/${user.profileImage}`: whatsappIcon}
+          alt={user.name}
+          className={classes.userAvatar}
+        />
+      )
+    }
+    return (
+      <AccountCircle />
+    )
+  };
+  
   return (
     <MainContainer>
       <ConfirmationModal
@@ -238,6 +272,9 @@ const Users = () => {
           <TableHead>
             <TableRow>
               <TableCell align="center">{i18n.t("users.table.status")}</TableCell>
+              <TableCell align="center">
+                Avatar
+              </TableCell>
               <TableCell align="center">{i18n.t("users.table.name")}</TableCell>
               <TableCell align="center">{i18n.t("users.table.email")}</TableCell>
               <TableCell align="center">{i18n.t("users.table.profile")}</TableCell>
@@ -251,6 +288,13 @@ const Users = () => {
               {users.map((user) => (
                 <TableRow key={user.id}>
                   <TableCell align="center"><UserStatusIcon user={user} /></TableCell>
+                  <TableCell align="center" >
+                    <div className={classes.avatarDiv}>
+                      {
+                        renderProfileImage(user)
+                      }
+                    </div>
+                  </TableCell>
                   <TableCell align="center">{user.name}</TableCell>
                   <TableCell align="center">{user.email}</TableCell>
                   <TableCell align="center">{user.profile}</TableCell>

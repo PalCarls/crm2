@@ -17,7 +17,7 @@ import Select from "@material-ui/core/Select";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
-
+import whatsappIcon from '../../assets/nopicture.png'
 import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
@@ -27,7 +27,10 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import useWhatsApps from "../../hooks/useWhatsApps";
 
 import { Can } from "../Can";
+import { Avatar, Input } from "@material-ui/core";
+import { getBackendUrl } from "../../config";
 
+const backendUrl = getBackendUrl();
 const useStyles = makeStyles(theme => ({
 	root: {
 		display: "flex",
@@ -62,6 +65,43 @@ const useStyles = makeStyles(theme => ({
 		display: 'flex',
 		flexWrap: 'wrap',
 	},
+	avatar: {
+		width: theme.spacing(12),
+		height: theme.spacing(12),
+		margin: theme.spacing(2),
+		cursor: 'pointer',
+		borderRadius: '50%',
+		border: '2px solid #ccc',
+	},
+	updateDiv: {
+		display: 'flex',
+		flexDirection: 'column',
+		alignItems: 'center',
+		justifyContent: 'center',
+	},
+	updateInput: {
+		display: 'none',
+	},
+	updateLabel: {
+		padding: theme.spacing(1),
+		margin: theme.spacing(1),
+		textTransform: 'uppercase',
+		textAlign: 'center',
+		cursor: 'pointer',
+		border: '2px solid #ccc',
+		borderRadius: '5px',
+		minWidth: 160,
+		fontWeight: 'bold',
+		color: '#555',
+	},
+	errorUpdate: {
+		border: '2px solid red',
+	},
+	errorText: {
+		color: 'red',
+		fontSize: '0.8rem',
+		fontWeight: 'bold',
+	}
 }));
 
 const UserSchema = Yup.object().shape({
@@ -94,7 +134,8 @@ const UserModal = ({ open, onClose, userId }) => {
 	const [selectedQueueIds, setSelectedQueueIds] = useState([]);
 	const [whatsappId, setWhatsappId] = useState(false);
 	// const [allTicket, setAllTicket] = useState("disable");
-	const {loading, whatsApps} = useWhatsApps();
+	const { loading, whatsApps } = useWhatsApps();
+	const [profileUrl, setProfileUrl] = useState(null)
 
 	const startWorkRef = useRef();
 	const endWorkRef = useRef();
@@ -107,6 +148,10 @@ const UserModal = ({ open, onClose, userId }) => {
 				setUser(prevState => {
 					return { ...prevState, ...data };
 				});
+
+				const { profileImage } = data;
+				setProfileUrl(`${backendUrl}/public/company${data.companyId}/user/${profileImage}`);
+
 				const userQueueIds = data.queues?.map(queue => queue.id);
 				setSelectedQueueIds(userQueueIds);
 				setWhatsappId(data.whatsappId ? data.whatsappId : '');
@@ -124,19 +169,47 @@ const UserModal = ({ open, onClose, userId }) => {
 	};
 
 	const handleSaveUser = async values => {
-		console.log(values)
+		const uploadAvatar = async (file) => {
+			const formData = new FormData();
+			formData.append('userId', file.id);
+			formData.append('typeArch', "user");
+			formData.append('profileImage', file.profileImage);
+
+			const { data } = await api.post(`/users/${file.id}/media-upload`, formData);
+
+			localStorage.setItem("profileImage", data.user.profileImage); 
+
+		}
 		const userData = { ...values, whatsappId, queueIds: selectedQueueIds };
 		try {
 			if (userId) {
-				await api.put(`/users/${userId}`, userData);
+				const { data } = await api.put(`/users/${userId}`, userData);
+
+				if (user.profileImage)
+					uploadAvatar(user)
 			} else {
-				await api.post("/users", userData);
+				const { data } = await api.post("/users", userData);
+				if (user.profileImage)
+					uploadAvatar(user)
 			}
+
 			toast.success(i18n.t("userModal.success"));
 		} catch (err) {
 			toastError(err);
 		}
 		handleClose();
+	};
+
+	const handleUpdateProfileImage = (e) => {
+		if (!e.target.files[0]) return;
+
+		const newAvatarUrl = URL.createObjectURL(e.target.files[0]);
+		setUser(prevState => ({
+			...prevState,
+			avatar: newAvatarUrl,
+			profileImage: e.target.files[0]
+		}));
+		setProfileUrl(newAvatarUrl);
 	};
 
 	return (
@@ -167,6 +240,45 @@ const UserModal = ({ open, onClose, userId }) => {
 					{({ touched, errors, isSubmitting }) => (
 						<Form>
 							<DialogContent dividers>
+								<FormControl className={classes.updateDiv}>
+									<label htmlFor="profileImage">
+										<Avatar
+											src={profileUrl ? profileUrl : whatsappIcon}
+											alt="profile-image"
+											className={`${classes.avatar} ${touched.profileImage && errors.profileImage ? classes.errorUpdate : ''}`}
+										/>
+									</label>
+									<FormControl className={classes.updateDiv}>
+										<label htmlFor="profileImage"
+											className={`${classes.updateLabel} ${touched.profileImage && errors.profileImage ? classes.errorUpdate : ''}`}
+										>
+											{profileUrl ? 'Atualizar Imagem' : 'Adicionar Imagem'}
+										</label>
+										{
+											touched.profileImage && errors.profileImage && (
+												<span className={classes.errorText}>{errors.profileImage}</span>)
+										}
+										<Input
+											type="file"
+											name="profileImage"
+											id="profileImage"
+											className={classes.updateInput}
+											onChange={event => handleUpdateProfileImage(event)}
+										/>
+									</FormControl>
+									{user.avatar &&
+										<Button
+											variant="outlined"
+											color="secondary"
+											onClick={() => {
+												setUser(prevState => ({ ...prevState, avatar: null, profileImage: null }));
+												setProfileUrl(whatsappIcon);
+											}}
+										>
+											Remover Imagem
+										</Button>
+									}
+								</FormControl>
 								<div className={classes.multFieldLine}>
 									<Field
 										as={TextField}
@@ -341,63 +453,63 @@ const UserModal = ({ open, onClose, userId }) => {
 								<Can
 									role={loggedInUser.profile}
 									perform="user-modal:editProfile"
-									yes={() => 
-									<FormControl
-										variant="outlined"
-										className={classes.maxWidth}
-										margin="dense"
-										fullWidth
-									>
-										<>
-											<InputLabel >
-												{i18n.t("userModal.form.allTicket")}
-											</InputLabel>
+									yes={() =>
+										<FormControl
+											variant="outlined"
+											className={classes.maxWidth}
+											margin="dense"
+											fullWidth
+										>
+											<>
+												<InputLabel >
+													{i18n.t("userModal.form.allTicket")}
+												</InputLabel>
 
-											<Field
-												as={Select}
-												label={i18n.t("userModal.form.allTicket")}
-												name="allTicket"
-												type="allTicket"
-												error={touched.allTicket && Boolean(errors.allTicket)}
-												helperText={touched.allTicket && errors.allTicket}
-												required
-											>
-												<MenuItem value="enable">{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
-												<MenuItem value="disable">{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
-											</Field>
-										</>
-									</FormControl>
+												<Field
+													as={Select}
+													label={i18n.t("userModal.form.allTicket")}
+													name="allTicket"
+													type="allTicket"
+													error={touched.allTicket && Boolean(errors.allTicket)}
+													helperText={touched.allTicket && errors.allTicket}
+													required
+												>
+													<MenuItem value="enable">{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
+													<MenuItem value="disable">{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
+												</Field>
+											</>
+										</FormControl>
 									}
 								/>
 								<Can
 									role={loggedInUser.profile}
 									perform="user-modal:editProfile"
-									yes={() => 
-									<FormControl
-										variant="outlined"
-										className={classes.maxWidth}
-										margin="dense"
-										fullWidth
-									>
-										<>
-											<InputLabel >
-												{i18n.t("userModal.form.allowGroup")}
-											</InputLabel>
+									yes={() =>
+										<FormControl
+											variant="outlined"
+											className={classes.maxWidth}
+											margin="dense"
+											fullWidth
+										>
+											<>
+												<InputLabel >
+													{i18n.t("userModal.form.allowGroup")}
+												</InputLabel>
 
-											<Field
-												as={Select}
-												label={i18n.t("userModal.form.allowGroup")}
-												name="allowGroup"
-												type="allowGroup"
-												error={touched.allowGroup && Boolean(errors.allowGroup)}
-												helperText={touched.allowGroup && errors.allowGroup}
-												required
-											>
-												<MenuItem value={true}>{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
-												<MenuItem value={false}>{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
-											</Field>
-										</>
-									</FormControl>
+												<Field
+													as={Select}
+													label={i18n.t("userModal.form.allowGroup")}
+													name="allowGroup"
+													type="allowGroup"
+													error={touched.allowGroup && Boolean(errors.allowGroup)}
+													helperText={touched.allowGroup && errors.allowGroup}
+													required
+												>
+													<MenuItem value={true}>{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
+													<MenuItem value={false}>{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
+												</Field>
+											</>
+										</FormControl>
 									}
 								/>
 							</DialogContent>

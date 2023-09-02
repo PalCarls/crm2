@@ -55,12 +55,12 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
 			subheaderTypographyProps={{ noWrap: true }}
 			avatar={
 				<Avatar
-					src={contact.profilePicUrl}
+					src={`${ticket?.contact?.urlPicture}`}					
 					alt="contact_image"
 					style={{
 						width: "50px",
 						height: "50px",
-						borderRadius: "20%"
+						borderRadius: "50%"
 					}}
 				/>}
 			title={`${contactName} #${ticket.id}`}

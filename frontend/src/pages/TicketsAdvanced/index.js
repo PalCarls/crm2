@@ -15,6 +15,7 @@ import TicketAdvancedLayout from "../../components/TicketAdvancedLayout";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 import { i18n } from "../../translate/i18n";
+import { selectClasses } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
     header: {
@@ -40,8 +41,11 @@ const TicketAdvanced = (props) => {
 	const { ticketId } = useParams();
 	const [option, setOption] = useState(0);
     const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
+    const [ selectedQueuesMessage, setSelectedQueuesMessage] = useState();
 
     useEffect(() => {
+        console.log(selectedQueuesMessage)
+
         if(currentTicket.id !== null) {
             setCurrentTicket({ id: currentTicket.id, code: '#open' })
         }
@@ -71,13 +75,17 @@ const TicketAdvanced = (props) => {
 
 	const renderMessageContext = () => {
 		if (ticketId) {
-			return <Ticket />
+			return <Ticket selectedQueuesMessage={selectedQueuesMessage}/>
 		}
 		return renderPlaceholder()
 	}
 
 	const renderTicketsManagerTabs = () => {
-		return <TicketsManagerTabs />
+        {console.log(selectedQueuesMessage)}
+		return <TicketsManagerTabs 
+                    setSelectedQueuesMessage={setSelectedQueuesMessage}
+                    selectedQueuesMessage={selectedQueuesMessage}
+                />
 	}
 
 	return (

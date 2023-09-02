@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Ticket = () => {
+const Ticket = ({selectedQueuesMessage}) => {
   const { ticketId } = useParams();
   const history = useHistory();
   const classes = useStyles();
@@ -68,6 +68,10 @@ const Ticket = () => {
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
+
+  const [showSelectMessageCheckbox, setShowSelectMessageCheckbox] = useState(false);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const [forwardMessageModalOpen, setForwardMessageModalOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -85,7 +89,6 @@ const Ticket = () => {
               history.push("/tickets");
               return;
             }
-
             setContact(data.contact);
             setTicket(data);
             setLoading(false);
@@ -157,10 +160,18 @@ const Ticket = () => {
   const renderMessagesList = () => {
     return (
       <>
+      {/*VER AQUI PARA FAZER O DRAG GERAL*/}
         <MessagesList
           ticket={ticket}
           ticketId={ticket.id}
           isGroup={ticket.isGroup}
+          showSelectMessageCheckbox={showSelectMessageCheckbox}
+          setShowSelectMessageCheckbox={setShowSelectMessageCheckbox}
+          setSelectedMessagesList={setSelectedMessages}
+          selectedMessagesList={selectedMessages}
+          forwardMessageModalOpen={forwardMessageModalOpen}
+          setForwardMessageModalOpen={setForwardMessageModalOpen}
+          selectedQueues={selectedQueuesMessage}
         ></MessagesList>
         <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} />
       </>
@@ -178,7 +189,12 @@ const Ticket = () => {
       >
         <TicketHeader loading={loading}>
           {renderTicketInfo()}
-          <TicketActionButtons ticket={ticket} />
+          <TicketActionButtons 
+            ticket={ticket} 
+            showSelectMessageCheckbox={showSelectMessageCheckbox} 
+            selectedMessages={selectedMessages} 
+            forwardMessageModalOpen={forwardMessageModalOpen}
+            setForwardMessageModalOpen={setForwardMessageModalOpen}/>
         </TicketHeader>
         <Paper>
           <TagsContainer contact={contact} />
