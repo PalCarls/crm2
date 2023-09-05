@@ -44,11 +44,3 @@ backups/*
 .DS_Store
 .DS_Store
 .DS_Store
-
-
-frontend/public/android-chrome-192x192.png
-frontend/public/apple-touch-icon.png
-frontend/public/favicon-16x16.png
-frontend/public/favicon-32x32.png
-frontend/public/favicon.ico
-frontend/src/assets/logo.png
