@@ -390,17 +390,17 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
       <Snackbar
         open={snackbarOpen}
         onClose={handleSnackbarClose}
-        message="VOCÊ DESEJA FECHAR TODOS OS TICKETS?"
+        message={i18n.t("ticketsManager.questionCloseTicket")}
         ContentProps={{
           className: classes.snackbar,
         }}
         action={
           <>
             <Button className={classes.yesButton} size="small" onClick={CloseAllTicket}>
-              SIM
+            {i18n.t("ticketsManager.yes")}
             </Button>
             <Button className={classes.noButton} size="small" onClick={handleSnackbarClose}>
-              NÃO
+            {i18n.t("ticketsManager.not")}
             </Button>
           </>
         }
@@ -509,7 +509,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
               <SpeedDialAction
                 icon={<DoneAll style={{ color: 'green' }} />}
                 className={classes.closeAllFab}
-                tooltipTitle={<span style={tooltipTitleStyle}>Fechar&nbsp;Todos</span>}
+                tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.close")}&nbsp;Todos</span>}
                 tooltipOpen
                 onClick={ (event) => {
                   handleClosed();
@@ -519,7 +519,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
             )}
             <SpeedDialAction
               icon={<Add style={{ color: '#25D366' }} />}
-              tooltipTitle={<span style={tooltipTitleStyle}>Novo&nbsp;ticket</span>}
+              tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.new")}&nbsp;Ticket</span>}
               tooltipOpen
               onClick={() => {
                 handleClosed();

@@ -19,6 +19,7 @@ import ContactModal from "../ContactModal";
 import toastError from "../../errors/toastError"; 
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { Typography } from "@mui/material";
+import { FormControlLabel, Switch } from "@material-ui/core";
 
 const ForwardMessageModal = ({ messages, onClose, modalOpen }) => {
     const [optionsContacts, setOptionsContacts] = useState([]);
@@ -30,6 +31,7 @@ const ForwardMessageModal = ({ messages, onClose, modalOpen }) => {
 	const { user } = useContext(AuthContext);
 	const [sending, setSending] = useState(false);
 	const [messageSending, setMessageSending] = useState('');
+	const [signMessage, setSignMessage] = useState(true);
 
     useEffect(() => {
 		if (!modalOpen || searchParam.length < 3) {
@@ -69,7 +71,7 @@ const ForwardMessageModal = ({ messages, onClose, modalOpen }) => {
 			setSending(true);
 			try {
 				setMessageSending(message.id);
-				const response = await api.post('/message/forward', {messageId: message.id, contactId: contactL.id});
+				const response = await api.post('/message/forward', {messageId: message.id, contactId: contactL.id, signMessage: signMessage});
 				responseList.push(response);
 				sleep(900);
 			} catch (error) {
@@ -194,6 +196,22 @@ const ForwardMessageModal = ({ messages, onClose, modalOpen }) => {
 							</Typography>
 						</>
 					)}
+					<FormControlLabel
+						style={{ marginRight: 7, color: "gray" }}
+						label={i18n.t("messagesInput.signMessage")}
+						labelPlacement="start"
+						control={
+							<Switch
+								size="small"
+								checked={signMessage}
+								onChange={(e) => {
+									setSignMessage(e.target.checked);
+								}}
+								name="showAllTickets"
+								color="primary"
+							/>
+						}
+					/>
 					<ButtonWithSpinner
 						variant="contained"
 						type="button"

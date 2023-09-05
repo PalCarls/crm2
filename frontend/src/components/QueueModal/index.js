@@ -457,19 +457,19 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                       />
                       <Field
                         as={Select}
-                        label={i18n.t("queueModal.form.tempoRoteador")}
+                        label={i18n.t("queueModal.form.timeRotate")}
                         name="tempoRoteador"
                         id="tempoRoteador"
                         variant="outlined"
                         margin="dense"
                         className={classes.selectField}
                       >
-                      <MenuItem value="0" selected disabled>Tempo de Rodízio</MenuItem>
+                      <MenuItem value="0" selected disabled>{i18n.t("queueModal.form.timeRotate")}</MenuItem>
                                   <MenuItem value="2">2 minutos</MenuItem>
                         <MenuItem value="5">5 minutos</MenuItem>
                         <MenuItem value="10">10 minutos</MenuItem>
                         <MenuItem value="15">15 minutos</MenuItem>
-                                  <MenuItem value="30">30 minutos</MenuItem>
+                        <MenuItem value="30">30 minutos</MenuItem>
                         <MenuItem value="45">45 minutos</MenuItem>
                         <MenuItem value="60">60 minutos</MenuItem>
                       </Field>

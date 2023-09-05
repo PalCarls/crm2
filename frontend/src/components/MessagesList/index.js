@@ -992,7 +992,7 @@ const MessagesList = ({
                     <>
                       <span style={{ marginLeft: "0px" }}>
                         <MarkdownWrapper>
-                          {"" + message?.contact?.name + " reagiu... " + message.body}
+                          {"Você reagiu... " + message.body}
                         </MarkdownWrapper>
                       </span>
                     </>

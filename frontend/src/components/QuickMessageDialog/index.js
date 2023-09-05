@@ -123,7 +123,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
   };
 
   const handleSaveQuickeMessage = async (values) => {
-    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? attachment.name : path.basename(values.mediaPath) };
+    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? attachment.name : values.mediaPath ? path.basename(values.mediaPath) : null };
     try {
       if (quickemessageId) {
         await api.put(`/quick-messages/${quickemessageId}`, quickemessageData);
@@ -284,8 +284,8 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                         name="geral"
                         error={touched.geral && Boolean(errors.geral)}
                       >
-                        <MenuItem value={true}>Ativo</MenuItem>
-                        <MenuItem value={false}>Inativo</MenuItem>
+                        <MenuItem value={true}>{i18n.t("announcements.active")}</MenuItem>
+                        <MenuItem value={false}>{i18n.t("announcements.inactive")}</MenuItem>
                       </Field>
                     </FormControl>
                   </Grid>

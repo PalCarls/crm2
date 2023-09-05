@@ -3,7 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import toastError from "../../errors/toastError";
 import Popover from "@material-ui/core/Popover";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
-import Notifications from "@material-ui/icons/Notifications"
+import path from "path";
 import { i18n } from "../../translate/i18n";
 
 import {
@@ -40,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function AnnouncementDialog({ announcement, open, handleClose }) {
-  const getMediaPath = (filename) => {
-    return `${process.env.REACT_APP_BACKEND_URL}public/${filename}`;
-  };
+  // const getMediaPath = (filename) => {
+  //   return path.join(`${process.env.REACT_APP_BACKEND_URL}`,"public", "announcements",`${filename}`);
+  // };
   return (
     <Dialog
       open={open}
@@ -60,14 +60,14 @@ function AnnouncementDialog({ announcement, open, handleClose }) {
               textAlign: "center",
               width: "90%",
               height: 300,
-              backgroundImage: `url(${getMediaPath(announcement.mediaPath)})`,
+              backgroundImage: `url(${announcement.mediaPath})`,
               backgroundRepeat: "no-repeat",
-              backgroundSize: "contain",
+              backgroundSize: "cover",
               backgroundPosition: "center",
             }}
           ></div>
         )}
-        <DialogContentText id="alert-dialog-description">
+        <DialogContentText id="alert-dialog-description" style={{ whiteSpace: "pre-line" }}> 
           {announcement.text}
         </DialogContentText>
       </DialogContent>
@@ -219,9 +219,6 @@ export default function AnnouncementsPopover() {
     }
   };
 
-  const getMediaPath = (filename) => {
-    return `${process.env.REACT_APP_BACKEND_URL}public/${filename}`;
-  };
 
   const handleShowAnnouncementDialog = (record) => {
     setAnnouncement(record);
@@ -243,14 +240,13 @@ export default function AnnouncementsPopover() {
         variant="contained"
         aria-describedby={id}
         onClick={handleClick}
-        style={{ color: "white" }}
       >
         <Badge
           color="secondary"
           variant="dot"
           invisible={invisible || announcements.length < 1}
         >
-          <Notifications />
+          <AnnouncementIcon />
         </Badge>
       </IconButton>
       <Popover
@@ -292,8 +288,7 @@ export default function AnnouncementsPopover() {
                   {item.mediaPath && (
                     <ListItemAvatar>
                       <Avatar
-                        alt={item.mediaName}
-                        src={getMediaPath(item.mediaPath)}
+                        src={item.mediaPath}
                       />
                     </ListItemAvatar>
                   )}
@@ -315,7 +310,7 @@ export default function AnnouncementsPopover() {
               ))}
             {isArray(announcements) && announcements.length === 0 && (
               <ListItemText primary={i18n.t("mainDrawer.appBar.notRegister")} />
-            )}
+              )}
           </List>
         </Paper>
       </Popover>

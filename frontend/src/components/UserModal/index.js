@@ -121,8 +121,8 @@ const UserModal = ({ open, onClose, userId }) => {
 		email: "",
 		password: "",
 		profile: "user",
-		startWork: "",
-		endWork: "",
+		startWork: "00:00",
+		endWork: "23:59",
 		farewellMessage: "",
 		allTicket: "disable",
 		allowGroup: false,
@@ -140,8 +140,11 @@ const UserModal = ({ open, onClose, userId }) => {
 	const startWorkRef = useRef();
 	const endWorkRef = useRef();
 
+	console.log(userId);
+
 	useEffect(() => {
 		const fetchUser = async () => {
+			console.log(userId)
 			if (!userId) return;
 			try {
 				const { data } = await api.get(`/users/${userId}`);
@@ -252,7 +255,7 @@ const UserModal = ({ open, onClose, userId }) => {
 										<label htmlFor="profileImage"
 											className={`${classes.updateLabel} ${touched.profileImage && errors.profileImage ? classes.errorUpdate : ''}`}
 										>
-											{profileUrl ? 'Atualizar Imagem' : 'Adicionar Imagem'}
+											{profileUrl ? i18n.t("userModal.title.updateImage") : i18n.t("userModal.buttons.addImage")}
 										</label>
 										{
 											touched.profileImage && errors.profileImage && (
@@ -275,7 +278,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												setProfileUrl(whatsappIcon);
 											}}
 										>
-											Remover Imagem
+											{i18n.t("userModal.title.removeImage")}
 										</Button>
 									}
 								</FormControl>
@@ -382,13 +385,12 @@ const UserModal = ({ open, onClose, userId }) => {
 									role={loggedInUser.profile}
 									perform="user-modal:editProfile"
 									yes={() => (
-										<form className={classes.container} noValidate>
+										<>
 											<Field
 												as={TextField}
 												label={i18n.t("userModal.form.startWork")}
 												type="time"
-												ampm={false}
-												defaultValue="00:00"
+												ampm={"false"}
 												inputRef={startWorkRef}
 												InputLabelProps={{
 													shrink: true,
@@ -412,8 +414,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												as={TextField}
 												label={i18n.t("userModal.form.endWork")}
 												type="time"
-												ampm={false}
-												defaultValue="23:59"
+												ampm={"false"}
 												inputRef={endWorkRef}
 												InputLabelProps={{
 													shrink: true,
@@ -433,7 +434,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												margin="dense"
 												className={classes.textField}
 											/>
-										</form>
+										</>
 									)}
 								/>
 
@@ -470,8 +471,6 @@ const UserModal = ({ open, onClose, userId }) => {
 													label={i18n.t("userModal.form.allTicket")}
 													name="allTicket"
 													type="allTicket"
-													error={touched.allTicket && Boolean(errors.allTicket)}
-													helperText={touched.allTicket && errors.allTicket}
 													required
 												>
 													<MenuItem value="enable">{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
@@ -501,8 +500,6 @@ const UserModal = ({ open, onClose, userId }) => {
 													label={i18n.t("userModal.form.allowGroup")}
 													name="allowGroup"
 													type="allowGroup"
-													error={touched.allowGroup && Boolean(errors.allowGroup)}
-													helperText={touched.allowGroup && errors.allowGroup}
 													required
 												>
 													<MenuItem value={true}>{i18n.t("userModal.form.allTicketEnable")}</MenuItem>

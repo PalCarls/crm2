@@ -146,22 +146,22 @@ const ForwardModal = ({ open, onClose, contactId, message }) => {
 								</div>
 							</DialogContent>
 							<DialogActions>
-							<FormControlLabel
-										style={{ marginRight: 7, color: "gray" }}
-										label={i18n.t("messagesInput.signMessage")}
-										labelPlacement="start"
-										control={
-											<Switch
-												size="small"
-												checked={signMessage}
-												onChange={(e) => {
-													setSignMessage(e.target.checked);
-												}}
-												name="showAllTickets"
-												color="primary"
-											/>
-										}
-									/>
+								<FormControlLabel
+									style={{ marginRight: 7, color: "gray" }}
+									label={i18n.t("messagesInput.signMessage")}
+									labelPlacement="start"
+									control={
+										<Switch
+											size="small"
+											checked={signMessage}
+											onChange={(e) => {
+												setSignMessage(e.target.checked);
+											}}
+											name="showAllTickets"
+											color="primary"
+										/>
+									}
+								/>
 								<Button
 									onClick={handleClose}
 									color="secondary"

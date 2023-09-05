@@ -186,7 +186,10 @@ const Announcements = () => {
 
   const handleDeleteAnnouncement = async (announcementId) => {
     try {
+      await api.delete(`/announcements/${announcementId}/media-upload`);
+
       await api.delete(`/announcements/${announcementId}`);
+      
       toast.success(i18n.t("announcements.toasts.deleted"));
     } catch (err) {
       toastError(err);
@@ -315,10 +318,10 @@ const Announcements = () => {
                     {translatePriority(announcement.priority)}
                   </TableCell>
                   <TableCell align="center">
-                    {announcement.mediaName ?? "Sem anexo"}
+                    {announcement.mediaName ?? i18n.t("quickMessages.noAttachment")}
                   </TableCell>
                   <TableCell align="center">
-                    {announcement.status ? "ativo" : "inativo"}
+                    {announcement.status ? i18n.t("announcements.active") : i18n.t("announcements.inactive")}
                   </TableCell>
                   <TableCell align="center">
                     <IconButton

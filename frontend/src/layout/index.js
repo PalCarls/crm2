@@ -318,7 +318,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
     const socket = socketConnection({ companyId });
     const ImageUrl = localStorage.getItem("profileImage")
     setProfileUrl(`${backendUrl}/public/company${companyId}/user/${ImageUrl}`);
-
+    
     socket.on(`company-${companyId}-auth`, (data) => {
       if (data.user.id === +userId) {
         toastError("Sua conta foi acessada em outro computador.");
@@ -401,14 +401,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         open={drawerOpen}
       >
         <div className={classes.toolbarIcon}>
-          {/* <img src={logo} className={classes.logo} alt="logo" /> */}
-          <ModalImage
-            className={classes.logo}
-            smallSrcSet={logo}
-            medium={logo}
-            large={logo}
-            alt="image"
-          />
+          <img src={logo} className={classes.logo} alt="logo" /> 
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
             <ChevronLeftIcon />
           </IconButton>
@@ -418,11 +411,11 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         </List>
         <Divider />
       </Drawer>
-      <UserModal
+      {/* <UserModal
         open={userModalOpen}
         onClose={() => setUserModalOpen(false)}
         userId={user?.id}
-      />
+      /> */}
       <AppBar
         position="absolute"
         className={clsx(classes.appBar, drawerOpen && classes.appBarShift)}
@@ -506,7 +499,9 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             <UserModal 
               open={userModalOpen} 
               onClose={() => setUserModalOpen(false)} 
-              onImageUpdate={(newProfileUrl) => setProfileUrl(newProfileUrl)} />
+              onImageUpdate={(newProfileUrl) => setProfileUrl(newProfileUrl)} 
+              userId={user?.id}
+            />
 
             <Menu
               id="menu-appbar"

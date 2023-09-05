@@ -274,7 +274,6 @@ const messages = {
 					name: "Nombre",
 					queueRedirection:"Redirección de Fila",
 					queueRedirectionDesc:"Seleccione una fila para los contactos que no tienen una fila para redirigir",
-					name: "Nome",
 					queueRedirection:"Redirecionamento de Fila",
 					queueRedirectionDesc:"Selecione uma fila para os contatos que não possuem fila serem redirecionados",
 					default: "Por Defecto",
@@ -398,13 +397,15 @@ const messages = {
 					name: "Nombre",
 					color: "Color",
 					orderQueue: "Orden de la fila (Bot)",
+					rotate: "Rotativo",
+					timeRotate: "Tiempo de Rotación",
 					greetingMessage: "Mensaje de saludo",
 					complationMessage: "Mensaje de cierre",
 					outOfHoursMessage: "Mensaje fuera de horario de atención",
 					token: "Token",
 				},
 				buttons: {
-					okAdd: "Añadir",
+					okAdd: "Agregar",
 					okEdit: "Ahorrar",
 					cancel: "Cancelar",
 				},
@@ -465,9 +466,11 @@ const messages = {
 				},
 			  },
 			userModal: {
+				warning:"Para importar los mensajes por favor vuelva a leer el QRCode.",
 				title: {
 					add: "Agregar usuario",
 					edit: "Editar usuario",
+					updateImage:"Actualizar Imagen"
 				},
 				form: {
 					name: "Nombre",
@@ -487,6 +490,8 @@ const messages = {
 					okAdd: "Agregar",
 					okEdit: "Guardar",
 					cancel: "Cancelar",
+					addImage:"Agregar Imagen",
+          			editImage:"Editar Imagen"
 				},
 				success: "Usuario guardado satisfactoriamente.",
 			},
@@ -531,6 +536,8 @@ const messages = {
 				title: {
 				  add: "Nueva Tag",
 				  edit: "Editar Tag",
+				  addKanban: "Nueva Lane",
+				  editKanban: "Editar Lane",
 				},
 				form: {
 				  name: "Nombre",
@@ -587,13 +594,18 @@ const messages = {
 			  },
 			},
 			ticketsManager: {
+				questionCloseTicket:"VOCÊ DESEJA FECHAR TODOS OS TICKETS?",
+				yes:"SIM",
+				not:"NÃO",
 				buttons: {
 					newTicket: "Nuevo",
 					resolvAll: "Resolver Todos",
+					close:"Cerrar",
+          			new:"Nuevo"
 				},
 			},
 			ticketsQueueSelect: {
-				placeholder: "Linhas",
+				placeholder: "Filas",
 			},
 			tickets: {
 				toasts: {
@@ -666,7 +678,7 @@ const messages = {
 				noTicketsMessage:
 					"No se encontraron tickets con este estado o término de búsqueda",
 				buttons: {
-					accept: "Acceptar",
+					accept: "Aceptar",
 					cancel: "Cancelar",
 					start: "Iniciar",
 					closed: "Cerrar",
@@ -682,7 +694,7 @@ const messages = {
 			newTicketModal: {
 				title: "Crear Ticket",
 				fieldLabel: "Escribe para buscar un contacto",
-				add: "Añadir",
+				add: "Agregar",
 				buttons: {
 					ok: "Guardar",
 					cancel: "Cancelar",
@@ -797,19 +809,34 @@ const messages = {
 			},
 			quickMessages: {
 				title: "Respuestas Rápidas",
+				searchPlaceholder: "Buscar...",
+				noAttachment:"No hay",
+				confirmationModal: {
+				  deleteTitle: "Excluir",
+				  deleteMessage: "Esta acción no se puede revertir. ¿Continuar?",  
+				},
 				buttons: {
-				  add: "Agregar Respuesta",
+				  add: "Agregar",
+				  attach: "Adjuntar Archivo",
+					cancel: "Cancelar",
+					edit:"Editar"
 				},
 				dialog: {
 				  title:"Mensaje Rápida",
 				  shortcode: "Atajo",
 				  message: "Respuesta",
-				  save:"Guardar"
+				  save:"Guardar",
+				  cancel:"Cancelar",
+					geral: "Global",
+					add: "Agregar",
+					edit: "Editar"
 				},
 				table:{
 				  shortcode: "Atajo",
 				  message:"Mensaje",
-				  actions:"Acciones"
+				  actions:"Acciones",
+				  mediaName:"Nombre del Archivo",
+          		  status: "Status"
 				}
 			  },
 			  contactLists: {
@@ -874,6 +901,14 @@ const messages = {
 				toasts: {
 				  deleted: "Registro excluído",
 				},
+			  },
+			  kanban: {
+				title: "Kanban",
+				searchPlaceholder: "Búsqueda",
+				subMenus:{
+				  list:"Admin",
+				  tags:"Lanes"
+				}
 			  },
 			  campaigns: {
 				title: "Campañas",
@@ -979,6 +1014,8 @@ const messages = {
 			  announcements: {
 				title: "Boletines",
 				searchPlaceholder: "Búsqueda",
+				active:"Activo",
+        		inactive:"Inactivo",
 				buttons: {
 				  add: "Nuevo Boletin",
 				  contactLists: "Listados de Boletines",
@@ -1036,7 +1073,7 @@ const messages = {
 					color: "Color",
 					greeting: "Mensaje de saludo",
 					orderQueue: "Orden de la fila (bot)",
-					actions: "Comportamiento",
+					actions: "Acciones",
 				},
 				buttons: {
 					add: "Agregar fila",
@@ -1051,7 +1088,7 @@ const messages = {
 				queueData: "Datos",
 			  },
 			queueSelect: {
-				inputLabel: "Linhas",
+				inputLabel: "Filas",
 			},
 			queueIntegration: {
 				title: "Integraciones",
@@ -1219,6 +1256,26 @@ const messages = {
 				  deleted: "Tag eliminada satisfactoriamente.",
 				},
 			  },
+			  tagsKanban: {
+				title: "Lanes",
+				laneDefault:"Abierto(s)",
+				confirmationModal: {
+				  deleteTitle: "¿Seguro que quieres excluir esta Lane?",
+				  deleteMessage: "Esta acción no se puede revertir.",
+				},
+				table: {
+				  name: "Nombre",
+				  color: "Color",
+				  tickets: "Tickets",
+				  actions: "Acciones",
+				},
+				buttons: {
+				  add: "Nueva Lane",
+				},
+				toasts: {
+				  deleted: "Lane eliminada satisfactoriamente.",
+				},
+			  },
 			  files: {
 				title: "Listado de archivos",
 				table: {
@@ -1335,6 +1392,21 @@ const messages = {
 				},
 				extraInfo: "Otra información",
 			},
+			messageVariablesPicker: {
+				label: "Variables disponibles",
+				vars: {
+				  contactFirstName: "Primer Nombre",
+				  contactName: "Nombre",
+				  user: "Agente",
+				  greeting: "Saludos",
+				  protocolNumber: "Protocolo",
+				  date: "Fecha",
+				  hour: "Hora",
+				  ticket_id: "Nº del Ticket",
+				  queue: "Sector",
+				  connection: "Conexión"
+				}
+			  },
 			ticketOptionsMenu: {
 				schedule: "Programa",
 				delete: "Borrar",

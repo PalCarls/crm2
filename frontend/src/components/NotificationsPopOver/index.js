@@ -137,7 +137,7 @@ const NotificationsPopOver = () => {
 
 		socket.on(`company-${user.companyId}-appMessage`, data => {
 			if (
-				data.action === "create" &&
+				data.action === "create" && !data.message.fromMe && 
 				(data.ticket.status !== "pending" && data.ticket.status !== "lgpd" || (data.ticket.status === "pending" && showPendingTickets)) &&
 				(!data.message.read || data.ticket.status === "pending") &&
 				(data.ticket.userId === user?.id || !data.ticket.userId) &&

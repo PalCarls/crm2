@@ -128,7 +128,7 @@ const Quickemessages = () => {
     const companyId = localStorage.getItem("companyId");
     const socket = socketConnection({ companyId });
 
-    socket.on(`company-quickemessage`, (data) => {
+    socket.on(`company${companyId}-quickemessage`, (data) => {
       if (data.action === "update" || data.action === "create") {
         dispatch({ type: "UPDATE_QUICKMESSAGES", payload: data.record });
       }
@@ -145,11 +145,11 @@ const Quickemessages = () => {
     try {
       const companyId = localStorage.getItem("companyId");
       //const searchParam = ({ companyId, userId: user.id });
-      const { data } = await api.get("/quick-messages/list", {
-        params: { companyId, userId: user.id },
+      const { data } = await api.get("/quick-messages", {
+        params: { searchParam, companyId, userId: user.id },
       });
-      //console.log(data);
-      dispatch({ type: "LOAD_QUICKMESSAGES", payload: data });
+
+      dispatch({ type: "LOAD_QUICKMESSAGES", payload: data.records });
       setHasMore(data.hasMore);
       setLoading(false);
     } catch (err) {
@@ -293,7 +293,7 @@ const Quickemessages = () => {
                   <TableCell align="center">{quickemessage.shortcode}</TableCell>
                   
                   <TableCell align="center">
-                    {quickemessage.mediaName ?? "Sem anexo"}
+                    {quickemessage.mediaName ?? i18n.t("quickMessages.noAttachment")}
                   </TableCell>
                   <TableCell align="center">
   					{quickemessage.geral === true ? (

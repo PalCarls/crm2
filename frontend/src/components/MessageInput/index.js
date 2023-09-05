@@ -315,6 +315,7 @@ const backendUrl = getBackendUrl();
 	const [recording, setRecording] = useState(false);
 	const [quickAnswers, setQuickAnswer] = useState([]);
 	const [typeBar, setTypeBar] = useState(false);
+	const [filteredAnswers, setFilteredAnswers] = useState(false);
 	const inputRef = useRef();
 	const [onDragEnter, setOnDragEnter] = useState(false);
 	const [anchorEl, setAnchorEl] = useState(null);
@@ -388,8 +389,10 @@ const backendUrl = getBackendUrl();
 				responseType: "blob",
 			});
 			
-			 handleUploadQuickMessageMedia(data, value.value)
-			 setInputMessage("")
+			 handleUploadQuickMessageMedia(data, value.value);
+			 setInputMessage("");
+			 setTypeBar(false);
+			 setFilteredAnswers("");
 			 return
 			//  handleChangeMedias(response)
 			} catch(err) {
@@ -400,6 +403,7 @@ const backendUrl = getBackendUrl();
 	  setInputMessage("");
 	  setInputMessage(value.value);
 	  setTypeBar(false);
+	  setFilteredAnswers("");
 	};
   
 	const handleAddEmoji = (e) => {
@@ -583,7 +587,7 @@ const backendUrl = getBackendUrl();
 			mediaPath: m.mediaPath,
 			};
 		});
-
+		
 		setQuickAnswer(options);
 		}
 		fetchData();
@@ -599,15 +603,22 @@ const backendUrl = getBackendUrl();
 		  const firstWord = inputMessage.charAt(0);
 
 		  if (firstWord === "/") {
-		  setTypeBar(firstWord.indexOf("/") > -1);
+			// setTypeBar(firstWord.indexOf("/") > -1);
 	
 		  const filteredOptions = quickAnswers.filter(
 			(m) => m.label.indexOf(inputMessage) > -1
 		  );
-		  setTypeBar(filteredOptions);
-		  } else { setTypeBar(false)}
+
+		  setFilteredAnswers(filteredOptions);
+		  setTypeBar(true);
+		  } else { 
+			setTypeBar(false);
+			setFilteredAnswers("");
+
+			}
 		} else {
 			setTypeBar(false);
+			setFilteredAnswers("");
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	  }, [inputMessage]);
@@ -1051,7 +1062,7 @@ const backendUrl = getBackendUrl();
 			  />
 			  {typeBar ? (
 				<ul className={classes.messageQuickAnswersWrapper}>
-				  {quickAnswers.map((value, index) => {
+				  {filteredAnswers.map((value, index) => {
 					return (
 					  <li
 						className={classes.messageQuickAnswersWrapperItem}
@@ -1059,7 +1070,7 @@ const backendUrl = getBackendUrl();
 					  >						
 						{/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
 						<a onClick={() => handleQuickAnswersClick(value)}>
-						  {`${value.label} - ${value.value}`}
+						  {`${value.label}`}
 						</a>
 					  </li>
 					);

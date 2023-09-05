@@ -85,7 +85,7 @@ const Kanban = () => {
     const lanes = [
       {
         id: "lane0",
-        title: "Em Aberto",
+        title: i18n.t("tagsKanban.laneDefault"),
         label: "0",
         cards: filteredTickets.map(ticket => ({
           id: ticket.id.toString(),

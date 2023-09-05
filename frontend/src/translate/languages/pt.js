@@ -403,7 +403,7 @@ const messages = {
           color: "Cor",
           orderQueue: "Ordem da fila (Bot)",
           rotate: "Rodízio",
-          tempoRoteador: "Tempo de Rodízio",
+          timeRotate: "Tempo de Rodízio",
           greetingMessage: "Mensagem de saudação",
           complationMessage: "Mensagem de conclusão",
           outOfHoursMessage: "Mensagem de fora de expediente",
@@ -473,9 +473,12 @@ const messages = {
         },
       },
       userModal: {
+        warning:"Para fazer a importação das mensagens é necessário ler o qrCode novamente !!!",
         title: {
           add: "Adicionar usuário",
           edit: "Editar usuário",
+          updateImage: "Atualizar imagem",
+          removeImage: "Excluir imagem"
         },
         form: {
           name: "Nome",
@@ -495,6 +498,8 @@ const messages = {
           okAdd: "Adicionar",
           okEdit: "Salvar",
           cancel: "Cancelar",
+          addImage:"Adicionar Imagem",
+          editImage:"Editar Imagem"
         },
         success: "Usuário salvo com sucesso.",
       },
@@ -598,9 +603,14 @@ const messages = {
         }
       },
       ticketsManager: {
+        questionCloseTicket:"VOCÊ DESEJA FECHAR TODOS OS TICKETS?",
+        yes:"SIM",
+        not:"NÃO",
         buttons: {
           newTicket: "Novo",
           resolveAll: "Resolver Todos",
+          close:"Fechar",
+          new:"Novo"
         },
       },
       ticketsQueueSelect: {
@@ -807,6 +817,7 @@ const messages = {
       quickMessages: {
         title: "Respostas Rápidas",
         searchPlaceholder: "Pesquisar...",
+        noAttachment:"Sem anexo",
         confirmationModal: {
           deleteTitle: "Exclusão",
           deleteMessage: "Esta ação é irreversível! Deseja prosseguir?",  
@@ -1017,6 +1028,8 @@ const messages = {
       announcements: {
         title: "Informativos",
         searchPlaceholder: "Pesquisa",
+        active:"Ativo",
+        inactive:"Inativo",
         buttons: {
           add: "Novo Informativo",
           contactLists: "Listas de Informativos",
@@ -1261,6 +1274,7 @@ const messages = {
 
       tagsKanban: {
         title: "Lanes",
+        laneDefault:"Em aberto",
         confirmationModal: {
           deleteTitle: "Você tem certeza que quer excluir esta Lane?",
           deleteMessage: "Esta ação não pode ser revertida.",

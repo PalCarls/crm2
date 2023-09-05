@@ -204,7 +204,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       if (whatsAppId) {
         if (whatsAppId && enableImportMessage && whatsApp?.status === "CONNECTED") {
           toast.warning(
-            "Para fazer a importação das mensagens é necessário ler o qrCode novamente !!!",
+            i18n.t("userModal.warning.updateImage"),
             { autoClose: false }
           );
           try {
@@ -360,7 +360,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                         onChange={handleFileUpload}
                       />
                       <Button variant="contained" color="primary" onClick={() => inputFileRef.current.click()}>
-                        Adicionar Imagem 
+                        {i18n.t("userModal.buttons.addImage")}
                       </Button>
                     </div>
                     {/* NOME E PADRAO */}
