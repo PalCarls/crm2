@@ -37,7 +37,6 @@ import toastError from "../../errors/toastError";
 import { Chip } from "@material-ui/core";
 import { socketConnection } from "../../services/socket";
 import { AuthContext } from "../../context/Auth/AuthContext";
-import { CheckCircle } from "@material-ui/icons";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TAGS") {
@@ -112,9 +111,6 @@ const Tags = () => {
       const { data } = await api.get("/tags/", {
         params: { searchParam, pageNumber, kanban: 0 },
       });
-
-      console.log(data.tags)
-      
       dispatch({ type: "LOAD_TAGS", payload: data.tags });
       setHasMore(data.hasMore);
       setLoading(false);
@@ -139,14 +135,13 @@ const Tags = () => {
   useEffect(() => {
     const socket = socketConnection({ companyId: user.companyId });
 
-    socket.on(`company${user.companyId}-tag`, (data) => {
-      console.log(data)
+    socket.on("user", (data) => {
       if (data.action === "update" || data.action === "create") {
         dispatch({ type: "UPDATE_TAGS", payload: data.tag });
       }
 
       if (data.action === "delete") {
-        dispatch({ type: "DELETE_TAG", payload: +data.tagId });
+        dispatch({ type: "DELETE_TAGS", payload: +data.tagId });
       }
     });
 
@@ -218,7 +213,6 @@ const Tags = () => {
         reload={fetchTags}
         aria-labelledby="form-dialog-title"
         tagId={selectedTag && selectedTag.id}
-        kanban={0}
       />
       <MainHeader>
         <Title>{i18n.t("tags.title")} ({tags.length})</Title>
@@ -254,8 +248,12 @@ const Tags = () => {
           <TableHead>
             <TableRow>
               <TableCell align="center">{i18n.t("tags.table.name")}</TableCell>
-              <TableCell align="center">{i18n.t("tags.table.contacts")}</TableCell>
-              <TableCell align="center">{i18n.t("tags.table.actions")}</TableCell>
+              <TableCell align="center">
+                {i18n.t("tags.table.contacts")}
+              </TableCell>
+              <TableCell align="center">
+                {i18n.t("tags.table.actions")}
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -273,8 +271,8 @@ const Tags = () => {
                       label={tag.name}
                       size="small"
                     />
-                  </TableCell>                 
-                  <TableCell align="center">{tag.contactTags?.length ? (<span>{tag.contactTags?.length}</span>) : <span>0</span>}</TableCell>
+                  </TableCell>
+                  <TableCell align="center">{tag.contactsCount}</TableCell>
                   <TableCell align="center">
                     <IconButton size="small" onClick={() => handleEditTag(tag)}>
                       <EditIcon />

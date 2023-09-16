@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
@@ -21,6 +21,7 @@ import WhatsAppIcon from "@material-ui/icons/WhatsApp";
 import ListAltIcon from "@material-ui/icons/ListAlt";
 import { useDate } from "../../hooks/useDate";
 import usePlans from "../../hooks/usePlans";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 import { socketConnection } from "../../services/socket";
 import { i18n } from "../../translate/i18n";
@@ -56,13 +57,14 @@ const CampaignReport = () => {
   const [percent, setPercent] = useState(0);
   const [loading, setLoading] = useState(false);
   const mounted = useRef(true);
+  const { user } = useContext(AuthContext);
 
   const { datetimeToClient } = useDate();
   const { getPlanCompany } = usePlans();
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useCampaigns) {
         toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
@@ -116,8 +118,8 @@ const CampaignReport = () => {
   }, [delivered, validContacts]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-campaign`, (data) => {
 

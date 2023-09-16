@@ -106,16 +106,6 @@ const Companies = () => {
     // const { getPlanCompany } = usePlans();
     const { user } = useContext(AuthContext);
 
-    // useEffect(() => {
-    //     async function fetchData() {
-    //         const companyId = localStorage.getItem("companyId");
-    //         const planConfigs = await getPlanCompany(undefined, companyId);
-    //         setPlanConfig(planConfigs)
-    //     }
-    //     fetchData();
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
-
     useEffect(() => {
         async function fetchData() {
             if (!user.super) {
@@ -155,8 +145,8 @@ const Companies = () => {
     }, [searchParam, pageNumber]);
 
     useEffect(() => {
-        const companyId = localStorage.getItem("companyId");
-        const socket = socketConnection({ companyId });
+        const companyId = user.companyId;
+        const socket = socketConnection({ companyId, userId: user.id });
         // const socket = socketConnection();
 
         return () => {

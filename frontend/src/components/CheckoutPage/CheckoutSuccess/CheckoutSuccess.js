@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from "react-router-dom";
 import QRCode from 'react-qr-code';
 import { SuccessContent, Total } from './style';
@@ -8,6 +8,7 @@ import { socketConnection } from "../../../services/socket";
 import toastError from "../../../errors/toastError";
 import { useDate } from "../../../hooks/useDate";
 import { toast } from "react-toastify";
+import { AuthContext } from "../../../context/Auth/AuthContext";
 
 function CheckoutSuccess(props) {
 
@@ -15,13 +16,14 @@ function CheckoutSuccess(props) {
   const [pixString,] = useState(pix.qrcode.qrcode);
   const [copied, setCopied] = useState(false);
   const history = useHistory();
+  const { user } = useContext(AuthContext);
 
   const { dateToClient } = useDate();
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
+    const companyId = user.companyId;
 
-    const socket = socketConnection({ companyId });
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-payment`, (data) => {
 

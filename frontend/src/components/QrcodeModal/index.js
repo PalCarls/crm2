@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import QRCode from "qrcode.react";
 import toastError from "../../errors/toastError";
 import { makeStyles } from "@material-ui/core/styles";
@@ -6,6 +6,7 @@ import { Dialog, DialogContent, Paper, Typography } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { socketConnection } from "../../services/socket";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -17,6 +18,7 @@ const useStyles = makeStyles((theme) => ({
 const QrcodeModal = ({ open, onClose, whatsAppId }) => {
   const classes = useStyles();
   const [qrCode, setQrCode] = useState("");
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchSession = async () => {
@@ -34,8 +36,8 @@ const QrcodeModal = ({ open, onClose, whatsAppId }) => {
 
   useEffect(() => {
     if (!whatsAppId) return;
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-whatsappSession`, (data) => {
       if (data.action === "update" && data.session.id === whatsAppId) {

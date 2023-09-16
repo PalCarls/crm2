@@ -50,7 +50,8 @@ const reducer = (state, action) => {
   if (action.type === "LOAD_SCHEDULES") {
     const schedules = action.payload;
     const newSchedules = [];
-
+    console.log("payload")
+    console.log(schedules)
     schedules.forEach((schedule) => {
       const scheduleIndex = state.findIndex((s) => s.id === schedule.id);
       if (scheduleIndex !== -1) {
@@ -120,7 +121,7 @@ const Schedules = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useSchedules) {
         toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
@@ -138,6 +139,7 @@ const Schedules = () => {
       const { data } = await api.get("/schedules/", {
         params: { searchParam, pageNumber },
       });
+
       dispatch({ type: "LOAD_SCHEDULES", payload: data.schedules });
       setHasMore(data.hasMore);
       setLoading(false);
@@ -176,8 +178,9 @@ const Schedules = () => {
     const socket = socketConnection({ companyId: user.companyId });
 
     socket.on(`company${user.companyId}-schedule`, (data) => {
+      console.log(data)
       if (data.action === "update" || data.action === "create") {
-        dispatch({ type: "UPDATE_SCHEDULES", payload: data.schedules });
+        dispatch({ type: "UPDATE_SCHEDULES", payload: data.schedule });
       }
 
       if (data.action === "delete") {

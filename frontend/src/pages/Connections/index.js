@@ -5,7 +5,7 @@ import { add, format, parseISO } from "date-fns";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
-import openSocket from "socket.io-client";
+import { socketConnection } from "../../services/socket";
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
 import {
@@ -167,12 +167,12 @@ const Connections = () => {
   const [planConfig, setPlanConfig] = useState(false);
 
   const { user } = useContext(AuthContext);
+  const companyId = user.companyId;
 
   const { getPlanCompany } = usePlans();
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
       const planConfigs = await getPlanCompany(undefined, companyId);
       setPlanConfig(planConfigs)
     }
@@ -218,7 +218,7 @@ const Connections = () => {
   };
 
   useEffect(() => {
-    const socket = openSocket(process.env.REACT_APP_BACKEND_URL);
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`importMessages-${user.companyId}`, (data) => {
       if (data.action === "refresh") {
@@ -491,7 +491,7 @@ const Connections = () => {
   };
 
   const restartWhatsapps = async () => {
-    // const companyId = localStorage.getItem("companyId");
+
     try {
       await api.post(`/whatsapp-restart/`);
       toast.success(i18n.t("connections.waitConnection"));

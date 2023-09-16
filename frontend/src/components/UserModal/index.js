@@ -31,6 +31,8 @@ import { Avatar, Input } from "@material-ui/core";
 import { getBackendUrl } from "../../config";
 
 const backendUrl = getBackendUrl();
+const path = require('path');
+
 const useStyles = makeStyles(theme => ({
 	root: {
 		display: "flex",
@@ -126,6 +128,8 @@ const UserModal = ({ open, onClose, userId }) => {
 		farewellMessage: "",
 		allTicket: "disable",
 		allowGroup: false,
+		defaultTheme: "light",
+		defaultMenu: "open"
 	};
 
 	const { user: loggedInUser } = useContext(AuthContext);
@@ -140,11 +144,11 @@ const UserModal = ({ open, onClose, userId }) => {
 	const startWorkRef = useRef();
 	const endWorkRef = useRef();
 
-	console.log(userId);
+	
 
 	useEffect(() => {
 		const fetchUser = async () => {
-			console.log(userId)
+			
 			if (!userId) return;
 			try {
 				const { data } = await api.get(`/users/${userId}`);
@@ -187,12 +191,16 @@ const UserModal = ({ open, onClose, userId }) => {
 		try {
 			if (userId) {
 				const { data } = await api.put(`/users/${userId}`, userData);
+				console.log( user, profileUrl, data)
+				window.localStorage.setItem("preferredTheme", values.defaultTheme);
 
-				if (user.profileImage)
+				if (user.profileImage && user.profileImage !== path.basename(profileUrl))
 					uploadAvatar(user)
 			} else {
 				const { data } = await api.post("/users", userData);
-				if (user.profileImage)
+				window.localStorage.setItem("preferredTheme", values.defaultTheme);
+
+				if (user.profileImage && user.avatar)
 					uploadAvatar(user)
 			}
 
@@ -220,7 +228,7 @@ const UserModal = ({ open, onClose, userId }) => {
 			<Dialog
 				open={open}
 				onClose={handleClose}
-				maxWidth="xs"
+				maxWidth="md"
 				fullWidth
 				scroll="paper"
 			>
@@ -348,7 +356,6 @@ const UserModal = ({ open, onClose, userId }) => {
 										/>
 									</FormControl>
 								</div>
-
 								<Can
 									role={loggedInUser.profile}
 									perform="user-modal:editQueues"
@@ -356,6 +363,7 @@ const UserModal = ({ open, onClose, userId }) => {
 										<QueueSelect
 											selectedQueueIds={selectedQueueIds}
 											onChange={values => setSelectedQueueIds(values)}
+											fullWidth
 										/>
 									)}
 								/>
@@ -372,6 +380,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												value={whatsappId}
 												onChange={(e) => setWhatsappId(e.target.value)}
 												label={i18n.t("userModal.form.whatsapp")}
+												
 											>
 												<MenuItem value={''}>&nbsp;</MenuItem>
 												{whatsApps.map((whatsapp) => (
@@ -385,7 +394,7 @@ const UserModal = ({ open, onClose, userId }) => {
 									role={loggedInUser.profile}
 									perform="user-modal:editProfile"
 									yes={() => (
-										<>
+										<div className={classes.multFieldLine}>
 											<Field
 												as={TextField}
 												label={i18n.t("userModal.form.startWork")}
@@ -434,7 +443,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												margin="dense"
 												className={classes.textField}
 											/>
-										</>
+										</div>
 									)}
 								/>
 
@@ -451,64 +460,115 @@ const UserModal = ({ open, onClose, userId }) => {
 									variant="outlined"
 									margin="dense"
 								/>
-								<Can
-									role={loggedInUser.profile}
-									perform="user-modal:editProfile"
-									yes={() =>
-										<FormControl
-											variant="outlined"
-											className={classes.maxWidth}
-											margin="dense"
-											fullWidth
-										>
-											<>
-												<InputLabel >
-													{i18n.t("userModal.form.allTicket")}
-												</InputLabel>
+								<div className={classes.multFieldLine}>
+									<Can
+										role={loggedInUser.profile}
+										perform="user-modal:editProfile"
+										yes={() =>
+											<FormControl
+												variant="outlined"
+												className={classes.maxWidth}
+												margin="dense"
+												fullWidth
+											>
+												<>
+													<InputLabel >
+														{i18n.t("userModal.form.allTicket")}
+													</InputLabel>
 
-												<Field
-													as={Select}
-													label={i18n.t("userModal.form.allTicket")}
-													name="allTicket"
-													type="allTicket"
-													required
-												>
-													<MenuItem value="enable">{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
-													<MenuItem value="disable">{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
-												</Field>
-											</>
-										</FormControl>
-									}
-								/>
-								<Can
-									role={loggedInUser.profile}
-									perform="user-modal:editProfile"
-									yes={() =>
-										<FormControl
-											variant="outlined"
-											className={classes.maxWidth}
-											margin="dense"
-											fullWidth
-										>
-											<>
-												<InputLabel >
-													{i18n.t("userModal.form.allowGroup")}
-												</InputLabel>
+													<Field
+														as={Select}
+														label={i18n.t("userModal.form.allTicket")}
+														name="allTicket"
+														type="allTicket"
+														required
+													>
+														<MenuItem value="enable">{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
+														<MenuItem value="disable">{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
+													</Field>
+												</>
+											</FormControl>
+										}
+									/>
+									<Can
+										role={loggedInUser.profile}
+										perform="user-modal:editProfile"
+										yes={() =>
+											<FormControl
+												variant="outlined"
+												className={classes.maxWidth}
+												margin="dense"
+												fullWidth
+											>
+												<>
+													<InputLabel >
+														{i18n.t("userModal.form.allowGroup")}
+													</InputLabel>
 
-												<Field
-													as={Select}
-													label={i18n.t("userModal.form.allowGroup")}
-													name="allowGroup"
-													type="allowGroup"
-													required
-												>
-													<MenuItem value={true}>{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
-													<MenuItem value={false}>{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
-												</Field>
-											</>
-										</FormControl>
-									}
-								/>
+													<Field
+														as={Select}
+														label={i18n.t("userModal.form.allowGroup")}
+														name="allowGroup"
+														type="allowGroup"
+														required
+													>
+														<MenuItem value={true}>{i18n.t("userModal.form.allTicketEnable")}</MenuItem>
+														<MenuItem value={false}>{i18n.t("userModal.form.allTicketDisable")}</MenuItem>
+													</Field>
+												</>
+											</FormControl>
+										}
+									/>
+								</div>
+								<div className={classes.multFieldLine}>
+									<FormControl
+										variant="outlined"
+										className={classes.maxWidth}
+										margin="dense"
+										fullWidth
+									>
+										<>
+											<InputLabel >
+												{i18n.t("userModal.form.defaultTheme")}
+											</InputLabel>
+
+											<Field
+												as={Select}
+												label={i18n.t("userModal.form.defaultTheme")}
+												name="defaultTheme"
+												type="defaultTheme"
+												required
+											>
+												<MenuItem value="light">{i18n.t("userModal.form.defaultThemeLight")}</MenuItem>
+												<MenuItem value="dark">{i18n.t("userModal.form.defaultThemeDark")}</MenuItem>
+											</Field>
+										</>
+									</FormControl>
+
+									<FormControl
+										variant="outlined"
+										className={classes.maxWidth}
+										margin="dense"
+										fullWidth
+									>
+										<>
+											<InputLabel >
+												{i18n.t("userModal.form.defaultMenu")}
+											</InputLabel>
+
+											<Field
+												as={Select}
+												label={i18n.t("userModal.form.defaultMenu")}
+												name="defaultMenu"
+												type="defaultMenu"
+												required
+											>
+												<MenuItem value={"open"}>{i18n.t("userModal.form.defaultMenuOpen")}</MenuItem>
+												<MenuItem value={"closed"}>{i18n.t("userModal.form.defaultMenuClosed")}</MenuItem>
+											</Field>
+										</>
+									</FormControl>
+								</div>
 							</DialogContent>
 							<DialogActions>
 								<Button

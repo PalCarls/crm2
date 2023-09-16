@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { toast } from 'react-toastify';
 import './button.css';
 import { i18n } from '../../translate/i18n';
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 ChartJS.register(
     CategoryScale,
@@ -63,8 +64,9 @@ export const ChartsDate = () => {
     const [initialDate, setInitialDate] = useState(new Date());
     const [finalDate, setFinalDate] = useState(new Date());
     const [ticketsData, setTicketsData] = useState({ data: [], count: 0 });
+    const { user } = useContext(AuthContext);
 
-    const companyId = localStorage.getItem("companyId");
+    const companyId = user.companyId;
 
     useEffect(() => {
         handleGetTicketsInformation();

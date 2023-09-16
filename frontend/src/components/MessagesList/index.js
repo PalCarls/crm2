@@ -22,6 +22,7 @@ import {
   GetApp,
   Facebook,
   Instagram,
+  Reply,
 } from "@material-ui/icons";
 
 import MarkdownWrapper from "../MarkdownWrapper";
@@ -37,9 +38,10 @@ import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessa
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
 import { socketConnection } from "../../services/socket";
-import useSettings from "../../hooks/useSettings";
 import { i18n } from "../../translate/i18n";
 import SelectMessageCheckbox from "./SelectMessageCheckbox";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -272,6 +274,17 @@ const useStyles = makeStyles((theme) => ({
     color: "#999",
   },
 
+  forwardMessage: {
+    fontSize: 12,
+    fontStyle: "italic",
+    position: "absolute",
+    top: 0,
+    left: 5,
+    color: "#999",
+    display: "flex",
+    alignItems: "center"
+  },
+
   dailyTimestamp: {
     alignItems: "center",
     textAlign: "center",
@@ -425,20 +438,30 @@ const MessagesList = ({
   const [anchorEl, setAnchorEl] = useState(null);
   const messageOptionsMenuOpen = Boolean(anchorEl);
   const currentTicketId = useRef(ticketId);
-  const { getAll: getAllSettings } = useSettings();
+  const { getAll } = useCompanySettings();
 
 	const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState(false);
+
+  const { user } = useContext(AuthContext);
+  const companyId = user.companyId;
 
   useEffect(() => {
 
     async function fetchData() {
-        const settingList = await getAllSettings();
-        const settinglgpdDeleteMessage = settingList.find(setting => setting.key === "lgpdDeleteMessage");
-        const settingEnableLGPD = settingList.find(setting => setting.key === "enableLGPD");
 
-        if (settingEnableLGPD && settingEnableLGPD?.value === "enabled" && settinglgpdDeleteMessage && settinglgpdDeleteMessage?.value === "enabled") {
-          setLGPDDeleteMessage(true);
-        }
+      const settings = await getAll(companyId);
+
+      let settinglgpdDeleteMessage;
+      let settingEnableLGPD;
+      
+      for (const [key, value] of Object.entries(settings)) {
+
+        if(key === "lgpdDeleteMessage") settinglgpdDeleteMessage=value
+        if(key === "enableLGPD") settingEnableLGPD=value
+      }
+      if (settingEnableLGPD === "enabled" && settinglgpdDeleteMessage === "enabled") {
+        setLGPDDeleteMessage(true);
+      }
     }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -484,8 +507,7 @@ const MessagesList = ({
   }, [pageNumber, ticketId, selectedQueues]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on("connect", () => socket.emit("joinChatBox", `${ticket.id}`));
 
@@ -881,6 +903,14 @@ const MessagesList = ({
                   <ExpandMore />
                 </IconButton>
                 
+                {message.isForwarded && (
+                  <div>
+                    <span className={classes.forwardMessage}
+                    ><Reply style={{color: "grey", transform: 'scaleX(-1)'}}/> Encaminhada
+                    </span>
+                    <br/>
+                  </div>
+                )}
                 {isGroup && (
                   <span className={classes.messageContactName}>
                     {message.contact?.name}
@@ -969,6 +999,14 @@ const MessagesList = ({
                 >
                   <ExpandMore />
                 </IconButton>
+                {message.isForwarded && (
+                  <div>                 
+                    <span className={classes.forwardMessage}
+                    ><Reply style={{color: "grey", transform: 'scaleX(-1)'}}/> Encaminhada
+                    </span>
+                    <br/>
+                  </div>                  
+                )}
                 {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage"
                   //|| message.mediaType === "multi_vcard" 
                 ) && checkMessageMedia(message)}
@@ -1035,7 +1073,8 @@ const MessagesList = ({
       >
         {messagesList.length > 0 ? renderMessages() : []}
       </div>
-      {(ticket?.channel !== "whatsapp") && (
+      
+      {(ticket?.channel !== "whatsapp" && ticket?.channel !== undefined) && (
         <div
           style={{
             width: "100%",

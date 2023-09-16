@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import * as Yup from "yup";
 import { makeStyles } from "@material-ui/core/styles";
 import Stepper from "@material-ui/core/Stepper";
@@ -21,6 +21,7 @@ import ConfirmationModal from "../ConfirmationModal";
 import { i18n } from "../../translate/i18n";
 import Switch from "@material-ui/core/Switch";
 import { FormControlLabel } from "@material-ui/core";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const QueueSchema = Yup.object().shape({
   options: Yup.array()
@@ -79,8 +80,9 @@ export default function VerticalLinearStepper(props) {
   const [users, setUsers] = React.useState([]);
   const [integrations, setIntegrations] = React.useState([]);
   const [file, setFile] = React.useState([]);
+  const { user } = useContext(AuthContext);
 
-  const companyId = localStorage.getItem("companyId");
+  const companyId = user.companyId;
 
   const handleSaveBot = async (values) => {
     try {

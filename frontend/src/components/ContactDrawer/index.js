@@ -16,13 +16,17 @@ import { i18n } from "../../translate/i18n";
 import ModalImageCors from "../ModalImageCors"
 import ContactDrawerSkeleton from "../ContactDrawerSkeleton";
 import MarkdownWrapper from "../MarkdownWrapper";
-import { CardHeader } from "@material-ui/core";
+import { CardHeader, Switch, Tooltip } from "@material-ui/core";
 import { ContactForm } from "../ContactForm";
 import ContactModal from "../ContactModal";
 import { ContactNotes } from "../ContactNotes";
-import { TagsContainer } from "../TagsContainer";
-import useSettings from "../../hooks/useSettings";
+
 import { AuthContext } from "../../context/Auth/AuthContext";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
+import toastError from "../../errors/toastError";
+import api from "../../services/api";
+import { toast } from "react-toastify";
+
 
 const drawerWidth = 320;
 
@@ -46,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 		backgroundColor: theme.palette.inputBackground,
 		alignItems: "center",
 		padding: theme.spacing(0, 1),
-		minHeight: "73px",
+		minHeight: "50px",
 		justifyContent: "flex-start",
 	},
 	content: {
@@ -58,7 +62,7 @@ const useStyles = makeStyles(theme => ({
 		justifyContent: "center",
 		overflowY: "scroll",
 		...theme.scrollbarStyles,
-	},
+	},	
 
 	contactAvatar: {
 		margin: 15,
@@ -94,19 +98,21 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 	const classes = useStyles();
 
 	const [modalOpen, setModalOpen] = useState(false);
+    const [blockingContact, setBlockingContact] = useState(contact.active);
 	const [openForm, setOpenForm] = useState(false);
-	const { getAll: getAllSettings } = useSettings();
+	const { get } = useCompanySettings();
 	const [hideNum, setHideNum] = useState(false);
 	const { user } = useContext(AuthContext);
+	const [disableBot, setDisableBot] = useState(contact.disableBot);
 
 	useEffect(() => {
-
         async function fetchData() {
-            const settingList = await getAllSettings();
-            const setting = settingList.find(setting => setting.key === "lgpdHideNumber");
-            if (setting && setting?.value === "enabled") {
-                setHideNum(true);
-            }
+
+            const lgpdHideNumber = await get({
+    			"column":"lgpdHideNumber"
+			});
+           
+            if (lgpdHideNumber === "enabled") setHideNum(true);
         }
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -115,6 +121,43 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 	useEffect(() => {
 		setOpenForm(false);
 	}, [open, contact]);
+
+	const handleContactToggleDisableBot = async () => {
+
+		const {id} = contact;
+
+		try {
+			const {data} = await api.put(`/contacts/toggleDisableBot/${id}`);
+			contact.disableBot = data.disableBot;
+			setDisableBot(data.disableBot)
+
+		} catch (err) {
+			toastError(err);
+		}
+	};
+
+	const handleBlockContact = async (contactId) => {
+        try {
+            await api.put(`/contacts/block/${contactId}`, { active: false });
+            toast.success("Contato bloqueado");
+        } catch (err) {
+            toastError(err);
+        }
+
+        setBlockingContact(true);
+    };
+
+    const handleUnBlockContact = async (contactId) => {
+        try {
+            await api.put(`/contacts/block/${contactId}`, { active: true });
+            toast.success("Contato desbloqueado");
+        } catch (err) {
+            toastError(err);
+        }
+        setBlockingContact(false);
+    };
+
+	if(loading) return null;
 
 	return (
 		<>
@@ -140,6 +183,25 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 					<Typography style={{ justifySelf: "center" }}>
 						{i18n.t("contactDrawer.header")}
 					</Typography>
+				</div>
+				<div>
+					{!loading ? (
+						<>
+							<Typography
+								style={{ marginBottom: 8, marginTop: 12 }}
+								variant="subtitle1"
+							>
+								<Switch
+									size="small"
+									checked={disableBot}
+									onChange={() => handleContactToggleDisableBot()}
+									name="disableBot"
+									color="primary"
+								/>
+									{i18n.t("contactModal.form.chatBotContact")}
+							</Typography>
+						</>
+					) : (<br />)}					
 				</div>
 				{loading ? (
 					<ContactDrawerSkeleton classes={classes} />
@@ -179,6 +241,16 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 							>
 								{i18n.t("contactDrawer.buttons.edit")}
 							</Button>
+							<Button
+								variant="outlined"
+								color="secondary"
+								onClick={() => contact.active
+									? handleBlockContact(contact.id)
+									: handleUnBlockContact(contact.id)}
+								disabled={loading}
+							>
+								{!contact.active ? "Desbloquear contato" : "Bloquear contato"}
+							</Button>							
 							{(contact.id && openForm) && <ContactForm initialContact={contact} onCancel={() => setOpenForm(false)} />}
 						</Paper>
 						{/* <TagsContainer contact={contact} className={classes.contactTags} /> */}

@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 
 import { Can } from "../Can";
-import { makeStyles, createTheme} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
 import { DeviceHubOutlined, Replay, SwapHorizOutlined } from "@material-ui/icons";
 
@@ -14,10 +14,8 @@ import toastError from "../../errors/toastError";
 import usePlans from "../../hooks/usePlans";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
-import useSettings from "../../hooks/useSettings";
 import Tooltip from '@material-ui/core/Tooltip';
 import ConfirmationModal from "../ConfirmationModal";
-import { green } from '@material-ui/core/colors';
 import * as Yup from "yup";
 import { Formik, Form } from "formik";
 import Dialog from '@material-ui/core/Dialog';
@@ -30,17 +28,17 @@ import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
 //icones
 import EventIcon from "@material-ui/icons/Event";
 import HighlightOffIcon from "@material-ui/icons/HighlightOff";
-import CachedOutlinedIcon from "@material-ui/icons/CachedOutlined";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import UndoIcon from '@material-ui/icons/Undo';
 
-import { BiSend, BiTransfer } from 'react-icons/bi';
+import { BiSend } from 'react-icons/bi';
 
 import ScheduleModal from "../ScheduleModal";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Switch } from "@material-ui/core";
 import ShowTicketOpen from "../ShowTicketOpenModal";
 import { toast } from "react-toastify";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 const useStyles = makeStyles(theme => ({
     actionButtons: {
@@ -80,13 +78,9 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
     const classes = useStyles();
     const history = useHistory();
     const isMounted = useRef(true);
-    const [anchorEl, setAnchorEl] = useState(null);
     const [loading, setLoading] = useState(false);
-    const ticketOptionsMenuOpen = Boolean(anchorEl);
     const { user } = useContext(AuthContext);
     const { setCurrentTicket } = useContext(TicketsContext);
-    const [initialState, setInitialState] = useState({ ratingId: "" });
-    const [dataRating, setDataRating] = useState([]);
     const [open, setOpen] = React.useState(false);
     const formRef = React.useRef(null);
     const [confirmationOpen, setConfirmationOpen] = useState(false);
@@ -96,38 +90,18 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
     const [acceptAudioMessage, setAcceptAudio] = useState(ticket.contact.acceptAudioMessage);
     const [acceptTicketWithouSelectQueueOpen, setAcceptTicketWithouSelectQueueOpen] = useState(false);
     const [showSchedules, setShowSchedules] = useState(false);
-    const [ratings, setRatings] = useState(false);
-    const [enableIntegration, setEnableIntegration] = useState(false);
+    const [enableIntegration, setEnableIntegration] = useState(ticket.useIntegration);
 
     const [ openAlert, setOpenAlert ] = useState(false);
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
 
-    const { getAll: getAllSettings } = useSettings();
+    const { get:getSetting } = useCompanySettings()
     const { getPlanCompany } = usePlans();
 
     useEffect(() => {
-
         async function fetchData() {
-            const settingList = await getAllSettings();
-            const setting = settingList.find(setting => setting.key === "userRating");
-            if (setting && setting.value === "enabled") {
-                setRatings(true);
-            }
-        }
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
-
-    const customTheme = createTheme({
-        palette: {
-            primary: green,
-        }
-    });
-
-    useEffect(() => {
-        async function fetchData() {
-            const companyId = localStorage.getItem("companyId");
+            const companyId = user.companyId;
             const planConfigs = await getPlanCompany(undefined, companyId);
             setShowSchedules(planConfigs.plan.useSchedules);
         }
@@ -137,11 +111,11 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
 
     
     const handleClickOpen = async (e) => {
-        const settingList = await getAllSettings();
+        const setting = await getSetting({
+            "column":"requiredTag"
+        });
 
-        const requiredTag = settingList.find(setting => setting.key === "requiredTag");
-
-        if(requiredTag && requiredTag.value === "enabled"){
+        if(setting?.requiredTag === "enabled"){
             //verificar se tem uma tag   
             try {
                 const contactTags =  await api.get(`/contactTags/${ticket.contact.id}`);
@@ -176,7 +150,6 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
 
 	};
 
-    
     const handleOpenScheduleModal = () => {
         if (typeof handleClose == "function") handleClose();
         setContactId(ticket.contact.id);
@@ -225,6 +198,21 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
         }
     };
 
+    const handleEnableIntegration = async () => {
+        setLoading(true);
+        try {
+            await api.put(`/tickets/${ticket.id}`, {
+                useIntegration: !enableIntegration
+            });
+            setEnableIntegration(!enableIntegration)
+
+            setLoading(false);
+        } catch (err) {
+            setLoading(false);
+            toastError(err);
+        }
+    };
+
     const handleContactToggleAcceptAudio = async () => {
         try {
             const contact = await api.put(`/contacts/toggleAcceptAudio/${ticket.contact.id}`);
@@ -263,10 +251,6 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
         }
     };
 
-    const handleEnableIntegration = async (e) => {
-        setEnableIntegration(!enableIntegration)
-    };
-
     const handleUpdateTicketStatus = async (e, status, userId) => {
         setLoading(true);
         try {
@@ -275,16 +259,17 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                 userId: userId || null,
             });
 
-            let settingIndex;
+            let setting;
 
             try {
-                const { data } = await api.get("/settings/");
-                settingIndex = data.filter((s) => s.key === "sendGreetingAccepted");
+                setting = await getSetting({
+                    "column":"sendGreetingAccepted"
+                })
             } catch (err) {
                 toastError(err);
             }
-
-            if (settingIndex[0].value === "enabled" && !ticket.isGroup && ticket.status === "pending") {
+ 
+            if (setting?.sendGreetingAccepted === "enabled" && !ticket.isGroup && ticket.status === "pending") {
                 handleSendMessage(ticket.id);
             }
            
@@ -296,23 +281,6 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                 setCurrentTicket({ id: null, code: null })
                 history.push("/tickets");
             }
-        } catch (err) {
-            setLoading(false);
-            toastError(err);
-        }
-    };
-
-    const handleSendRating = async (userId, ratingId) => {
-        handleClose();
-        setLoading(true);
-        try {
-            await api.post(`/ratings/messages/${ticket.id}`, {
-                userId: userId || null,
-                ratingId
-            });
-
-            setLoading(false);
-            history.push("/tickets");
         } catch (err) {
             setLoading(false);
             toastError(err);
@@ -387,7 +355,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                     <>
                         {!showSelectMessageCheckbox ? (
                             <>
-                            {/* <IconButton 
+                            <IconButton 
                                 className={classes.bottomButtonVisibilityIcon}
                                 onClick={handleEnableIntegration}
                             >
@@ -395,7 +363,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                                 {enableIntegration === true ? <DeviceHubOutlined style={{ color: "green" }} /> : <DeviceHubOutlined />}
                                 
                                 </Tooltip>
-                            </IconButton> */}
+                            </IconButton>
                             
                             <IconButton className={classes.bottomButtonVisibilityIcon}>
                                 <Tooltip title={i18n.t("messagesList.header.buttons.resolve")}>
@@ -521,7 +489,6 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
             </div>
             <>
                 <Formik
-                    initialValues={initialState}
                     enableReinitialize={true}
                     validationSchema={SessionSchema}
                     innerRef={formRef}

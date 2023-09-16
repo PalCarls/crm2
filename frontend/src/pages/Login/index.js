@@ -16,8 +16,8 @@ import { i18n } from "../../translate/i18n";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 import wave from '../../assets/wave.png'
-import bg from '../../assets/bg.svg'
-import avatar from '../../assets/avatar.svg'
+import bg from '../../assets/togitalk.svg'
+// import avatar from '../../assets/avatar.svg'
 import logo from '../../assets/logo.png';
 
 const Login = () => {
@@ -37,15 +37,15 @@ const Login = () => {
 
     return (
         <>
-            <img className="wave" src={wave} />
+            {/* <img className="wave" src={wave} /> */}
             <div className="container">
                 <div className="img">
                     <img src={bg} />
                 </div>
                 <div className="login-content" style={{ alignItems: "center" }}>
                     <form noValidate onSubmit={handlSubmit} style={{ display: "grid" }}>
-                        {/* <img src={avatar} /> */} 
-                        <img alt="logo" style={{ maxWidth: 500, marginBottom: 20 }} src={logo}></img>
+                        {/* <img src={avatar} /> */}
+                        {/* <img alt="logo" style={{ maxWidth: 500, marginBottom: 20 }} src={logo}></img> */}
                         <TextField
                             variant="standard"
                             margin="normal"

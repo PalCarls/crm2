@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
     Chart as ChartJS,
     CategoryScale,
@@ -21,6 +21,7 @@ import { toast } from 'react-toastify';
 import { makeStyles } from "@material-ui/core/styles";
 import './button.css';
 import { i18n } from '../../translate/i18n';
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
     container: {
@@ -75,8 +76,9 @@ export const ChatsUser = () => {
     const [initialDate, setInitialDate] = useState(new Date());
     const [finalDate, setFinalDate] = useState(new Date());
     const [ticketsData, setTicketsData] = useState({ data: [] });
+    const { user } = useContext(AuthContext);
 
-    const companyId = localStorage.getItem("companyId");
+    const companyId = user.companyId;
 
     useEffect(() => {
         handleGetTicketsInformation();

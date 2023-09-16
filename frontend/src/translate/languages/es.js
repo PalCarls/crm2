@@ -269,6 +269,7 @@ const messages = {
 				form: {
 					importOldMessagesEnable:"Importar mensajes del celular",
 					importOldMessages: "Fecha de inicio",
+					importRecentMessages: "Fecha Final",
 					importOldMessagesGroups:"Importar mensajes de grupo",
 					closedTicketsPostImported:"Cerrar tickets después de la importación",
 					name: "Nombre",
@@ -279,7 +280,9 @@ const messages = {
 					default: "Por Defecto",
 					group: "Permitir grupos",
 					time:"Tiempo",
+					importAlert: "ATENCIÓN: Guardando, su conexión será cerrada, usted tendrá que volver a leer el QR Code para importar los mensajes",
 					groupAsTicket: "Grupos como Ticket",
+					timeCreateNewTicket: "Criar novo ticket em x minutos",
 					maxUseBotQueues:"Cantidad máxima de veces que el chatbot va a ser enviado",
 					timeUseBotQueues: "Tiempo en minutos para nuevo envío del chatbot",
 					expiresTicket: "Encerrar chats abiertos após n horas",
@@ -287,7 +290,7 @@ const messages = {
 					maxUseBotQueuesNPS: "Cantidad máxima de veces que la evaluación será enviada",
 					closeLastMessageOptions1:"Del Agente/Cliente",
 					closeLastMessageOptions2:"Del Agente",
-					timeUseBotQueues: "Tiempo en minutos para enviar otra vez el chatbo",
+					
 					outOfHoursMessage: "Mensaje fuera de horario de atención",
 					greetingMessage: "Mensaje de saludo",
 					complationMessage: "Mensaje de conclusión",
@@ -311,6 +314,7 @@ const messages = {
 				menuItem: {
 					enabled: "Activado",
 					disabled: "Desactivado",
+					minutes: "minutos",
 				  },
 				success: "WhatsApp guardado satisfactoriamente.",
 			},
@@ -448,7 +452,7 @@ const messages = {
 				  id: "ID",
 				  type: "Tipo",
 				  name: "Nombre",
-				  projectName: "Nobre del Proyecto",
+				  projectName: "Nombre del Proyecto",
 				  language: "Idioma",
 				  jsonContent: "JsonContent",
 				  urlN8N: "URL N8N",
@@ -470,7 +474,8 @@ const messages = {
 				title: {
 					add: "Agregar usuario",
 					edit: "Editar usuario",
-					updateImage:"Actualizar Imagen"
+					updateImage:"Actualizar Imagen",
+					removeImage: "Excluir Imagen"
 				},
 				form: {
 					name: "Nombre",
@@ -484,7 +489,13 @@ const messages = {
 					allTicketEnable: "Activado",
 					allTicketDisable: "Desactivado",
 					allTicket: "Visualizar mensajes sin fila",
-					allowGroup:"Permitir Grupos"
+					allowGroup:"Permitir Grupos",
+					defaultMenuOpen: "Abierto",
+                    defaultMenuClosed: "Cerrado",
+                    defaultMenu: "Menu Estándar",
+                    defaultTheme: "Tema Estándar",
+                    defaultThemeDark: "Oscuro",
+                    defaultThemeLight: "Claro",
 				},
 				buttons: {
 					okAdd: "Agregar",
@@ -549,6 +560,7 @@ const messages = {
 				  cancel: "Cancelar",
 				},
 				success: "Tag guardada satisfactoriamente.",
+				successKanban: "Lane guardada satisfactoriamente.",
 			  },
 			  fileModal: {
 				title: {
@@ -560,6 +572,7 @@ const messages = {
 				  okEdit: "Editar",
 				  cancel: "Cancelar",
 				  options: "Agregar opción",
+				  fileOptions: "Agregar archivo",
 				},
 				form: {
 				  name: "Nombre",
@@ -821,6 +834,10 @@ const messages = {
 					cancel: "Cancelar",
 					edit:"Editar"
 				},
+				toasts: {
+					success: "Atajo agregado satisfactoriamente.",
+					deleted: "Atajo excluido satisfactoriamente.",
+				  },
 				dialog: {
 				  title:"Mensaje Rápida",
 				  shortcode: "Atajo",
@@ -1067,7 +1084,7 @@ const messages = {
 				title: "Configuraciones de Campañas",
 			  },
 			queues: {
-				title: "Linhas",
+				title: "Filas",
 				table: {
 					name: "Nombre",
 					color: "Color",
@@ -1140,8 +1157,8 @@ const messages = {
 				  ID: "ID",
 				  status: "Activo",
 				  name: "Nombre",
-				  password:"Contraseña",
 				  email: "Correo",
+				  password:"Contraseña",
 				  phone:"Teléfono",
 				  plan:"Plan",
 				  active:"Activo",
@@ -1334,6 +1351,7 @@ const messages = {
 						  "Enviar mensaje de transferencia (departamento/agente)",
 						checkMsgIsGroup: "Ignorar mensajes de Grupos",
 						chatBotType: "Tipo de Bot",
+						userRandom:"Escojer agente aleatorio",
 						buttons: "Botones",
 						acceptCallWhatsapp: "No aceptar llamada en el whatsapp",
 						sendSignMessage: "Permitir agente escoger ENVIAR Firma",
@@ -1384,13 +1402,14 @@ const messages = {
 				placeholderClosed:
 					"Vuelva a abrir o acepte este ticket para enviar un mensaje.",
 				signMessage: "Firmar",
+				privateMessage: "Mensaje Privada"
 			},
 			contactDrawer: {
 				header: "Detalles del contacto",
 				buttons: {
 					edit: "Editar contacto",
 				},
-				extraInfo: "Otra información",
+				extraInfo: "Otras informaciones",
 			},
 			messageVariablesPicker: {
 				label: "Variables disponibles",

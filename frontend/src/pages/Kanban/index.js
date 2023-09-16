@@ -38,7 +38,7 @@ const Kanban = () => {
     try {
       const response = await api.get("/tags/kanban");
       const fetchedTags = response.data.lista || []; 
-      console.log(jsonString);
+
       setTags(fetchedTags);
 
       // Fetch tickets after fetching tags
@@ -160,7 +160,6 @@ const Kanban = () => {
 
   useEffect(() => {
     popularCards(jsonString);
-    console.log(tickets)
 }, [tags, tickets, reloadData]);
 
   const handleCardMove = async (cardId, sourceLaneId, targetLaneId) => {

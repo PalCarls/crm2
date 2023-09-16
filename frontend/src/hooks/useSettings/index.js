@@ -8,6 +8,7 @@ const useSettings = () => {
             method: 'GET',
             params
         });
+        
         return data;
     }
 

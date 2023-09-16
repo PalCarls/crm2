@@ -1,10 +1,11 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState, useContext } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import toastError from "../../errors/toastError";
 import Popover from "@material-ui/core/Popover";
 import AnnouncementIcon from "@material-ui/icons/Announcement";
-import path from "path";
+
 import { i18n } from "../../translate/i18n";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 import {
   Avatar,
@@ -140,6 +141,7 @@ export default function AnnouncementsPopover() {
   const [invisible, setInvisible] = useState(false);
   const [announcement, setAnnouncement] = useState({});
   const [showAnnouncementDialog, setShowAnnouncementDialog] = useState(false);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -156,8 +158,8 @@ export default function AnnouncementsPopover() {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-announcement`, (data) => {
       if (data.action === "update" || data.action === "create") {

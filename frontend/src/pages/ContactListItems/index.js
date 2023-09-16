@@ -153,8 +153,8 @@ const ContactListItems = () => {
   }, [searchParam, pageNumber, contactListId]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-ContactListItem`, (data) => {
       if (data.action === "update" || data.action === "create") {

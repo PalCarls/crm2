@@ -64,7 +64,7 @@ form{
     grid-template-columns: 7% 93%;
     margin: 25px 0;
     padding: 5px 0;
-    border-bottom: 2px solid #d9d9d9;
+    border-bottom: 2px solid #F7F7F7;
 }
 
 .login-content .input-div.one{
@@ -72,7 +72,7 @@ form{
 }
 
 .i{
-	color: #d9d9d9;
+	color: #F7F7F7;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -170,7 +170,7 @@ a:hover{
 	background-image: linear-gradient(to right, #065183, #065183, #065183);
 	background-size: 200%;
 	font-size: 1.2rem;
-	color: #fff;
+	color: #F7F7F7;
 	font-family: 'Poppins', sans-serif;
 	text-transform: uppercase;
 	margin: 1rem 0;

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -11,6 +11,7 @@ import api from "../../services/api";
 import { i18n } from "../../translate/i18n.js";
 import toastError from "../../errors/toastError";
 import { socketConnection } from "../../services/socket";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -52,8 +53,8 @@ const Settings = () => {
   }, []);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-settings`, (data) => {
       if (data.action === "update") {

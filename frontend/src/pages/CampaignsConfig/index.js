@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext} from "react";
 import { Field } from "formik";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
@@ -31,8 +31,8 @@ import {
   Typography,
 } from "@material-ui/core";
 import ConfirmationModal from "../../components/ConfirmationModal";
-import Checkbox from '@material-ui/core/Checkbox';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
+
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -78,6 +78,7 @@ const CampaignsConfig = () => {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [selectedKey, setSelectedKey] = useState(null);
   const [variable, setVariable] = useState({ key: "", value: "" });
+  const { user } = useContext(AuthContext);
 
   // const [sabado, setSabado] = React.useState(false);
   // const [domingo, setDomingo] = React.useState(false);
@@ -89,7 +90,7 @@ const CampaignsConfig = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useCampaigns) {
         toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");

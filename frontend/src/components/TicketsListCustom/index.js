@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext } from "react";
+import React, { useState, useEffect, useReducer, useContext, useMemo } from "react";
 
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
@@ -93,7 +93,7 @@ const reducer = (state, action) => {
 
     if (action.type === "LOAD_MOMENTS") {
         const newTickets = action.payload;
-        console.log(newTickets)
+
         newTickets.forEach((ticket) => {
             const ticketIndex = state.findIndex((t) => t.id === ticket.id);
             if (ticketIndex !== -1) {
@@ -147,7 +147,7 @@ const reducer = (state, action) => {
         return [...state];
     }
 
-   
+
     if (action.type === "UPDATE_TICKET_CONTACT") {
         const contact = action.payload;
         const ticketIndex = state.findIndex((t) => t.contactId === contact.id);
@@ -195,7 +195,7 @@ const TicketsListCustom = (props) => {
     const { user } = useContext(AuthContext);
     const { profile, queues } = user;
     const allTicket = user.allTicket === 'enable';
-    const allowGroup = user.allowGroup; 
+    const allowGroup = user.allowGroup;
 
     useEffect(() => {
         dispatch({ type: "RESET" });
@@ -214,13 +214,13 @@ const TicketsListCustom = (props) => {
         statusFilter: JSON.stringify(statusFilter),
         userFilter
     });
-    
+
 
     useEffect(() => {
         const queueIds = queues.map((q) => q.id);
         const filteredTickets = tickets.filter(
-            (t) => queueIds.indexOf(t.queueId) > -1 
-        ) ;
+            (t) => queueIds.indexOf(t.queueId) > -1
+        );
         // const allticket = user.allTicket === 'enable';
 
         if (profile === "admin" || allTicket || allowGroup) {
@@ -229,21 +229,21 @@ const TicketsListCustom = (props) => {
             dispatch({ type: "LOAD_TICKETS", payload: filteredTickets });
         }
 
-    }, [tickets, status, searchParam, queues, profile, whatsappIds, statusFilter, tags, users, allTicket]);
+    }, [tickets]);
 
     useEffect(() => {
-        const companyId = localStorage.getItem("companyId");
-        const socket = socketConnection({ companyId });
-       
-        const shouldUpdateTicketAdmin = (ticket) => 
-            (!ticket?.userId || ticket?.userId === user?.id || showAll ) &&
+        const companyId = user.companyId;
+        const socket = socketConnection({ companyId, userId: user.id });
+
+        const shouldUpdateTicketAdmin = (ticket) =>
+            (!ticket?.userId || ticket?.userId === user?.id || showAll) &&
             (!ticket?.queueId || selectedQueueIds.indexOf(ticket?.queueId) > -1);
-        
-        const shouldUpdateTicketUser = (ticket) => 
-                selectedQueueIds.indexOf(ticket?.queueId) > -1 && (ticket?.userId === user?.id || !ticket?.userId);
+
+        const shouldUpdateTicketUser = (ticket) =>
+            selectedQueueIds.indexOf(ticket?.queueId) > -1 && (ticket?.userId === user?.id || !ticket?.userId);
 
         const notBelongsToUserQueues = (ticket) =>
-            ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1 ;
+            ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
         socket.on("connect", () => {
             if (status) {
@@ -309,7 +309,7 @@ const TicketsListCustom = (props) => {
         return () => {
             socket.disconnect();
         };
-    }, [status, showAll, user, selectedQueueIds, tags, users, profile, queues, whatsappIds, statusFilter, allTicket]);
+    }, [status, searchParam, showAll, user, selectedQueueIds, tags, users, profile, queues, whatsappIds, statusFilter, allTicket]);
 
     useEffect(() => {
         if (typeof updateCount === "function") {
@@ -342,7 +342,7 @@ const TicketsListCustom = (props) => {
                 onScroll={handleScroll}
             >
                 <List style={{ paddingTop: 0 }} >
-                    {ticketsList.length === 0 && !loading  ? (
+                    {ticketsList.length === 0 && !loading ? (
                         <div className={classes.noTicketsDiv}>
                             <span className={classes.noTicketsTitle}>
                                 {i18n.t("ticketsList.noTicketsTitle")}
@@ -357,7 +357,6 @@ const TicketsListCustom = (props) => {
                                 <TicketListItem
                                     ticket={ticket}
                                     key={ticket.id}
-                                    showWhatsappConnection={true}
                                     handleChangeTab={handleChangeTab}
                                 />
                             ))}

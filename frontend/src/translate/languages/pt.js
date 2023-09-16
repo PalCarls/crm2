@@ -492,7 +492,13 @@ const messages = {
           allTicketEnable: "Habilitado",
           allTicketDisable: "Desabilitado",
           allTicket: "Visualizar chamados sem fila",
-          allowGroup:"Permitir Grupos"
+          allowGroup:"Permitir Grupos",
+          defaultMenuOpen: "Aberto",
+          defaultMenuClosed: "Fechado",
+          defaultMenu: "Menu padrão",
+          defaultTheme: "Tema Padrão",
+          defaultThemeDark: "Escuro",
+          defaultThemeLight: "Claro",
         },
         buttons: {
           okAdd: "Adicionar",
@@ -1405,6 +1411,8 @@ const messages = {
         header: "Dados do contato",
         buttons: {
           edit: "Editar contato",
+          block: "Bloquear",
+          unblock: "Desbloquear",
         },
         extraInfo: "Outras informações",
       },

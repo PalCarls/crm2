@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { toast } from "react-toastify";
 
 import { useHistory } from "react-router-dom";
@@ -35,6 +35,7 @@ import { Grid } from "@material-ui/core";
 
 import planilhaExemplo from "../../assets/planilha.xlsx";
 import { socketConnection } from "../../services/socket";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_CONTACTLISTS") {
@@ -102,6 +103,7 @@ const ContactLists = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [contactLists, dispatch] = useReducer(reducer, []);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -129,8 +131,8 @@ const ContactLists = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-ContactList`, (data) => {
       if (data.action === "update" || data.action === "create") {

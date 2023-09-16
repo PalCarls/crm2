@@ -165,9 +165,9 @@ const MainListItems = (props, { collapsed }) => {
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const planConfigs = await getPlanCompany(undefined, companyId);
-      console.log(planConfigs)
+
       setShowCampaigns(planConfigs.plan.useCampaigns);
       setShowKanban(planConfigs.plan.useKanban);
       setShowSchedules(planConfigs.plan.useSchedules);
@@ -187,8 +187,8 @@ const MainListItems = (props, { collapsed }) => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-chat`, (data) => {
       if (data.action === "new-message") {
@@ -541,7 +541,8 @@ const MainListItems = (props, { collapsed }) => {
               </Hidden> 
               */}
               <Typography style={{ fontSize: "12px", padding: "10px", textAlign: "right", fontWeight: "bold" }}>
-              {i18n.t("mainDrawer.listItems.version")}: {version}
+              {`${version}` }
+
               </Typography>
             </React.Fragment>
             }

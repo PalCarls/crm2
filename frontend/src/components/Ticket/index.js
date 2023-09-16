@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useCallback } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
 import clsx from "clsx";
 
-import { Paper, makeStyles } from "@material-ui/core";
+import { Button, IconButton, Paper, Tooltip, makeStyles } from "@material-ui/core";
 
 import ContactDrawer from "../ContactDrawer";
 import MessageInput from "../MessageInput/";
@@ -19,6 +19,8 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 import { TagsContainer } from "../TagsContainer";
 import { socketConnection } from "../../services/socket";
 import { isNil } from 'lodash';
+import { Lock, LockOpen } from "@material-ui/icons";
+import { i18n } from "../../translate/i18n";
 
 const drawerWidth = 320;
 
@@ -80,6 +82,7 @@ const Ticket = ({selectedQueuesMessage}) => {
         try {
           if (!isNil(ticketId) && ticketId !== "undefined") {
             const { data } = await api.get("/tickets/u/" + ticketId);
+
             const { queueId } = data;
             const { queues, profile, allowGroup } = user;
 
@@ -102,11 +105,11 @@ const Ticket = ({selectedQueuesMessage}) => {
       fetchTicket();
     }, 500);
     return () => clearTimeout(delayDebounceFn);
-  }, [ticketId, user, history]);
+  }, [ticketId]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on("connect", () => socket.emit("joinChatBox", `${ticket.id}`));
 
@@ -137,13 +140,13 @@ const Ticket = ({selectedQueuesMessage}) => {
     };
   }, [ticketId, ticket, history]);
 
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = useCallback(() => {
     setDrawerOpen(true);
-  };
+  },[setDrawerOpen]);
 
-  const handleDrawerClose = () => {
+  const handleDrawerClose = useCallback(() => {
     setDrawerOpen(false);
-  };
+  },[setDrawerOpen]);
 
   const renderTicketInfo = () => {
     if (ticket.user !== undefined) {
@@ -187,7 +190,7 @@ const Ticket = ({selectedQueuesMessage}) => {
           [classes.mainWrapperShift]: drawerOpen,
         })}
       >
-        <TicketHeader loading={loading}>
+        <TicketHeader loading={loading}>             
           {renderTicketInfo()}
           <TicketActionButtons 
             ticket={ticket} 

@@ -1,4 +1,4 @@
-import React, { useState, useContext,useEffect } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 
 import {
@@ -22,6 +22,7 @@ import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
 import { Form, Formik } from "formik";
 import ShowTicketOpen from "../ShowTicketOpenModal";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 // const filter = createFilterOptions({
 // 	trim: true,
@@ -51,6 +52,8 @@ const AcceptTicketWithouSelectQueue = ({ modalOpen, onClose, ticketId, ticket })
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
 
+	const {get:getSetting} = useCompanySettings();
+
 useEffect(() => {
 	try {
 	if (user.queues.length === 1) {
@@ -74,22 +77,24 @@ const handleCloseAlert = () => {
 
 const handleSendMessage = async (id) => {
 
-	let settingIndex;
+	let isGreetingMessage = false;
 
 	try {
-		const { data } = await api.get("/settings/");
-		settingIndex = data.filter((s) => s.key === "sendGreetingAccepted");
+		const  setting  = await getSetting({
+			"column":"sendGreetingAccepted"
+		});
+		if (setting.sendGreetingAccepted === "enabled") isGreetingMessage = true;
 	} catch (err) {
 		toastError(err);
 	}
 
-	if (settingIndex[0].value === "enabled" && !ticket.isGroup && ticket.status === "pending") {
-		const msg = `{{ms}} *{{name}}*, meu nome é *${user?.name}* e darei continuidade em seu atendimento.`;
+	if (isGreetingMessage && !ticket.isGroup && ticket.status === "pending") {
+		const msg = `{{ms}} *{{name}}*, ${i18n.t("mainDrawer.appBar.user.myName")} *${user?.name}* ${i18n.t("mainDrawer.appBar.user.continuity")}.`;
 		const message = {
 			read: 1,
 			fromMe: true,
 			mediaUrl: "",
-			body: `*Assistente Virtual:*\n${msg.trim()}`,
+			body: `*${i18n.t("mainDrawer.appBar.user.virtualAssistant")}:*\n${msg.trim()}`,
 		};
 		try {
 			await api.post(`/messages/${id}`, message);

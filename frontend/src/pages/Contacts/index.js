@@ -8,7 +8,6 @@ import React, {
 import { socketConnection } from "../../services/socket";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
-import { CSVLink } from "react-csv";
 
 import { makeStyles } from "@material-ui/core/styles";
 import Table from "@material-ui/core/Table";
@@ -21,7 +20,7 @@ import Button from "@material-ui/core/Button";
 import Avatar from "@material-ui/core/Avatar";
 import { Facebook, Instagram, WhatsApp } from "@material-ui/icons";
 import SearchIcon from "@material-ui/icons/Search";
-import Archive from "@material-ui/icons/Archive"
+
 import TextField from "@material-ui/core/TextField";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
@@ -44,7 +43,6 @@ import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper"
 import MainContainer from "../../components/MainContainer";
 import toastError from "../../errors/toastError";
 
-import useSettings from "../../hooks/useSettings";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { Can } from "../../components/Can";
 import NewTicketModal from "../../components/NewTicketModal";
@@ -55,12 +53,12 @@ import formatSerializedId from '../../utils/formatSerializedId';
 import {
     ArrowDropDown,
     Backup,
-    CloudDownload,
     ContactPhone,
 } from "@material-ui/icons";
 import { Menu, MenuItem } from "@material-ui/core";
-import { green } from "@material-ui/core/colors";
+
 import ContactImportWpModal from "../../components/ContactImportWpModal";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 const reducer = (state, action) => {
     if (action.type === "LOAD_CONTACTS") {
@@ -143,15 +141,17 @@ const Contacts = () => {
     const [selectedTags, setSelectedTags] = useState([]);
 
 
-    const { getAll: getAllSettings } = useSettings();
+    const { get:getSetting } = useCompanySettings();
 	const [hideNum, setHideNum] = useState(false);
 
     useEffect(() => {
 
         async function fetchData() {
-            const settingList = await getAllSettings();
-            const setting = settingList.find(setting => setting.key === "lgpdHideNumber");
-            if (setting && setting?.value === "enabled") {
+            const setting = await getSetting({
+                "column":"lgpdHideNumber"
+            });
+
+            if (setting.lgpdHideNumber === "enabled") {
                 setHideNum(true);
             }
         }
@@ -200,8 +200,8 @@ const Contacts = () => {
     }, [searchParam, pageNumber,selectedTags]);
 
     useEffect(() => {
-        const companyId = localStorage.getItem("companyId");
-        const socket = socketConnection({ companyId }); 
+        const companyId = user.companyId;
+        const socket = socketConnection({ companyId, userId: user.id }); 
 
         socket.on(`company-${companyId}-contact`, (data) => {
             if (data.action === "update" || data.action === "create") {

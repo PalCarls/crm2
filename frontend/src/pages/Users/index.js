@@ -133,8 +133,8 @@ const Users = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = loggedInUser.companyId;
+    const socket = socketConnection({ companyId, userId: loggedInUser.id });
 
     socket.on(`company-${companyId}-user`, (data) => {
       if (data.action === "update" || data.action === "create") {

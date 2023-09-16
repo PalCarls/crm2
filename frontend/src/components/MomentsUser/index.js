@@ -85,8 +85,8 @@ const DashboardManage = () => {
 
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     // socket.on("connect", () => socket.emit("joinChatBox", `${ticket?.id}`));
 

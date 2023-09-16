@@ -48,6 +48,7 @@ import {
   TextField
 } from "@material-ui/core";
 import { AttachFile, Comment, Create } from "@material-ui/icons";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
 
@@ -366,7 +367,7 @@ const CustomInput = (props) => {
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const messages = await listQuickMessages({ companyId, userId: user.id });
       const options = messages.map((m) => {
         let truncatedMessage = m.message;
@@ -501,12 +502,15 @@ const MessageInputCustom = (props) => {
   const [signMessage, setSignMessage] = useState();
   const [privateMessage, setPrivateMessage] = useState(false);
   const [onDragEnter, setOnDragEnter] = useState(false);
+  const {get:getSetting} = useCompanySettings()
 
   useEffect(() => {
     async function fetchData() {
-      const { data } = await api.get("/settings/sendSignMessage");
+      const setting = await getSetting({
+        "column":"sendSignMessage"
+    });
 
-      if (data.value === "disabled") {
+      if (setting.sendSignMessage === "disabled") {
         setSignMessagePar(false)
       } else {
         setSignMessagePar(true)

@@ -1,4 +1,4 @@
-import React,{ useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -8,6 +8,7 @@ import TicketsManager from "../../components/TicketsManagerTabs/";
 import Ticket from "../../components/Ticket/";
 
 import { i18n } from "../../translate/i18n";
+import { Hidden } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
 	chatContainer: {
@@ -50,27 +51,48 @@ const useStyles = makeStyles(theme => ({
 const TicketsCustom = () => {
 	const classes = useStyles();
 	const { ticketId } = useParams();
-    const [ selectedQueuesMessage, setSelectedQueuesMessage] = useState();
-
+	const [selectedQueuesMessage, setSelectedQueuesMessage] = useState([]);
+	// Usando useCallback para memoizar setSelectedQueuesMessage
+	const memoizedSetSelectedQueuesMessage = useCallback((newSelectedQueuesMessage) => {
+		setSelectedQueuesMessage(newSelectedQueuesMessage);
+	}, []);
+	const memoizedTicketsManager = useMemo(() => {
+		return (
+		  <TicketsManager
+			setSelectedQueuesMessage={memoizedSetSelectedQueuesMessage}
+			selectedQueuesMessage={selectedQueuesMessage}
+		  />
+		);
+	  }, [selectedQueuesMessage]);
+	
+	  const memoizedTicket = useMemo(() => {
+		return (
+		  <Ticket selectedQueuesMessage={selectedQueuesMessage} />
+		);
+	  }, [selectedQueuesMessage]);
 	return (
 		<div className={classes.chatContainer}>
 			<div className={classes.chatPapper}>
 				<Grid container spacing={0}>
-					<Grid item xs={4} className={classes.contactsWrapper}>
-						<TicketsManager  
+					<Grid item xs={12} md={4} className={classes.contactsWrapper}>
+						{memoizedTicketsManager}
+						{/* <TicketsManager
 							setSelectedQueuesMessage={setSelectedQueuesMessage}
-                    		selectedQueuesMessage={selectedQueuesMessage}
-						/>
+							selectedQueuesMessage={selectedQueuesMessage}
+						/> */}
 					</Grid>
-					<Grid item xs={8} className={classes.messagesWrapper}>
+					<Grid item xs={12} md={8} className={classes.messagesWrapper}>
 						{ticketId ? (
 							<>
-								<Ticket selectedQueuesMessage={selectedQueuesMessage}/>
+							{memoizedTicket}
+								{/* <Ticket selectedQueuesMessage={selectedQueuesMessage} /> */}
 							</>
 						) : (
-							<Paper square variant="outlined" className={classes.welcomeMsg}>
-								<span>{i18n.t("chat.noTicketMessage")}</span>
-							</Paper>
+							<Hidden only={["sm", "xs"]}>
+								<Paper square variant="outlined" className={classes.welcomeMsg}>
+									<span>{i18n.t("chat.noTicketMessage")}</span>
+								</Paper>
+							</Hidden>
 						)}
 					</Grid>
 				</Grid>

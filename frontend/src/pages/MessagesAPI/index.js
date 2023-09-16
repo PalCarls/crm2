@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Paper from "@material-ui/core/Paper";
@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import api from "../../services/api";
 import axios from "axios";
 import usePlans from "../../hooks/usePlans";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -39,12 +40,13 @@ const MessagesAPI = () => {
   const [formMessageTextData,] = useState({ token: '', number: '', body: '' })
   const [formMessageMediaData,] = useState({ token: '', number: '', medias: '', body:'' })
   const [file, setFile] = useState({})
+  const { user } = useContext(AuthContext);
 
   const { getPlanCompany } = usePlans();
 
   useEffect(() => {
     async function fetchData() {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useExternalApi) {
         toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");

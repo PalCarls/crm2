@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer } from "react";
+import React, { useState, useEffect, useReducer, useContext } from "react";
 import { toast } from "react-toastify";
 import { socketConnection } from "../../services/socket";
 import n8n from "../../assets/n8n.png";
@@ -40,6 +40,7 @@ import ConfirmationModal from "../../components/ConfirmationModal";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_INTEGRATIONS") {
@@ -112,6 +113,7 @@ const QueueIntegration = () => {
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
   const [searchParam, setSearchParam] = useState("");
   const [queueIntegration, dispatch] = useReducer(reducer, []);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -139,8 +141,8 @@ const QueueIntegration = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-queueIntegration`, (data) => {
       if (data.action === "update" || data.action === "create") {

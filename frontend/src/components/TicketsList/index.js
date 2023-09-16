@@ -231,8 +231,8 @@ const TicketsList = ({
   }, [tickets, isGroup, status, searchParam]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     const shouldUpdateTicket = (ticket) =>
       (!ticket.userId || ticket.userId === user?.id || showAll) &&

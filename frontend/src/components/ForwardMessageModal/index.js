@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
-import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
 import Dialog from "@material-ui/core/Dialog";
 import DialogActions from "@material-ui/core/DialogActions";
@@ -140,7 +139,6 @@ const ForwardMessageModal = ({ messages, onClose, modalOpen }) => {
 				open={contactModalOpen}
 				initialValues={newContact}
 				onClose={handleCloseContactModal}
-				onSave={() => console.log('save')}
 			></ContactModal>
 			<Dialog open={modalOpen} onClose={handleClose}>
 				<DialogTitle id="form-dialog-title">

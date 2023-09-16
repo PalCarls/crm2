@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useHistory } from "react-router-dom";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -165,7 +165,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) => {
+const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage }) => {
   const classes = useStyles();
   const history = useHistory();
 
@@ -190,12 +190,13 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
   const [forceSearch, setForceSearch] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState([]);
   const [filter, setFilter] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [hidden, setHidden] = useState(false);
+  // const [open, setOpen] = useState(false);
+  // const [hidden, setHidden] = useState(false);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
   useEffect(() => {
-    if (user.profile.toUpperCase() === "ADMIN" ) {
+    if (user.profile.toUpperCase() === "ADMIN") {
       setShowAllTickets(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,7 +206,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
     setSelectedQueuesMessage(selectedQueueIds);
 
   }, [selectedQueueIds]);
-    
+
   useEffect(() => {
     if (tab === "search") {
       searchInputRef.current.focus();
@@ -213,9 +214,10 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
     setForceSearch(!forceSearch)
   }, [tab]);
 
+  
   let searchTimeout;
 
-  const handleSearch = (e) => {
+  const handleSearch = useCallback((e) => {
     const searchedTerm = e.target.value.toLowerCase();
 
     clearTimeout(searchTimeout);
@@ -234,32 +236,32 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
       setSearchParam(searchedTerm);
       setForceSearch(!forceSearch);
     }, 500);
-  };
+  },[searchInputRef]);
 
-  const handleBack = () => {
-    history.push("/tickets");
-  };
+  // const handleBack = useCallback(() => {
+  //   history.push("/tickets");
+  // },[history]);
 
-  const handleSnackbarOpen = () => {
+  const handleSnackbarOpen = useCallback(() => {
     setSnackbarOpen(true);
-  };
-  
-  const handleSnackbarClose = () => {
+  },[setSnackbarOpen]);
+
+  const handleSnackbarClose = useCallback(() => {
     setSnackbarOpen(false);
-  };
+  },[setSnackbarOpen]);
 
-  const handleChangeTab = (e, newValue) => {
+  const handleChangeTab = useCallback((e, newValue) => {
     setTab(newValue);
-  };
+  },[tab]);
 
-  const handleChangeTabOpen = (e, newValue) => {
+  const handleChangeTabOpen = useCallback((e, newValue) => {
 
-    if (newValue === 'pending' || newValue === "group") {
-      handleBack()
-    }
+    // if (newValue === 'pending' || newValue === "group") {
+    //   handleBack()
+    // }
 
     setTabOpen(newValue);
-  };
+  },[tabOpen]);
 
   const applyPanelStyle = (status) => {
     if (tabOpen !== status) {
@@ -276,41 +278,41 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
     }
   };
 
-  
-  const handleVisibility = () => {
-    setHidden((prevHidden) => !prevHidden);
-  };
 
-  const handleOpen = () => {
-    setOpen(true);
-  };
+  // const handleVisibility = () => {
+  //   setHidden((prevHidden) => !prevHidden);
+  // };
 
-  const handleClosed = () => {
-    setOpen(false);
-  };
+  // const handleOpen = () => {
+  //   setOpen(true);
+  // };
+
+  // const handleClosed = () => {
+  //   setOpen(false);
+  // };
 
   const tooltipTitleStyle = {
     fontSize: '10px'
   };
 
-  const handleCloseOrOpenTicket = (ticket) => {
+  const handleCloseOrOpenTicket = useCallback((ticket) => {
     setNewTicketModalOpen(false);
     if (ticket !== undefined && ticket.uuid !== undefined) {
       history.push(`/tickets/${ticket.uuid}`);
     }
-  };
+  },[history]);
 
   const handleSelectedTags = (selecteds) => {
     const tags = selecteds.map((t) => t.id);
-    
+
     clearTimeout(searchTimeout);
-    
+
     if (tags.length === 0) {
       setForceSearch(!forceSearch)
     } else if (tab !== "search") {
-      setTab("search");      
+      setTab("search");
     }
-    
+
     searchTimeout = setTimeout(() => {
       setSelectedTags(tags);
       setForceSearch(!forceSearch);
@@ -336,7 +338,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
 
   const handleSelectedWhatsapps = (selecteds) => {
     const whatsapp = selecteds.map((t) => t.id);
-    
+
     clearTimeout(searchTimeout);
 
     if (whatsapp.length === 0) {
@@ -348,10 +350,10 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
       setSelectedWhatsapp(whatsapp);
       setForceSearch(!forceSearch);
     }, 500);
-    
+
   };
 
-    const handleSelectedStatus = (selecteds) => {
+  const handleSelectedStatus = (selecteds) => {
 
     const statusFilter = selecteds.map((t) => t.status);
 
@@ -367,7 +369,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
       setSelectedStatus(statusFilter);
       setForceSearch(!forceSearch);
     }, 500);
-    
+
 
   };
 
@@ -378,7 +380,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
     }
     else
       setFilter(true);
-      setTab("search")
+    setTab("search")
   };
 
   return (
@@ -397,10 +399,10 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
         action={
           <>
             <Button className={classes.yesButton} size="small" onClick={CloseAllTicket}>
-            {i18n.t("ticketsManager.yes")}
+              {i18n.t("ticketsManager.yes")}
             </Button>
             <Button className={classes.noButton} size="small" onClick={handleSnackbarClose}>
-            {i18n.t("ticketsManager.not")}
+              {i18n.t("ticketsManager.not")}
             </Button>
           </>
         }
@@ -420,15 +422,15 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
           type="search"
           onChange={handleSearch}
         />
-        <IconButton color="primary" 
-          aria-label="upload picture" 
+        <IconButton color="primary"
+          aria-label="upload picture"
           component="span"
           onClick={handleFilter}
-          >
+        >
           <FilterListIcon />
         </IconButton>
-      </div>  
-      
+      </div>
+
       {filter === true && (
         <>
           <TagsFilter onFiltered={handleSelectedTags} />
@@ -436,7 +438,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
           <StatusFilter onFiltered={handleSelectedStatus} />
           {profile === "admin" && (
             <>
-            <UsersFilter onFiltered={handleSelectedUsers} />
+              <UsersFilter onFiltered={handleSelectedUsers} />
             </>
           )}
         </>
@@ -472,47 +474,45 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
         </Tabs>
       </Paper>
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
-          <>
-           
-            <Can
-              role={user.profile}
-              perform="tickets-manager:showall"
-              yes={() => (
-                <FormControlLabel
-                  label={i18n.t("tickets.buttons.showAll")}
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      size="small"
-                      checked={showAllTickets}
-                      onChange={() =>
-                        setShowAllTickets((prevState) => !prevState)
-                      }
-                      name="showAllTickets"
-                      color="primary"
-                    />
-                  }
-                />
-              )}
-            />
-            <SpeedDial
-              ariaLabel="Menu Actions"
-              className={classes.speedDial}
-              hidden={hidden}
-              size="small"
-              icon={<OfflineBolt />}
-              onClose={handleClosed}
-              onOpen={handleOpen}
-              open={open}
-            >
+        <>
+
+          <Can
+            role={user.profile}
+            perform="tickets-manager:showall"
+            yes={() => (
+              <FormControlLabel
+                label={i18n.t("tickets.buttons.showAll")}
+                labelPlacement="start"
+                control={
+                  <Switch
+                    size="small"
+                    checked={showAllTickets}
+                    onChange={() =>
+                      setShowAllTickets((prevState) => !prevState)
+                    }
+                    name="showAllTickets"
+                    color="primary"
+                  />
+                }
+              />
+            )}
+          />
+          <SpeedDial
+            ariaLabel="Menu Actions"
+            className={classes.speedDial}
+            // hidden={hidden}
+            size="small"
+            icon={<OfflineBolt />}
+
+          >
             {user.profile === 'admin' && (
               <SpeedDialAction
                 icon={<DoneAll style={{ color: 'green' }} />}
                 className={classes.closeAllFab}
                 tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.close")}&nbsp;Todos</span>}
                 tooltipOpen
-                onClick={ (event) => {
-                  handleClosed();
+                onClick={(event) => {
+                  // handleClosed();
                   handleSnackbarOpen();
                 }}
               />
@@ -522,18 +522,18 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
               tooltipTitle={<span style={tooltipTitleStyle}>{i18n.t("ticketsManager.buttons.new")}&nbsp;Ticket</span>}
               tooltipOpen
               onClick={() => {
-                handleClosed();
+                // handleClosed();
                 setNewTicketModalOpen(true);
               }}
             />
-          </SpeedDial>  
-          </>
+          </SpeedDial>
+        </>
         <TicketsQueueSelect
           style={{ marginLeft: 6 }}
           selectedQueueIds={selectedQueueIds}
           userQueues={user?.queues}
           onChange={(values) => {
-            setSelectedQueueIds(values);                       
+            setSelectedQueueIds(values);
             history.push("/tickets");
           }}
         />
@@ -684,7 +684,7 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
             updateCount={(val) => setGroupingCount(val)}
             style={applyPanelStyle("group")}
             handleChangeTab={handleChangeTabOpen}
-          /> 
+          />
         </Paper>
       </TabPanel>
       <TabPanel value={tab} name="closed" className={classes.ticketsWrapper}>
@@ -695,35 +695,35 @@ const TicketsManagerTabs = ({selectedQueuesMessage,setSelectedQueuesMessage}) =>
           handleChangeTab={handleChangeTabOpen}
         />
       </TabPanel>
-      <TabPanel value={tab} name="search" className={classes.ticketsWrapper}>      
+      <TabPanel value={tab} name="search" className={classes.ticketsWrapper}>
         {profile === "admin" && (
-            <>
-              <TicketsList
-                statusFilter={selectedStatus}
-                searchParam={searchParam}
-                showAll={showAllTickets}
-                tags={selectedTags}
-                users={selectedUsers}
-                selectedQueueIds={selectedQueueIds}
-                whatsappIds={selectedWhatsapp}
-                forceSearch={forceSearch}
-                status="search"
-              />
-            </>
-          )}
-
-          {profile === "user" && (
+          <>
             <TicketsList
               statusFilter={selectedStatus}
               searchParam={searchParam}
-              showAll={false}
-              tags={selectedTags}              
+              showAll={showAllTickets}
+              tags={selectedTags}
+              users={selectedUsers}
               selectedQueueIds={selectedQueueIds}
               whatsappIds={selectedWhatsapp}
               forceSearch={forceSearch}
               status="search"
             />
-          )}
+          </>
+        )}
+
+        {profile === "user" && (
+          <TicketsList
+            statusFilter={selectedStatus}
+            searchParam={searchParam}
+            showAll={false}
+            tags={selectedTags}
+            selectedQueueIds={selectedQueueIds}
+            whatsappIds={selectedWhatsapp}
+            forceSearch={forceSearch}
+            status="search"
+          />
+        )}
       </TabPanel>
     </Paper>
   );

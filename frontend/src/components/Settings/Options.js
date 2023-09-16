@@ -11,9 +11,10 @@ import useSettings from "../../hooks/useSettings";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { grey, blue } from "@material-ui/core/colors";
-import { AuthContext } from "../../context/Auth/AuthContext";
+
 import { Tab, Tabs, TextField } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -63,9 +64,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function Options(props) {
-  const { settings, scheduleTypeChanged } = props;
+  const { oldSettings, settings, scheduleTypeChanged, user } = props;
+
   const classes = useStyles();
-  const { user } = useContext(AuthContext);
   const [userRating, setUserRating] = useState("disabled");
   const [scheduleType, setScheduleType] = useState("disabled");
   const [chatBotType, setChatBotType] = useState("text");
@@ -87,9 +88,6 @@ export default function Options(props) {
 
   const [AcceptCallWhatsapp, setAcceptCallWhatsapp] = useState("enabled");
   const [loadingAcceptCallWhatsapp, setLoadingAcceptCallWhatsapp] = useState(false);
-
-  const [HoursCloseTicketsAuto, setHoursCloseTicketsAuto] = useState("enabled");
-  const [loadingHoursCloseTicketsAuto, setLoadingHoursCloseTicketsAuto] = useState(false);
 
   const [sendSignMessage, setSendSignMessage] = useState("enabled");
   const [loadingSendSignMessage, setLoadingSendSignMessage] = useState(false);
@@ -129,122 +127,56 @@ export default function Options(props) {
   const [requiredTag, setRequiredTag] = useState("enabled")
   const [loadingRequiredTag, setLoadingRequiredTag] = useState(false)
 
-  const { update } = useSettings();
+  const { update:updateUserCreation, getAll } = useSettings();
+
+  const { update } = useCompanySettings();
 
   const isSuper = () => {
     return user.super;
   };
 
+  
   useEffect(() => {
-    if (Array.isArray(settings) && settings.length) {
+    
+    if (Array.isArray(oldSettings) && oldSettings.length) {
 
-      const userCreation = settings.find((s) => s.key === "userCreation");
-      if (userCreation) {
-        setUserCreation(userCreation.value);
-      }
+      const userPar = oldSettings.find((s) => s.key === "userCreation");
 
-      const userRating = settings.find((s) => s.key === "userRating");
-      if (userRating) {
-        setUserRating(userRating.value);
-      }
-
-      const scheduleType = settings.find((s) => s.key === "scheduleType");
-      if (scheduleType) {
-        setScheduleType(scheduleType.value);
-      }
-
-      const chatBotType = settings.find((s) => s.key === "chatBotType");
-      if (chatBotType) {
-        setChatBotType(chatBotType.value);
-      }
-
-      const SendGreetingAccepted = settings.find((s) => s.key === "sendGreetingAccepted");
-      if (SendGreetingAccepted) {
-        setSendGreetingAccepted(SendGreetingAccepted.value);
-      }
-
-      const UserRandom = settings.find((s) => s.key === "userRandom");
-      if (UserRandom) {
-        setUserRandom(UserRandom.value);
-      }
-
-      const SettingsTransfTicket = settings.find((s) => s.key === "sendMsgTransfTicket");
-      if (SettingsTransfTicket) {
-        setSettingsTransfTicket(SettingsTransfTicket.value);
-      }
-
-      const AcceptCallWhatsapp = settings.find((s) => s.key === "acceptCallWhatsapp");
-      if (AcceptCallWhatsapp) {
-        setAcceptCallWhatsapp(AcceptCallWhatsapp.value);
-      }
-
-      const sendSignMessage = settings.find((s) => s.key === "sendSignMessage");
-      if (sendSignMessage) {
-        setSendSignMessage(sendSignMessage.value)
-      }
-
-      const sendGreetingMessageOneQueues = settings.find((s) => s.key === "sendGreetingMessageOneQueues");
-      if (sendGreetingMessageOneQueues) {
-        setSendGreetingMessageOneQueues(sendGreetingMessageOneQueues.value)
-      }
-
-      const sendQueuePosition = settings.find((s) => s.key === "sendQueuePosition");
-      if (sendQueuePosition) {
-        setSendQueuePosition(sendQueuePosition.value)
-      }
-
-      const sendFarewellWaitingTicket = settings.find((s) => s.key === "sendFarewellWaitingTicket");
-      if (sendFarewellWaitingTicket) {
-        setSendFarewellWaitingTicket(sendFarewellWaitingTicket.value)
-      }
-
-      const acceptAudioMessageContact = settings.find((s) => s.key === "acceptAudioMessageContact");
-      if (acceptAudioMessageContact) {
-        setAcceptAudioMessageContact(acceptAudioMessageContact.value)
-      }
-
-      const enableLGPD = settings.find((s) => s.key === "enableLGPD");
-      if (enableLGPD) {
-        setEnableLGPD(enableLGPD.value)
-      }
-
-      const lgpdMessage = settings.find((s) => s.key === "lgpdMessage");
-      if (lgpdMessage) {
-        setLGPDMessage(lgpdMessage.value)
-      }
-
-      const lgpdLink = settings.find((s) => s.key === "lgpdLink");
-      if (lgpdLink) {
-        setLGPDLink(lgpdLink.value)
-      }
-
-      const lgpdDeleteMessage = settings.find((s) => s.key === "lgpdDeleteMessage");
-      if (lgpdDeleteMessage) {
-        setLGPDDeleteMessage(lgpdDeleteMessage.value)
-      }
-
-      const lgpdConsent = settings.find((s) => s.key === "lgpdConsent");
-      if (lgpdConsent) {
-        setLGPDConsent(lgpdConsent.value)
-      }
-
-      const lgpdHideNumber = settings.find((s) => s.key === "lgpdHideNumber");
-      if (lgpdHideNumber) {
-        setLGPDHideNumber(lgpdHideNumber.value)
-      }
-
-      const requiredTag = settings.find((s) => s.key === "requiredTag");
-      if (requiredTag) {
-        setRequiredTag(requiredTag.value)
+      if (userPar) {
+        setUserCreation(userPar.value);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [oldSettings])
+  
+
+  useEffect(() => {
+    for (const [key, value] of Object.entries(settings)) {
+      if (key === "userRating") setUserRating(value);
+      if (key === "scheduleType") setScheduleType(value);
+      if (key === "chatBotType") setChatBotType(value);
+      if (key === "acceptCallWhatsapp") setAcceptCallWhatsapp(value);
+      if (key === "userRandom") setUserRandom(value);
+      if (key === "sendGreetingMessageOneQueues") setSendGreetingMessageOneQueues(value);
+      if (key === "sendSignMessage") setSendSignMessage(value);
+      if (key === "sendFarewellWaitingTicket") setSendFarewellWaitingTicket(value);
+      if (key === "sendGreetingAccepted") setSendGreetingAccepted(value);
+      if (key === "sendQueuePosition") setSendQueuePosition(value);
+      if (key === "acceptAudioMessageContact") setAcceptAudioMessageContact(value);
+      if (key === "enableLGPD") setEnableLGPD(value);
+      if (key === "requiredTag") setRequiredTag(value);
+      if (key === "lgpdDeleteMessage") setLGPDDeleteMessage(value)
+      if (key === "lgpdHideNumber") setLGPDHideNumber(value);
+      if (key === "lgpdConsent") setLGPDConsent(value);
+      if (key === "lgpdMessage") setLGPDMessage(value);
+      if (key === "sendMsgTransfTicket") setSettingsTransfTicket(value)
+      if (key === "lgpdLink") setLGPDLink(value)
+    }    
   }, [settings]);
 
   async function handleChangeUserCreation(value) {
     setUserCreation(value);
     setLoadingUserCreation(true);
-    await update({
+    await updateUserCreation({
       key: "userCreation",
       value,
     });
@@ -255,8 +187,8 @@ export default function Options(props) {
     setUserRating(value);
     setLoadingUserRating(true);
     await update({
-      key: "userRating",
-      value,
+      column:"userRating",
+      data:value
     });
     setLoadingUserRating(false);
   }
@@ -265,8 +197,8 @@ export default function Options(props) {
     setScheduleType(value);
     setLoadingScheduleType(true);
     await update({
-      key: "scheduleType",
-      value,
+      column:"scheduleType",
+      data:value
     });
     setLoadingScheduleType(false);
     if (typeof scheduleTypeChanged === "function") {
@@ -277,8 +209,8 @@ export default function Options(props) {
   async function handleChatBotType(value) {
     setChatBotType(value);
     await update({
-      key: "chatBotType",
-      value,
+      column:"chatBotType",
+      data:value
     });
     if (typeof scheduleTypeChanged === "function") {
       setChatBotType(value);
@@ -289,8 +221,8 @@ export default function Options(props) {
     setLGPDMessage(value);
     setLoadingLGPDMessage(true);
     await update({
-      key: "lgpdMessage",
-      value,
+      column:"lgpdMessage",
+      data:value
     });
     setLoadingLGPDMessage(false);
   }
@@ -299,8 +231,8 @@ export default function Options(props) {
     setLGPDLink(value);
     setLoadingLGPDLink(true);
     await update({
-      key: "lgpdLink",
-      value,
+      column:"lgpdLink",
+      data:value
     });
     setLoadingLGPDLink(false);
   }
@@ -309,8 +241,8 @@ export default function Options(props) {
     setLGPDDeleteMessage(value);
     setLoadingLGPDDeleteMessage(true);
     await update({
-      key: "lgpdDeleteMessage",
-      value,
+      column:"lgpdDeleteMessage",
+      data:value
     });
     setLoadingLGPDDeleteMessage(false);
   }
@@ -319,8 +251,8 @@ export default function Options(props) {
     setLGPDConsent(value);
     setLoadingLGPDConsent(true);
     await update({
-      key: "lgpdConsent",
-      value,
+      column:"lgpdConsent",
+      data:value
     });
     setLoadingLGPDConsent(false);
   }
@@ -329,8 +261,8 @@ export default function Options(props) {
     setLGPDHideNumber(value);
     setLoadingLGPDHideNumber(true);
     await update({
-      key: "lgpdHideNumber",
-      value,
+      column:"lgpdHideNumber",
+      data:value
     });
     setLoadingLGPDHideNumber(false);
   }
@@ -339,8 +271,8 @@ export default function Options(props) {
     setSendGreetingAccepted(value);
     setLoadingSendGreetingAccepted(true);
     await update({
-      key: "sendGreetingAccepted",
-      value,
+      column:"sendGreetingAccepted",
+      data:value
     });
     setLoadingSendGreetingAccepted(false);
   }
@@ -349,8 +281,8 @@ export default function Options(props) {
     setUserRandom(value);
     setLoadingUserRandom(true);
     await update({
-      key: "userRandom",
-      value,
+      column:"userRandom",
+      data:value
     });
     setLoadingUserRandom(false);
   }
@@ -359,8 +291,8 @@ export default function Options(props) {
     setSettingsTransfTicket(value);
     setLoadingSettingsTransfTicket(true);
     await update({
-      key: "sendMsgTransfTicket",
-      value,
+      column:"sendMsgTransfTicket",
+      data:value
     });
     setLoadingSettingsTransfTicket(false);
   }
@@ -369,28 +301,18 @@ export default function Options(props) {
     setAcceptCallWhatsapp(value);
     setLoadingAcceptCallWhatsapp(true);
     await update({
-      key: "acceptCallWhatsapp",
-      value,
+      column:"acceptCallWhatsapp",
+      data:value
     });
     setLoadingAcceptCallWhatsapp(false);
-  }
-
-  async function handleHoursCloseTicketsAuto(value) {
-    setHoursCloseTicketsAuto(value);
-    setLoadingHoursCloseTicketsAuto(true);
-    await update({
-      key: "hoursCloseTicketsAuto",
-      value,
-    });
-    setLoadingHoursCloseTicketsAuto(false);
   }
 
   async function handleSendSignMessage(value) {
     setSendSignMessage(value);
     setLoadingSendSignMessage(true);
     await update({
-      key: "sendSignMessage",
-      value,
+      column:"sendSignMessage",
+      data:value
     });
     localStorage.setItem("sendSignMessage", value === "enabled" ? true: false); //atualiza localstorage para sessão
     setLoadingSendSignMessage(false);
@@ -400,8 +322,8 @@ export default function Options(props) {
     setSendGreetingMessageOneQueues(value);
     setLoadingSendGreetingMessageOneQueues(true);
     await update({
-      key: "sendGreetingMessageOneQueues",
-      value,
+      column:"sendGreetingMessageOneQueues",
+      data:value
     });
     setLoadingSendGreetingMessageOneQueues(false);
   }
@@ -410,8 +332,8 @@ export default function Options(props) {
     setSendQueuePosition(value);
     setLoadingSendQueuePosition(true);
     await update({
-      key: "sendQueuePosition",
-      value,
+      column:"sendQueuePosition",
+      data:value
     });
     setLoadingSendQueuePosition(false);
   }
@@ -420,8 +342,8 @@ export default function Options(props) {
     setSendFarewellWaitingTicket(value);
     setLoadingSendFarewellWaitingTicket(true);
     await update({
-      key: "sendFarewellWaitingTicket",
-      value,
+      column:"sendFarewellWaitingTicket",
+      data:value
     });
     setLoadingSendFarewellWaitingTicket(false);
   }
@@ -430,8 +352,8 @@ export default function Options(props) {
     setAcceptAudioMessageContact(value);
     setLoadingAcceptAudioMessageContact(true);
     await update({
-      key: "acceptAudioMessageContact",
-      value,
+      column:"acceptAudioMessageContact",
+      data:value
     });
     setLoadingAcceptAudioMessageContact(false);
   }
@@ -440,8 +362,8 @@ export default function Options(props) {
     setEnableLGPD(value);
     setLoadingEnableLGPD(true);
     await update({
-      key: "enableLGPD",
-      value,
+      column:"enableLGPD",
+      data:value
     });
     setLoadingEnableLGPD(false);
   }
@@ -450,8 +372,8 @@ export default function Options(props) {
     setRequiredTag(value);
     setLoadingRequiredTag(true);
     await update({
-      key: "requiredTag",
-      value,
+      column: "requiredTag",
+      data:value,
     });
     setLoadingRequiredTag(false);
   }

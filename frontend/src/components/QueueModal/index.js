@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 
 import * as Yup from "yup";
 import { Formik, FieldArray, Form, Field } from "formik";
@@ -38,6 +38,8 @@ import OptionsChatBot from "../ChatBots/options";
 import CustomToolTip from "../ToolTips";
 
 import SchedulesForm from "../SchedulesForm";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -135,6 +137,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   const [schedulesEnabled, setSchedulesEnabled] = useState(false);
   const [tab, setTab] = useState(0);
   const [file, setFile] = useState(null);
+  const { user } = useContext(AuthContext);
 
   const [schedules, setSchedules] = useState([
     { weekday: i18n.t("queueModal.serviceHours.monday"),weekdayEn: "monday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
@@ -146,17 +149,20 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
     { weekday: "Domingo", weekdayEn: "sunday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
   ]);
 
-  const companyId = localStorage.getItem("companyId");
+  const companyId = user.companyId;
+
+  const { get:getSetting } = useCompanySettings();
 
   useEffect(() => {
-    api.get(`/settings`).then(({ data }) => {
-      if (Array.isArray(data)) {
-        const scheduleType = data.find((d) => d.key === "scheduleType");
-        if (scheduleType) {
-          setSchedulesEnabled(scheduleType.value === "queue");
-        }
-      }
+
+    const fetchData = async () => {
+
+      const setting = await getSetting({
+        "column":"scheduleType"
     });
+      if(setting.scheduleType === "queue") setSchedulesEnabled(true);
+    }
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -235,7 +241,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
 					params: { companyId }
 				});
 
-        setIntegrations(data.integrations);
+        setIntegrations(data.queueIntegrations);
 			} catch (err) {
 				toastError(err);
 			}
@@ -359,7 +365,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
           onChange={(e, v) => setTab(v)}
           aria-label="disabled tabs example"
         >
-          <Tab label="Dados da Fila" />
+          <Tab label={i18n.t("queueModal.title.queueData")} />
           {schedulesEnabled && <Tab label={i18n.t("queueModal.title.text")} />}
         </Tabs>
           {tab === 0 && (

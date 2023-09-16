@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
 import Title from "../../components/Title";
@@ -16,10 +16,11 @@ import { i18n } from "../../translate/i18n.js";
 import { toast } from "react-toastify";
 
 import useCompanies from "../../hooks/useCompanies";
-import useAuth from "../../hooks/useAuth.js";
-import useSettings from "../../hooks/useSettings";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 import OnlyForSuperUser from "../../components/OnlyForSuperUser";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
+import useSettings from "../../hooks/useSettings";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,33 +65,41 @@ const SettingsCustom = () => {
   const [loading, setLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState({});
   const [settings, setSettings] = useState({});
+  const [oldSettings, setOldSettings] = useState({});
   const [schedulesEnabled, setSchedulesEnabled] = useState(false);
 
-  const { getCurrentUserInfo } = useAuth();
   const { find, updateSchedules } = useCompanies();
-  const { getAll: getAllSettings } = useSettings();
+  
+  //novo hook
+  const { getAll: getAllSettings } = useCompanySettings();
+  const { getAll: getAllSettingsOld } = useSettings();
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     async function findData() {
       setLoading(true);
       try {
-        const companyId = localStorage.getItem("companyId");
+        const companyId = user.companyId;
         const company = await find(companyId);
-        const settingList = await getAllSettings();
+
+        const settingList = await getAllSettings(companyId);
+
+        const settingListOld = await getAllSettingsOld();
+
         setCompany(company);
         setSchedules(company.schedules);
         setSettings(settingList);
+        setOldSettings(settingListOld);
 
-        if (Array.isArray(settingList)) {
+       /*  if (Array.isArray(settingList)) {
           const scheduleType = settingList.find(
             (d) => d.key === "scheduleType"
           );
           if (scheduleType) {
             setSchedulesEnabled(scheduleType.value === "company");
           }
-        }
-
-        const user = await getCurrentUserInfo();
+        } */
+        setSchedulesEnabled(settingList.scheduleType === "company");
         setCurrentUser(user);
       } catch (e) {
         toast.error(e);
@@ -193,6 +202,8 @@ const SettingsCustom = () => {
           <TabPanel className={classes.container} value={tab} name={"options"}>
             <Options
               settings={settings}
+              oldSettings={oldSettings}
+              user={currentUser}
               scheduleTypeChanged={(value) =>
                 setSchedulesEnabled(value === "company")
               }

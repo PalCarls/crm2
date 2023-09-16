@@ -49,7 +49,6 @@ const useAuth = () => {
       }
       if (error?.response?.status === 401) {
         localStorage.removeItem("token");
-        localStorage.removeItem("companyId");
         api.defaults.headers.Authorization = undefined;
         setIsAuth(false);
       }
@@ -75,18 +74,20 @@ const useAuth = () => {
   }, []);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    if (companyId) {
+      const socket = socketConnection({ companyId, userId: user.id });
 
-    socket.on(`company-${companyId}-user`, (data) => {
-      if (data.action === "update" && data.user.id === user.id) {
-        setUser(data.user);
-      }
-    });
+      socket.on(`company-${companyId}-user`, (data) => {
+        if (data.action === "update" && data.user.id === user.id) {
+          setUser(data.user);
+        }
+      });
 
-    return () => {
-      socket.disconnect();
-    };
+      return () => {
+        socket.disconnect();
+      };
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -99,8 +100,8 @@ const useAuth = () => {
         user: { companyId, id, company },
       } = data;
 
-      if (has(company, "settings") && isArray(company.settings)) {
-        const setting = company.settings.find(
+      if (has(company, "companieSettings") && isArray(company.companieSettings[0])) {
+        const setting = company.companieSettings[0].find(
           (s) => s.key === "campaignsEnabled"
         );
         if (setting && setting.value === "true") {
@@ -108,8 +109,8 @@ const useAuth = () => {
         }
       }
 
-      if (has(company, "settings") && isArray(company.settings)) {
-        const setting = company.settings.find(
+      if (has(company, "companieSettings") && isArray(company.companieSettings[0])) {
+        const setting = company.companieSettings[0].find(
           (s) => s.key === "sendSignMessage"
         );
 
@@ -119,7 +120,7 @@ const useAuth = () => {
           localStorage.setItem("sendSignMessage", signEnable); //regra pra exibir campanhas
         }
       }
-      localStorage.setItem("profileImage", data.user.profileImage); //regra pra exibir campanhas
+      localStorage.setItem("profileImage", data.user.profileImage); //regra pra exibir imagem contato
 
       moment.locale('pt-br');
       let dueDate;
@@ -138,8 +139,8 @@ const useAuth = () => {
 
       if (before === true) {
         localStorage.setItem("token", JSON.stringify(data.token));
-        localStorage.setItem("companyId", companyId);
-        localStorage.setItem("userId", id);
+        // localStorage.setItem("companyId", companyId);
+        // localStorage.setItem("userId", id);
         localStorage.setItem("companyDueDate", vencimento);
         api.defaults.headers.Authorization = `Bearer ${data.token}`;
         setUser(data.user);
@@ -151,7 +152,7 @@ const useAuth = () => {
         history.push("/tickets");
         setLoading(false);
       } else {
-        localStorage.setItem("companyId", companyId);
+        // localStorage.setItem("companyId", companyId);
         api.defaults.headers.Authorization = `Bearer ${data.token}`;
         setIsAuth(true);
         toastError(`Opss! Sua assinatura venceu ${vencimento}.

@@ -141,7 +141,6 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
 
   const handleSaveDialogflow = async (values) => {
     try {
-      console.log(values);
       if (values.type === 'n8n' || values.type === 'webhook') values.projectName = values.name
       if (integrationId) {
         await api.put(`/queueIntegration/${integrationId}`, values);
@@ -240,7 +239,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                       >
                         <MenuItem value="pt-BR">Portugues</MenuItem>
                         <MenuItem value="en">Inglês</MenuItem>
-                        <MenuItem value="es">Espanhol</MenuItem>
+                        <MenuItem value="es">Español</MenuItem>
                       </Field>
                     </FormControl>
                     <div>

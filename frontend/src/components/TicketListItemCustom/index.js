@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useContext } from "react";
+import React, { useState, useEffect, useRef, useContext, useCallback } from "react";
 
 import { useHistory, useParams } from "react-router-dom";
 import { parseISO, format, isSameDay } from "date-fns";
@@ -14,7 +14,6 @@ import Typography from "@material-ui/core/Typography";
 import Avatar from "@material-ui/core/Avatar";
 import Divider from "@material-ui/core/Divider";
 import Badge from "@material-ui/core/Badge";
-import Box from "@material-ui/core/Box";
 
 import { i18n } from "../../translate/i18n";
 
@@ -33,8 +32,6 @@ import GroupIcon from '@material-ui/icons/Group';
 // import FacebookIcon from "@material-ui/icons/Facebook";
 
 
-import AndroidIcon from "@material-ui/icons/Android";
-
 import TicketMessagesDialog from "../TicketMessagesDialog";
 import ContactTag from "../ContactTag";
 import ConnectionIcon from "../ConnectionIcon";
@@ -42,9 +39,9 @@ import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
 import TransferTicketModalCustom from "../TransferTicketModalCustom";
 import ShowTicketOpen from "../ShowTicketOpenModal";
 import { isNil } from "lodash";
-import useSettings from "../../hooks/useSettings";
 import { toast } from "react-toastify";
-import { Done, HighlightOff, Replay, SwapHoriz, ThumbDown } from "@material-ui/icons";
+import { Done, HighlightOff, Replay, SwapHoriz } from "@material-ui/icons";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
 
 // import contrastColor from "../../helpers/contrastColor";
 
@@ -77,12 +74,13 @@ const useStyles = makeStyles((theme) => ({
         justifyContent: "center",
     },
     newMessagesCount: {
-        position: "absolute",
-        alignSelf: "center",
-        marginRight: 8,
-        marginLeft: "auto",
-        top: "10px",
-        left: "20px",
+        justifySelf: "flex-end",
+        textAlign: "right",
+        position: "relative",
+        top: 0,
+        color: "green",
+        fontWeight: "bold",
+        marginRight: "-19px",
         borderRadius: 0,
     },
     noTicketsText: {
@@ -120,7 +118,8 @@ const useStyles = makeStyles((theme) => ({
         justifySelf: "flex-end",
         textAlign: "right",
         position: "relative",
-        top: -30
+        top: -30,
+        marginRight: "1px"
     },
 
     lastMessageTimeUnread: {
@@ -130,6 +129,7 @@ const useStyles = makeStyles((theme) => ({
         top: -30,
         color: "green",
         fontWeight: "bold",
+        marginRight: "1px",
     },
 
     closedBadge: {
@@ -214,13 +214,12 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
+// const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
+const TicketListItemCustom = ({ ticket }) => {
     const classes = useStyles();
     const history = useHistory();
     const [loading, setLoading] = useState(false);
     const [ticketUser, setTicketUser] = useState(null);
-    // const [ticketQueueName, setTicketQueueName] = useState(null);
-    // const [ticketQueueColor, setTicketQueueColor] = useState(null);
     const [tag, setTag] = useState([]);
     
     const [whatsAppName, setWhatsAppName] = useState(null);
@@ -231,68 +230,54 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
 
-    const [openTicketMessageDialog, setOpenTicketMessageDialog] = useState(false);
+    // const [openTicketMessageDialog, setOpenTicketMessageDialog] = useState(false);
     const { ticketId } = useParams();
     const isMounted = useRef(true);
     const { setCurrentTicket } = useContext(TicketsContext);
     const { user } = useContext(AuthContext);
     
-    const { profile } = user;
-
-    const { getAll: getAllSettings } = useSettings();
+    const { get:getSetting } = useCompanySettings();
     
     useEffect(() => {
         if (ticket.userId && ticket.user) {
-          setTicketUser(ticket.user.name.toUpperCase());
+          setTicketUser(ticket?.user?.name.toUpperCase());
         }
-        // setTicketQueueName(ticket.queue?.name.toUpperCase());
-        // setTicketQueueColor(ticket.queue?.color);
         
+        setWhatsAppName(ticket?.whatsapp?.name.toUpperCase());
+
+        setTag(ticket?.tags);
+       
         return () => {
           isMounted.current = false;
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
+    
+
     // useEffect(() => {
-    //     async function fetchData() {
+    //     const delayDebounceFn = setTimeout(() => {
+    //         const fetchTicket = async () => {
+    //             try {
+    //                 const { data } = await api.get("/tickets/" + ticket.id);
 
-    //        if (ticket.userId && ticket.user) {
-    //             setTicketUser(ticket.user?.name.toUpperCase());
-    //         }
-    //         else { setTicketUser(" ")}
-    //         setTicketQueueName(ticket.queue?.name.toUpperCase());
-    //         setTicketQueueColor(ticket.queue?.color);
+    //                 if (data.whatsappId && data.whatsapp) {
+    //                     setWhatsAppName(data.whatsapp?.name.toUpperCase());
+    //                 }
 
-    //         return () => {
-    //             isMounted.current = false;
+    //                 setTag(data?.tags);
+
+    //             } catch (err) {
+    //             }
     //         };
-    //     }
-    //     fetchData();
-    // }, [ticketId, user, history, ticket.queue, ticket.user, ticket.status]);
+    //         fetchTicket();
+    //     }, 500);
 
-    useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            const fetchTicket = async () => {
-                try {
-                    const { data } = await api.get("/tickets/" + ticket.id);
-
-                    if (data.whatsappId && data.whatsapp) {
-                        setWhatsAppName(data.whatsapp?.name.toUpperCase());
-                    }
-
-                    setTag(data?.tags);
-
-                } catch (err) {
-                }
-            };
-            fetchTicket();
-        }, 500);
-        return () => {
-            if (delayDebounceFn !== null) {
-                clearTimeout(delayDebounceFn);
-            }
-        };
-    }, [ticketId, user, history, ticket.queue, ticket.user]);
+    //     return () => {
+    //         if (delayDebounceFn !== null) {
+    //             clearTimeout(delayDebounceFn);
+    //         }
+    //     };
+    // }, [ticketId, user, history]);
 
     const handleOpenAcceptTicketWithouSelectQueue = () => {
         // console.log(ticket)
@@ -300,9 +285,13 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
 	};
 
     const handleCloseTicket = async (id) => {
-        const settingList = await getAllSettings();
-        const requiredTag = settingList.find(setting => setting.key === "requiredTag");
-        if(requiredTag && requiredTag?.value === "enabled"){
+        const setting = await getSetting(
+            {
+    			"column":"requiredTag"
+			}
+        );
+    
+        if(setting.requiredTag === "enabled"){
             //verificar se tem uma tag   
             try {
                 const contactTags =  await api.get(`/contactTags/${ticket.contact.id}`);
@@ -372,31 +361,11 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         }
     };
 
-    const handleReopenTicket = async (id) => {
-        setLoading(true);
-        try {
-            await api.put(`/tickets/${id}`, {
-                status: ticket.isGroup ? "group" : "open",
-                userId: user?.id,
-                queueId: ticket?.queue?.id
-            });
-        } catch (err) {
-            setLoading(false);
-            toastError(err);
-        }
+    const handleCloseTransferTicketModal = useCallback(() => {
         if (isMounted.current) {
-            setLoading(false);
+            setTransferTicketModalOpen(false);            
         }
-        history.push(`/tickets/`);
-    };
-
-    const handleCloseTransferTicketModal = () => {
-        if (isMounted.current) {
-            setTransferTicketModalOpen(false);
-            // setLoading(false);
-        }
-        // history.push(`/tickets/${ticket.uuid}`);
-    };
+    },[]);
     
     const handleOpenTransferModal = (e) => {
         setLoading(true)
@@ -423,20 +392,21 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                     setQueueTicketOpen(otherTicket.data.queue.name)
                 } else {
                     setLoading(false);
-                    handleChangeTab(null, ticket.isGroup? "group" : "open");
+                    // handleChangeTab(null, ticket.isGroup? "group" : "open");
                     history.push(`/tickets/${otherTicket.data.uuid}`);
                 }
             } else {
-                let settingIndex;
+                let setting;
 
                 try {
-                    const { data } = await api.get("/settings/");
-                    settingIndex = data.filter((s) => s.key === "sendGreetingAccepted");
+                    setting = await getSetting({
+                        "column":"sendGreetingAccepted"
+                    })
                 } catch (err) {
                     toastError(err);
                 }
 
-                if (settingIndex[0].value === "enabled" && !ticket.isGroup) {
+                if (setting.sendGreetingAccepted === "enabled" && !ticket.isGroup) {
                     handleSendMessage(ticket.id);
                 }
                 if (isMounted.current) {
@@ -444,7 +414,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 }
         
                 // handleChangeTab(null, "tickets");
-                handleChangeTab(null, ticket.isGroup? "group" : "open");
+                // handleChangeTab(null, ticket.isGroup? "group" : "open");
                 history.push(`/tickets/${ticket.uuid}`);                
             }
         } catch (err) {
@@ -454,9 +424,9 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         
     };
 
-    const handleClose = () => {
-        setOpenTicketMessageDialog(false);
-    };
+    // const handleClose = () => {
+    //     setOpenTicketMessageDialog(false);
+    // };
 
     const handleSendMessage = async (id) => {
         const msg = `{{ms}} *{{name}}*, ${i18n.t("mainDrawer.appBar.user.myName")} *${user?.name}* ${i18n.t("mainDrawer.appBar.user.continuity")}.`;
@@ -473,47 +443,15 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         }
     };
 
-    const handleCloseAlert = () => {
+    const handleCloseAlert = useCallback(() => {
         setOpenAlert(false);
         setLoading(false);
-    };
+    },[openAlert]);
 
     const handleSelectTicket = (ticket) => {
         const code = uuidv4();
         const { id, uuid } = ticket;
         setCurrentTicket({ id, uuid, code });
-    };
-
-    const renderTicketInfo = () => {
-        if (ticketUser) {
-            return (
-                <>
-                    {!ticket.isBot && (
-                        <Tooltip title="Chatbot">
-                            <AndroidIcon
-                                fontSize="small"
-                                style={{ color: grey[700], marginRight: 5 }}
-                            />
-                        </Tooltip>
-                    )}
-
-                    {/* </span> */}
-                </>
-            );
-        } else {
-            return (
-                <>
-                    {ticket.isBot && (
-                        <Tooltip title="Chatbot">
-                            <AndroidIcon
-                                fontSize="small"
-                                style={{ color: grey[700], marginRight: 5 }}
-                            />
-                        </Tooltip>
-                    )}
-                </>
-            );
-        }
     };
 
     return (
@@ -538,25 +476,22 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 ticket={ticket}
             />
 
-            <TicketMessagesDialog
+            {/* <TicketMessagesDialog
                 open={openTicketMessageDialog}
                 handleClose={() => setOpenTicketMessageDialog(false)}
                 ticketId={ticket.id}
-            />
+            /> */}
            
             <ListItem dense button
                 onClick={(e) => {
-                    // if (ticket.status === "pending" || (ticket.status === "group" && ticket.queueId === null )) return;
                     handleSelectTicket(ticket);
                 }}
-                selected={ticketId && +ticketId === ticket.id}
+                selected={ticketId && ticketId === ticket.uuid}
                 className={clsx(classes.ticket, {
                     [classes.pendingTicket]: ticket.status === "pending" ,
                 })}
                 >
-                {/* <Tooltip arrow placement="right" title={ticket.queue?.name.toUpperCase() || "SEM FILA"} >
-                    <span style={{ backgroundColor: ticket.queue?.color || "#7C7C7C" }} className={classes.ticketQueueColor}></span>
-                </Tooltip> */}
+                
                 <ListItemAvatar
                     style={{marginLeft: "-15px"}}
                 >
@@ -705,7 +640,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                     className={classes.acceptButton}
                                     size="small"
                                     loading={loading}
-                                    onClick={e => handleAcepptTicket(ticket.id, handleChangeTab)}
+                                    onClick={e => handleAcepptTicket(ticket.id)}
                                 >
                                 <Tooltip title={`${i18n.t("ticketsList.buttons.accept")}`}>
                                     <Done />
@@ -793,7 +728,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                 className={classes.acceptButton}
                                 size="small"
                                 loading={loading}
-                                onClick={e => handleAcepptTicket(ticket.id, handleChangeTab)}
+                                onClick={e => handleAcepptTicket(ticket.id)}
                             >
                             <Tooltip title={`${i18n.t("ticketsList.buttons.reopen")}`}>
                                 <Replay />

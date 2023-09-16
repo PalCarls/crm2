@@ -1,6 +1,11 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import moment from "moment";
+
+import { isNill } from "lodash"
+import SoftPhone from 'react-softphone'
+import { WebSocketInterface } from 'jssip';
+
 import {
   makeStyles,
   Drawer,
@@ -48,7 +53,6 @@ import ColorModeContext from "../layout/themeContext";
 import Brightness4Icon from '@material-ui/icons/Brightness4';
 import Brightness7Icon from '@material-ui/icons/Brightness7';
 import { getBackendUrl } from "../config";
-import ModalImage from "react-modal-image";
 
 const backendUrl = getBackendUrl();
 
@@ -82,6 +86,8 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
+    backgroundColor: "#FFF",
+    backgroundSize: "cover",
     padding: "0 8px",
     minHeight: "48px",
     [theme.breakpoints.down("sm")]: {
@@ -249,7 +255,37 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const { dateToClient } = useDate();
   const [profileUrl, setProfileUrl] = useState(null);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const mainListItems = useMemo(() => <MainListItems drawerOpen={drawerOpen}  collapsed={!drawerOpen} />, [user, drawerOpen])
 
+  const config = {
+    domain: '192.168.2.4', // sip-server@your-domain.io
+    uri: 'sip:202@192.168.2.4', // sip:sip-user@your-domain.io
+    password: 'btelefonia12', //  PASSWORD ,
+    ws_servers: 'wss://202@192.168.2.4:8089/ws', //ws server
+    sockets: new WebSocketInterface('wss://192.168.2.4:8089/ws'),
+    display_name: '202',//jssip Display Name
+    websocket_url: 'wss://192.168.2.4:443',
+    sip_outbound_ur: 'udp://192.168.2.4:5060',
+    debug: true // Turn debug messages on
+
+  };
+  const setConnectOnStartToLocalStorage = (newValue) => {
+    // Handle save the auto connect value to local storage
+    return true
+  }
+  const setNotifications = (newValue) => {
+    // Handle save the Show notifications of an incoming call to local storage
+    return true
+  }
+  const setCallVolume = (newValue) => {
+    // Handle save the call Volume value to local storage
+    return true
+  }
+  const setRingVolume = (newValue) => {
+    // Handle save the Ring Volume value to local storage
+    return true
+  }
   //################### CODIGOS DE TESTE #########################################
   // useEffect(() => {
   //   navigator.getBattery().then((battery) => {
@@ -297,11 +333,19 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   // }, []);
   //##############################################################################
 
+
   useEffect(() => {
     if (document.body.offsetWidth > 600) {
-      setDrawerOpen(true);
+      if (user.defaultMenu === "closed") {
+        setDrawerOpen(false);
+      } else {
+        setDrawerOpen(true);
+      }
     }
-  }, []);
+    if (user.defaultTheme === "dark" && theme.mode === "light") {
+      toggleColorMode();
+    }
+  }, [user]);
 
   useEffect(() => {
     if (document.body.offsetWidth < 600) {
@@ -312,13 +356,16 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   }, [drawerOpen]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const userId = localStorage.getItem("userId");
+    const companyId = user.companyId;
+    const userId = user.id;
 
-    const socket = socketConnection({ companyId });
-    const ImageUrl = localStorage.getItem("profileImage")
-    setProfileUrl(`${backendUrl}/public/company${companyId}/user/${ImageUrl}`);
-    
+    const socket = socketConnection({ companyId, userId: user.id });
+    const ImageUrl = user.profileImage;
+    if (ImageUrl !== undefined && ImageUrl !== null)
+      setProfileUrl(`${backendUrl}/public/company${companyId}/user/${ImageUrl}`);
+    else 
+      setProfileUrl(`${process.env.FRONTEND_URL}/nopicture.png`)
+
     socket.on(`company-${companyId}-auth`, (data) => {
       if (data.user.id === +userId) {
         toastError("Sua conta foi acessada em outro computador.");
@@ -340,7 +387,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
       clearInterval(interval);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [user]);
 
   const handleMenu = (event) => {
     setAnchorEl(event.currentTarget);
@@ -358,12 +405,13 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   };
 
   const handleClickLogout = () => {
+    if (theme.mode === "dark") toggleColorMode();
     handleCloseMenu();
     handleLogout();
   };
 
   const drawerClose = () => {
-    if (document.body.offsetWidth < 600) {
+    if (document.body.offsetWidth < 600 || user.defaultMenu === "closed") {
       setDrawerOpen(false);
     }
   };
@@ -401,21 +449,18 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         open={drawerOpen}
       >
         <div className={classes.toolbarIcon}>
-          <img src={logo} className={classes.logo} alt="logo" /> 
+          <img src={logo} style={{ display: "block", margin: "0 auto", height: "50px", width: "100%" }} alt="logo" />
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
             <ChevronLeftIcon />
           </IconButton>
         </div>
         <List className={classes.containerWithScroll}>
-          <MainListItems drawerClose={drawerClose} collapsed={!drawerOpen} />
+          {mainListItems}
+          {/* <MainListItems drawerClose={drawerClose} collapsed={!drawerOpen} /> */}
         </List>
         <Divider />
       </Drawer>
-      {/* <UserModal
-        open={userModalOpen}
-        onClose={() => setUserModalOpen(false)}
-        userId={user?.id}
-      /> */}
+
       <AppBar
         position="absolute"
         className={clsx(classes.appBar, drawerOpen && classes.appBarShift)}
@@ -457,7 +502,18 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
           {/* DESABILITADO POIS TEM BUGS */}
           {/* <UserLanguageSelector /> */}
-
+          {/* <SoftPhone
+            callVolume={33} //Set Default callVolume
+            ringVolume={44} //Set Default ringVolume
+            connectOnStart={false} //Auto connect to sip
+            notifications={false} //Show Browser Notification of an incoming call
+            config={config} //Voip config
+            setConnectOnStartToLocalStorage={setConnectOnStartToLocalStorage} // Callback function
+            setNotifications={setNotifications} // Callback function
+            setCallVolume={setCallVolume} // Callback function
+            setRingVolume={setRingVolume} // Callback function
+            timelocale={'UTC-3'} //Set time local for call history
+          /> */}
           <IconButton edge="start" onClick={toggleColorMode}>
             {theme.mode === 'dark' ? <Brightness7Icon style={{ color: "white" }} /> : <Brightness4Icon style={{ color: "white" }} />}
           </IconButton>
@@ -496,10 +552,10 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               <Avatar alt="Multi100" className={classes.avatar2} src={profileUrl} />
             </StyledBadge>
 
-            <UserModal 
-              open={userModalOpen} 
-              onClose={() => setUserModalOpen(false)} 
-              onImageUpdate={(newProfileUrl) => setProfileUrl(newProfileUrl)} 
+            <UserModal
+              open={userModalOpen}
+              onClose={() => setUserModalOpen(false)}
+              onImageUpdate={(newProfileUrl) => setProfileUrl(newProfileUrl)}
               userId={user?.id}
             />
 

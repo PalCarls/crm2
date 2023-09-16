@@ -702,7 +702,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.complationMessage")}
-                        type="complationMessage"
                         multiline
                         rows={4}
                         fullWidth
@@ -724,7 +723,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.outOfHoursMessage")}
-                        type="outOfHoursMessage"
                         multiline
                         rows={4}
                         fullWidth
@@ -750,14 +748,12 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.timeCreateNewTicket")}
-                        id="timeCreateNewTicket"
                         fullWidth
                         name="timeCreateNewTicket"
                         variant="outlined"
                         margin="dense"
                         error={touched.timeCreateNewTicket && Boolean(errors.timeCreateNewTicket)}
                         helperText={touched.timeCreateNewTicket && errors.timeCreateNewTicket}
-                        className={classes.textField}
                       />
                     </Grid>
                  
@@ -766,14 +762,12 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.maxUseBotQueues")}
-                        id="maxUseBotQueues"
                         fullWidth
                         name="maxUseBotQueues"
                         variant="outlined"
                         margin="dense"
                         error={touched.maxUseBotQueues && Boolean(errors.maxUseBotQueues)}
                         helperText={touched.maxUseBotQueues && errors.maxUseBotQueues}
-                        className={classes.textField}
                       />
                     </Grid>
                       {/* TEMPO PARA ENVIO DO CHATBOT */}
@@ -781,7 +775,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.timeUseBotQueues")}
-                        type="timeUseBotQueues"
                         fullWidth
                         name="timeUseBotQueues"
                         variant="outlined"
@@ -797,7 +790,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.expiresTicket")}
-                        type="expiresTicket"
                         fullWidth
                         name="expiresTicket"
                         variant="outlined"
@@ -838,7 +830,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.expiresInactiveMessage")}
-                        type="expiresInactiveMessage"
                         multiline
                         rows={4}
                         fullWidth
@@ -854,7 +845,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.timeInactiveMessage")}
-                        type="timeInactiveMessage"
                         fullWidth
                         name="timeInactiveMessage"
                         variant="outlined"
@@ -867,7 +857,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.inactiveMessage")}
-                        type="inactiveMessage"
                         multiline
                         rows={4}
                         fullWidth
@@ -891,7 +880,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.ratingMessage")}
-                        type="ratingMessage"
                         multiline
                         rows={4}
                         fullWidth
@@ -907,14 +895,12 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.maxUseBotQueuesNPS")}
-                        id="maxUseBotQueuesNPS"
                         fullWidth
                         name="maxUseBotQueuesNPS"
                         variant="outlined"
                         margin="dense"
                         error={touched.maxUseBotQueuesNPS && Boolean(errors.maxUseBotQueuesNPS)}
                         helperText={touched.maxUseBotQueuesNPS && errors.maxUseBotQueuesNPS}
-                        className={classes.textField}
                       />
                     </div>
                     {/* ENCERRAR CHATS NPS APÓS X Minutos */}
@@ -922,7 +908,6 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       <Field
                         as={TextField}
                         label={i18n.t("whatsappModal.form.expiresTicketNPS")}
-                        type="expiresTicketNPS"
                         fullWidth
                         name="expiresTicketNPS"
                         variant="outlined"

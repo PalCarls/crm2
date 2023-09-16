@@ -125,8 +125,8 @@ const Quickemessages = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company${companyId}-quickemessage`, (data) => {
       if (data.action === "update" || data.action === "create") {
@@ -143,7 +143,7 @@ const Quickemessages = () => {
 
   const fetchQuickemessages = async () => {
     try {
-      const companyId = localStorage.getItem("companyId");
+      const companyId = user.companyId;
       //const searchParam = ({ companyId, userId: user.id });
       const { data } = await api.get("/quick-messages", {
         params: { searchParam, companyId, userId: user.id },

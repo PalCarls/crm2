@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer, useState } from "react";
+import React, { useEffect, useReducer, useState, useContext } from "react";
 
 import {
   Button,
@@ -26,6 +26,7 @@ import QueueModal from "../../components/QueueModal";
 import { toast } from "react-toastify";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import { socketConnection } from "../../services/socket";
+import { AuthContext } from "../../context/Auth/AuthContext";
 
 const useStyles = makeStyles((theme) => ({
   mainPaper: {
@@ -93,6 +94,7 @@ const Queues = () => {
   const [queueModalOpen, setQueueModalOpen] = useState(false);
   const [selectedQueue, setSelectedQueue] = useState(null);
   const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const { user } = useContext(AuthContext);
 
   useEffect(() => {
     (async () => {
@@ -110,8 +112,8 @@ const Queues = () => {
   }, []);
 
   useEffect(() => {
-    const companyId = localStorage.getItem("companyId");
-    const socket = socketConnection({ companyId });
+    const companyId = user.companyId;
+    const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-queue`, (data) => {
       if (data.action === "update" || data.action === "create") {
