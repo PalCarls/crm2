@@ -174,7 +174,7 @@ const reducer = (state, action) => {
 
 const TicketsListCustom = (props) => {
     const {
-        handleChangeTab,
+        // handleChangeTab,
         status,
         searchParam,
         tags,
@@ -357,7 +357,7 @@ const TicketsListCustom = (props) => {
                                 <TicketListItem
                                     ticket={ticket}
                                     key={ticket.id}
-                                    handleChangeTab={handleChangeTab}
+                                    // handleChangeTab={handleChangeTab}
                                 />
                             ))}
                         </>

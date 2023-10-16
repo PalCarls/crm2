@@ -452,6 +452,7 @@ export default function Options(props) {
               <MenuItem value={"disabled"}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
               <MenuItem value={"queue"}>{i18n.t("settings.settings.options.queueManagement")}</MenuItem>
               <MenuItem value={"company"}>{i18n.t("settings.settings.options.companyManagement")}</MenuItem>
+              <MenuItem value={"connection"}>{i18n.t("settings.settings.options.connectionManagement")}</MenuItem>
             </Select>
             <FormHelperText>
               {loadingScheduleType && i18n.t("settings.settings.options.updating")}

@@ -4,7 +4,7 @@ import * as Yup from "yup";
 import { Formik, FieldArray, Form, Field } from "formik";
 import { toast } from "react-toastify";
 
-import { FormControlLabel, InputLabel, MenuItem, Paper, Select, Tab, Tabs } from "@material-ui/core";
+import { FormControl, FormControlLabel, InputLabel, MenuItem, Paper, Select, Tab, Tabs } from "@material-ui/core";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
@@ -120,6 +120,9 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
     orderQueue: "",
     tempoRoteador: 0,
     ativarRoteador: false,
+    integrationId: "",
+    fileListId: "",
+    closeTicket: false
   };
 
   const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
@@ -203,6 +206,9 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
         orderQueue: "",
         tempoRoteador: "",
         ativarRoteador: false,
+        integrationId: "",
+        fileListId: "",
+        closeTicket: false
       });
     };
   }, [queueId, open]);
@@ -237,9 +243,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
   useEffect(() => {
 		(async () => {
 			try {
-				const { data } = await api.get("/queueIntegration", {
-					params: { companyId }
-				});
+				const { data } = await api.get("/queueIntegration");
 
         setIntegrations(data.queueIntegrations);
 			} catch (err) {
@@ -282,7 +286,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
       setQueue(data);
       setIsNamedEdit(null);
       setGreetingMessageEdit(null);
-      toast.success(i18n.t("Queue deleted successfully!"));
+      toast.success( `${i18n.t("queues.toasts.deleted")}`);
     } catch (err) {
       toastError(err);
     }
@@ -296,7 +300,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
         await api.post("/queue", { ...values, schedules });
       }
 
-      toast.success("Queue saved successfully");
+      toast.success( `${i18n.t("queues.toasts.success")}`);
       handleClose();
     } catch (err) {
       toastError(err);
@@ -323,7 +327,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
 
 			setIsNamedEdit(null)
 			setGreetingMessageEdit(null)
-      toast.success("Queue saved successfully");
+      toast.success( `${i18n.t("queues.toasts.success")}`);
      
     } catch (err) {
       toastError(err);
@@ -428,6 +432,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                       variant="outlined"
                       margin="dense"
                     />
+                    
                     <ColorPicker
                       open={colorPickerModalOpen}
                       handleClose={() => setColorPickerModalOpen(false)}
@@ -448,6 +453,17 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                       variant="outlined"
                       margin="dense"
                       className={classes.textField1}
+                    />
+                    <FormControlLabel
+                      control={
+                        <Field
+                          as={Switch}
+                          color="primary"
+                          name="closeTicket"
+                          checked={values.closeTicket}
+                        />
+                      }
+                      label={i18n.t("queueModal.form.closeTicket")}
                     />
                     <div>
                       <FormControlLabel 
@@ -471,7 +487,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                         className={classes.selectField}
                       >
                       <MenuItem value="0" selected disabled>{i18n.t("queueModal.form.timeRotate")}</MenuItem>
-                                  <MenuItem value="2">2 minutos</MenuItem>
+                        <MenuItem value="2">2 minutos</MenuItem>
                         <MenuItem value="5">5 minutos</MenuItem>
                         <MenuItem value="10">10 minutos</MenuItem>
                         <MenuItem value="15">15 minutos</MenuItem>
@@ -479,6 +495,59 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                         <MenuItem value="45">45 minutos</MenuItem>
                         <MenuItem value="60">60 minutos</MenuItem>
                       </Field>
+                    </div>
+                    <div>
+                      <FormControl
+                        variant="outlined"
+                        margin="dense"
+                        className={classes.FormControl}
+                        fullWidth
+                      >
+                        <InputLabel id="integrationId-selection-label">
+                          {i18n.t("queueModal.form.integrationId")}
+                        </InputLabel>
+                        <Field
+                          as={Select}
+                          label={i18n.t("queueModal.form.integrationId")}
+                          name="integrationId"
+                          id="integrationId"
+                          placeholder={i18n.t("queueModal.form.integrationId")}
+                          labelId="integrationId-selection-label" 
+                          value={values.integrationId || ""}
+                        >
+                          <MenuItem value={""} >{"Nenhum"}</MenuItem>
+                          {integrations.map((integration) => (
+                          <MenuItem key={integration.id} value={integration.id}>
+                            {integration.name}
+                          </MenuItem>
+                          ))}
+                        </Field>
+                        
+                      </FormControl>
+                      <FormControl
+                        variant="outlined"
+                        margin="dense"
+                        className={classes.FormControl}
+                        fullWidth
+                      >
+                      <InputLabel id="fileListId-selection-label">{i18n.t("queueModal.form.fileListId")}</InputLabel>
+                        <Field
+                            as={Select}
+                            label={i18n.t("queueModal.form.fileListId")}
+                            name="fileListId"
+                            id="fileListId"
+                            placeholder={i18n.t("queueModal.form.fileListId")}
+                            labelId="fileListId-selection-label"
+                            value={values.fileListId || ""}
+                          >
+                            <MenuItem value={""} >{"Nenhum"}</MenuItem>
+                            {file.map(f => (
+                              <MenuItem key={f.id} value={f.id}>
+                                {f.name}
+                              </MenuItem>
+                            ))}
+                        </Field>
+                        </FormControl>
                     </div>
                     <div>
                       <Field
@@ -618,6 +687,17 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                                                 </Field>
                                               </>
                                             }
+                                          />
+                                          <FormControlLabel
+                                            control={
+                                              <Field
+                                                as={Switch}
+                                                color="primary"
+                                                name={`chatbots[${index}].closeTicket`}
+                                                checked={values.chatbots[index].closeTicket || false}
+                                              />
+                                            }
+                                            label={i18n.t("queueModal.form.closeTicket")}
                                           />
 
                                           <IconButton

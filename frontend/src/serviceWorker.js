@@ -9,6 +9,7 @@
 
 // To learn more about the benefits of this model and instructions on how to
 // opt-in, read https://bit.ly/CRA-PWA
+import { toast } from "react-toastify";
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -21,7 +22,7 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  if (process.env.NODE_ENV === 'development' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
     if (publicUrl.origin !== window.location.origin) {
@@ -54,6 +55,23 @@ export function register(config) {
   }
 }
 
+// Função para exibir um alerta de atualização
+function showUpdateAlert() {
+  toast.error('Nova atualização disponível', {
+    position: 'top-right',
+    autoClose: false, // Mantenha o toast aberto até que o usuário o feche manualmente
+    closeButton: true, // Exibir botão de fechar no toast
+    onClick: () => {
+      // Lógica a ser executada quando o toast é clicado
+      // Por exemplo, você pode executar a atualização aqui
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        // Atualize o Service Worker imediatamente
+        navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
+      }
+    },
+  });
+}
+
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
@@ -69,6 +87,8 @@ function registerValidSW(swUrl, config) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
+              showUpdateAlert();
+
               console.log(
                 'New content is available and will be used when all ' +
                   'tabs for this page are closed. See https://bit.ly/CRA-PWA.'

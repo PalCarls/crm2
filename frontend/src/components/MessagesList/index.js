@@ -424,7 +424,8 @@ const MessagesList = ({
     setSelectedMessagesList, 
     selectedMessagesList,
     forwardMessageModalOpen,
-    setForwardMessageModalOpen }) => {
+    setForwardMessageModalOpen 
+  }) => {
   const classes = useStyles();
 
   const [messagesList, dispatch] = useReducer(reducer, []);
@@ -465,7 +466,7 @@ const MessagesList = ({
     }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [user])
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -504,7 +505,7 @@ const MessagesList = ({
     return () => {
       clearTimeout(delayDebounceFn);
     };
-  }, [pageNumber, ticketId, selectedQueues]);
+  }, [pageNumber, ticket]);
 
   useEffect(() => {
     const socket = socketConnection({ companyId, userId: user.id });
@@ -528,7 +529,7 @@ const MessagesList = ({
     return () => {
       socket.disconnect();
     };
-  }, [ticketId, ticket]);
+  }, [ticketId, user]);
 
   const loadMore = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
@@ -710,7 +711,7 @@ const MessagesList = ({
     let lastTicket = messagesList[index - 1]?.ticketId;
     let currentTicket = message.ticketId;
 
-    if (lastTicket !== currentTicket && lastTicket !== undefined) {
+    if (lastTicket !== currentTicket && lastTicket !== undefined ) {
       if (message.ticket?.queue) {
         return (
           <span

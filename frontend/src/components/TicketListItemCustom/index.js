@@ -252,37 +252,11 @@ const TicketListItemCustom = ({ ticket }) => {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
       }, []);
-    
 
-    // useEffect(() => {
-    //     const delayDebounceFn = setTimeout(() => {
-    //         const fetchTicket = async () => {
-    //             try {
-    //                 const { data } = await api.get("/tickets/" + ticket.id);
-
-    //                 if (data.whatsappId && data.whatsapp) {
-    //                     setWhatsAppName(data.whatsapp?.name.toUpperCase());
-    //                 }
-
-    //                 setTag(data?.tags);
-
-    //             } catch (err) {
-    //             }
-    //         };
-    //         fetchTicket();
-    //     }, 500);
-
-    //     return () => {
-    //         if (delayDebounceFn !== null) {
-    //             clearTimeout(delayDebounceFn);
-    //         }
-    //     };
-    // }, [ticketId, user, history]);
-
-    const handleOpenAcceptTicketWithouSelectQueue = () => {
+    const handleOpenAcceptTicketWithouSelectQueue = useCallback(() => {
         // console.log(ticket)
 		setAcceptTicketWithouSelectQueueOpen(true);
-	};
+	},[]);
 
     const handleCloseTicket = async (id) => {
         const setting = await getSetting(
@@ -367,16 +341,15 @@ const TicketListItemCustom = ({ ticket }) => {
         }
     },[]);
     
-    const handleOpenTransferModal = (e) => {
+    const handleOpenTransferModal = useCallback(() => {
         setLoading(true)
         setTransferTicketModalOpen(true);
         if (isMounted.current) {
             setLoading(false);
         }
         history.push(`/tickets/${ticket.uuid}`);
+    },[])
         
-    };
-
     const handleAcepptTicket = async (id) => {
         setLoading(true);
         try {
@@ -406,7 +379,7 @@ const TicketListItemCustom = ({ ticket }) => {
                     toastError(err);
                 }
 
-                if (setting.sendGreetingAccepted === "enabled" && !ticket.isGroup) {
+                if (setting.sendGreetingAccepted === "enabled" && (!ticket.isGroup || ticket.whatsapp?.groupAsTicket === "enabled")) {
                     handleSendMessage(ticket.id);
                 }
                 if (isMounted.current) {
@@ -446,7 +419,7 @@ const TicketListItemCustom = ({ ticket }) => {
     const handleCloseAlert = useCallback(() => {
         setOpenAlert(false);
         setLoading(false);
-    },[openAlert]);
+    },[]);
 
     const handleSelectTicket = (ticket) => {
         const code = uuidv4();
@@ -468,7 +441,6 @@ const TicketListItemCustom = ({ ticket }) => {
 				ticketId={ticket.id}
                 ticket={ticket}
 			/>
-           
             <TransferTicketModalCustom
                 modalOpen={transferTicketModalOpen}
                 onClose={handleCloseTransferTicketModal}

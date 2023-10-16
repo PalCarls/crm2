@@ -236,7 +236,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
       setSearchParam(searchedTerm);
       setForceSearch(!forceSearch);
     }, 500);
-  },[searchInputRef]);
+  },[]);
 
   // const handleBack = useCallback(() => {
   //   history.push("/tickets");
@@ -244,24 +244,19 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
 
   const handleSnackbarOpen = useCallback(() => {
     setSnackbarOpen(true);
-  },[setSnackbarOpen]);
+  },[]);
 
   const handleSnackbarClose = useCallback(() => {
     setSnackbarOpen(false);
-  },[setSnackbarOpen]);
+  },[]);
 
   const handleChangeTab = useCallback((e, newValue) => {
     setTab(newValue);
-  },[tab]);
+  },[]);
 
   const handleChangeTabOpen = useCallback((e, newValue) => {
-
-    // if (newValue === 'pending' || newValue === "group") {
-    //   handleBack()
-    // }
-
     setTabOpen(newValue);
-  },[tabOpen]);
+  },[]);
 
   const applyPanelStyle = (status) => {
     if (tabOpen !== status) {
@@ -271,7 +266,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
 
   const CloseAllTicket = async () => {
     try {
-      const { data } = await api.post("/tickets/closeAll", { status: tabOpen });
+      const { data } = await api.post("/tickets/closeAll", { status: tabOpen, queueIds: selectedQueueIds });
       handleSnackbarClose();
     } catch (err) {
       console.log("Error: ", err);
@@ -475,7 +470,6 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
       </Paper>
       <Paper square elevation={0} className={classes.ticketOptionsBox}>
         <>
-
           <Can
             role={user.profile}
             perform="tickets-manager:showall"
@@ -583,7 +577,6 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
               </Grid>
             }
             value={"open"}
-            name="open"
             classes={{ root: classes.tabPanelItem }}
           />
 
@@ -619,7 +612,6 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
               </Grid>
             }
             value={"pending"}
-            name="pending"
             classes={{ root: classes.tabPanelItem }}
           />
 
@@ -655,7 +647,6 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
               </Grid>
             }
             value={"group"}
-            name="group"
             classes={{ root: classes.tabPanelItem }}
           />
         </Tabs>
@@ -667,7 +658,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
             selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setOpenCount(val)}
             style={applyPanelStyle("open")}
-            handleChangeTab={handleChangeTabOpen}
+            // handleChangeTab={handleChangeTabOpen}
           />
           <TicketsList
             status="pending"
@@ -675,7 +666,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
             showAll={user.profile === "admin" ? showAllTickets : false}
             updateCount={(val) => setPendingCount(val)}
             style={applyPanelStyle("pending")}
-            handleChangeTab={handleChangeTabOpen}
+            // handleChangeTab={handleChangeTabOpen}
           />
           <TicketsList
             status="group"
@@ -683,7 +674,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
             selectedQueueIds={selectedQueueIds}
             updateCount={(val) => setGroupingCount(val)}
             style={applyPanelStyle("group")}
-            handleChangeTab={handleChangeTabOpen}
+            // handleChangeTab={handleChangeTabOpen}
           />
         </Paper>
       </TabPanel>
@@ -692,7 +683,7 @@ const TicketsManagerTabs = ({ selectedQueuesMessage, setSelectedQueuesMessage })
           status="closed"
           showAll={showAllTickets}
           selectedQueueIds={selectedQueueIds}
-          handleChangeTab={handleChangeTabOpen}
+          // handleChangeTab={handleChangeTabOpen}
         />
       </TabPanel>
       <TabPanel value={tab} name="search" className={classes.ticketsWrapper}>

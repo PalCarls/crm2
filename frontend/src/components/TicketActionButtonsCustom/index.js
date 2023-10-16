@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { Can } from "../Can";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
-import { DeviceHubOutlined, Replay, SwapHorizOutlined } from "@material-ui/icons";
+import { DeviceHubOutlined, History, Replay, SwapHorizOutlined } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -39,6 +39,7 @@ import { Switch } from "@material-ui/core";
 import ShowTicketOpen from "../ShowTicketOpenModal";
 import { toast } from "react-toastify";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
+import ShowTicketLogModal from "../../components/ShowTicketLogModal";
 
 const useStyles = makeStyles(theme => ({
     actionButtons: {
@@ -89,12 +90,14 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
     const [contactId, setContactId] = useState(null);
     const [acceptAudioMessage, setAcceptAudio] = useState(ticket.contact.acceptAudioMessage);
     const [acceptTicketWithouSelectQueueOpen, setAcceptTicketWithouSelectQueueOpen] = useState(false);
+    const [showTicketLogOpen, setShowTicketLogOpen] = useState(false);
     const [showSchedules, setShowSchedules] = useState(false);
     const [enableIntegration, setEnableIntegration] = useState(ticket.useIntegration);
 
     const [ openAlert, setOpenAlert ] = useState(false);
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
+    const [ logTicket, setLogTicket] = useState([]);
 
     const { get:getSetting } = useCompanySettings()
     const { getPlanCompany } = usePlans();
@@ -106,6 +109,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
             setShowSchedules(planConfigs.plan.useSchedules);
         }
         fetchData();
+        setShowTicketLogOpen(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
@@ -213,6 +217,20 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
         }
     };
 
+    const handleShowLogTicket = async () => {
+        setLoading(true);
+        try {
+            const { data } = await api.get(`/tickets-log/${ticket.id}`);
+            setLogTicket(data);
+            setShowTicketLogOpen(true);
+
+            setLoading(false);
+        } catch (err) {
+            setLoading(false);
+            toastError(err);
+        }
+    };
+
     const handleContactToggleAcceptAudio = async () => {
         try {
             const contact = await api.put(`/contacts/toggleAcceptAudio/${ticket.contact.id}`);
@@ -269,7 +287,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                 toastError(err);
             }
  
-            if (setting?.sendGreetingAccepted === "enabled" && !ticket.isGroup && ticket.status === "pending") {
+            if (setting?.sendGreetingAccepted === "enabled" && (!ticket.isGroup || ticket.whatsapp?.groupAsTicket === "enabled") && ticket.status === "pending") {
                 handleSendMessage(ticket.id);
             }
            
@@ -331,6 +349,11 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
 				ticketId={ticket.id}
                 ticket={ticket}
 			/>
+            <ShowTicketLogModal
+                isOpen={showTicketLogOpen}
+                handleClose={(e) => setShowTicketLogOpen(false)}
+                logs={logTicket}
+            />
             <div className={classes.actionButtons}>
                 {ticket.status === "closed" && (ticket.queueId === null || ticket.queueId=== undefined) && (
                     <ButtonWithSpinner
@@ -355,6 +378,15 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                     <>
                         {!showSelectMessageCheckbox ? (
                             <>
+                            <IconButton 
+                                className={classes.bottomButtonVisibilityIcon}
+                                onClick={handleShowLogTicket}
+                            >
+                                <Tooltip title={i18n.t("messagesList.header.buttons.logTicket")}>
+                                <History />
+                                
+                                </Tooltip>
+                            </IconButton>
                             <IconButton 
                                 className={classes.bottomButtonVisibilityIcon}
                                 onClick={handleEnableIntegration}

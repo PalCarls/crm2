@@ -76,7 +76,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 	};
 
 	const [contact, setContact] = useState(initialState);
-
+	const [disableBot, setDisableBot] = useState(false);
 	useEffect(() => {
 		return () => {
 			isMounted.current = false;
@@ -97,6 +97,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 				const { data } = await api.get(`/contacts/${contactId}`);
 				if (isMounted.current) {
 					setContact(data);
+					setDisableBot(data.disableBot)
 				}
 			} catch (err) {
 				toastError(err);
@@ -114,10 +115,10 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 	const handleSaveContact = async values => {
 		try {
 			if (contactId) {
-				await api.put(`/contacts/${contactId}`, values);
+				await api.put(`/contacts/${contactId}`, {...values, disableBot: disableBot});
 				handleClose();
 			} else {
-				const { data } = await api.post("/contacts", values);
+				const { data } = await api.post("/contacts", {...values, disableBot: disableBot});
 				if (onSave) {
 					onSave(data);
 				}
@@ -197,9 +198,9 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 								>
 									<Switch
 										size="small"
-										checked={contact.disableBot}
+										checked={disableBot}
 										onChange={() =>
-											setContact({ ...contact, disableBot: !contact.disableBot })
+											setDisableBot(!disableBot)
 										}
 										name="disableBot"
 									/>

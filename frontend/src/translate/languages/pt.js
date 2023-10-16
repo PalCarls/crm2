@@ -259,6 +259,20 @@ const messages = {
           queue: "Fila"
         },
       },
+      showTicketLogModal:{
+        title: {
+          header: "Logs"
+        },
+        options: {
+          create: 'Ticket criado.',
+          chatBot: 'ChatBot iniciado.',
+          queue: ' - Fila definida.',
+          open: ' iniciou o atendimento.',
+          access: 'acessou o ticket.',
+          transfered: 'transferiu o ticket.',
+          receivedTransfer: 'recebeu o ticket transferido.'
+        },
+      },
       whatsappModal: {
         title: {
           add: "Adicionar Conexão",
@@ -267,7 +281,9 @@ const messages = {
         tabs:{
           general:"Geral",
           messages:"Mensagens",
-          assessments:"NPS"
+          assessments:"NPS",
+          integrations: "Integrações",
+          schedules: "Horário de expediente"
         },
         form: {
           importOldMessagesEnable:"Importar mensagens do aparelho",
@@ -286,7 +302,7 @@ const messages = {
           timeCreateNewTicket: "Criar novo ticket em x minutos",
           maxUseBotQueues: "Enviar bot x vezes",
           timeUseBotQueues: "Enviar bot em x minutos",
-          expiresTicket: "Encerrar chats abertos após x horas",
+          expiresTicket: "Encerrar chats abertos após x minutos",
           expiresTicketNPS: "Encerrar chats aguardando avaliação após x minutos",
           maxUseBotQueuesNPS: "Quantidade máxima de vezes que a avaliaçao vai ser enviada",
           closeLastMessageOptions1:"Do atendente/Cliente",
@@ -408,6 +424,9 @@ const messages = {
           complationMessage: "Mensagem de conclusão",
           outOfHoursMessage: "Mensagem de fora de expediente",
           token: "Token",
+          integrationId: "Integração",
+          fileListId: "Lista de arquivos",
+          closeTicket: "Fechar ticket"
         },
         buttons: {
           okAdd: "Adicionar",
@@ -1094,9 +1113,14 @@ const messages = {
           greeting: "Mensagem de saudação",
           orderQueue: "Ordenação da fila (bot)",
           actions: "Ações",
+          ID: "ID"
         },
         buttons: {
           add: "Adicionar fila",
+        },
+        toasts: {
+          success: "Fila salva com sucesso",
+          deleted: "Fila exclu[ida com sucesso",
         },
         confirmationModal: {
           deleteTitle: "Excluir",
@@ -1141,6 +1165,7 @@ const messages = {
           startWork: "Inicio de trabalho",
           endWork: "Fim de trabalho",
           actions: "Ações",
+          ID: "ID"
         },
         buttons: {
           add: "Adicionar usuário",
@@ -1162,9 +1187,9 @@ const messages = {
           name: "Nome",
           email: "Email",
           password:"Senha",
-          phone:"Teléfono",
-          plan:"Plan",
-          active:"Activo",
+          phone:"Telefone",
+          plan:"Plano",
+          active:"Ativo",
           numberAttendants: "Atendentes",
           numberConections: "Conexões",
           value: "Valor",
@@ -1352,6 +1377,7 @@ const messages = {
             officeScheduling:"Agendamento de Expediente",
             queueManagement:"Gerenciamento por Fila",
             companyManagement:"Gerenciamento por Empresa",
+            connectionManagement: "Gerenciamento por Conexão",
             sendGreetingAccepted:"Enviar saudação ao aceitar o ticket",
             sendMsgTransfTicket:"Enviar mensagem transferência de setor/atendente",
             checkMsgIsGroup:"Ignorar Mensagens de Grupos",
@@ -1396,6 +1422,7 @@ const messages = {
             accept: "Aceitar",
             rating: "Enviar Avaliação",
             enableIntegration: "Habilitar/desabilitar integração",
+            logTicket: "Logs do Ticket",
             requiredTag:"Você deve atribuir uma tag antes de fechar o ticket.",
           },
         },

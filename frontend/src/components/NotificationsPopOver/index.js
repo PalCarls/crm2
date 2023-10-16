@@ -57,7 +57,8 @@ const NotificationsPopOver = () => {
 
 	const [, setDesktopNotifications] = useState([]);
 
-	const { tickets } = useTickets({ withUnreadMessages: "true" });
+	const { tickets } = useTickets({  withUnreadMessages: "true" });
+
 	const [play] = useSound(alertSound);
 	const soundAlertRef = useRef();
 
@@ -205,10 +206,6 @@ const NotificationsPopOver = () => {
 		soundAlertRef.current();
 	};
 
-	const handleChangeTab = () => {
-		setIsOpen(prevState => !prevState);
-	};
-
 	const handleClick = () => {
 		setIsOpen(prevState => !prevState);
 	};
@@ -257,7 +254,7 @@ const NotificationsPopOver = () => {
 					) : (
 						notifications.map(ticket => (
 							<NotificationTicket key={ticket.id}>
-								<TicketListItem handleChangeTab ticket={ticket} />
+								<TicketListItem ticket={ticket} />
 							</NotificationTicket>
 						))
 					)}

@@ -191,8 +191,11 @@ const messages = {
 				toasts: {
 					deleted:
 						"¡La conexión de WhatsApp ha sido borrada satisfactoriamente!",
+						closedimported:"Estamos cerrando los tickets importados, por favor espere."
 				},
 				confirmationModal: {
+					closedImportedTitle:"Cerrar tickets importados",
+          			closedImportedMessage:"¿Seguro? Todos los tickets importados seran cerrados.",
 					deleteTitle: "Borrar",
 					deleteMessage: "¿Estás seguro? Este proceso no puede ser revertido.",
 					disconnectTitle: "Desconectar",
@@ -214,7 +217,8 @@ const messages = {
 				},
 				typography:{
 					processed:"Processado",
-					in:"de"
+					in:"de",
+					date:"Fecha del mensaje"
 				  },
 				toolTips: {
 					disconnected: {
@@ -256,6 +260,20 @@ const messages = {
 				  queue: "Fila"
 				},
 			  },
+			  showTicketLogModal:{
+				title: {
+				  header: "Historico"
+				},
+				options: {
+				  create: 'Ticket creado.',
+				  chatBot: 'ChatBot iniciado.',
+				  queue: ' - Fila definida.',
+				  open: 'iniciou la atención.',
+				  access: 'accesó el ticket.',
+				  transfered: 'transferió el ticket.',
+				  receivedTransfer: 'recibió el ticket transferido.'
+				},
+			  },
 			whatsappModal: {
 				title: {
 					add: "Agrega WhatsApp",
@@ -264,7 +282,8 @@ const messages = {
 				tabs:{
 					general:"Geral",
 					messages:"Mensajes",
-					assessments:"Evaluaciones"
+					assessments:"Evaluaciones",
+					integrations: "Integraciones",
 				  },
 				form: {
 					importOldMessagesEnable:"Importar mensajes del celular",
@@ -282,10 +301,10 @@ const messages = {
 					time:"Tiempo",
 					importAlert: "ATENCIÓN: Guardando, su conexión será cerrada, usted tendrá que volver a leer el QR Code para importar los mensajes",
 					groupAsTicket: "Grupos como Ticket",
-					timeCreateNewTicket: "Criar novo ticket em x minutos",
+					timeCreateNewTicket: "Iniciar un nuevo ticket en *n* minutos",
 					maxUseBotQueues:"Cantidad máxima de veces que el chatbot va a ser enviado",
 					timeUseBotQueues: "Tiempo en minutos para nuevo envío del chatbot",
-					expiresTicket: "Encerrar chats abiertos após n horas",
+					expiresTicket: "Cerrar chats abiertos após *n* horas",
 					expiresTicketNPS: "Cerrar chats aguardando la evaluacion luego de x minutos",
 					maxUseBotQueuesNPS: "Cantidad máxima de veces que la evaluación será enviada",
 					closeLastMessageOptions1:"Del Agente/Cliente",
@@ -407,6 +426,8 @@ const messages = {
 					complationMessage: "Mensaje de cierre",
 					outOfHoursMessage: "Mensaje fuera de horario de atención",
 					token: "Token",
+					integrationId: "Integración",
+          			fileListId: "Listado de archivos",
 				},
 				buttons: {
 					okAdd: "Agregar",
@@ -440,7 +461,9 @@ const messages = {
 					tuesday:"Martes",
 					wednesday:"Miércoles",
 					thursday:"Jueves",
-					friday:"Viernes"
+					friday:"Viernes",
+					saturday:"Sabado",
+          			sunday:"Domingo",
 				  }
 			},
 			queueIntegrationModal: {
@@ -571,7 +594,6 @@ const messages = {
 				  okAdd: "Guardar",
 				  okEdit: "Editar",
 				  cancel: "Cancelar",
-				  options: "Agregar opción",
 				  fileOptions: "Agregar archivo",
 				},
 				form: {
@@ -683,13 +705,12 @@ const messages = {
 				called:"Entradas",
 				today:"Hoy",
 				missedCall:"Llamada de voz/vídeo perdida a las",
-				assignedHeader: "Trabajando en",
 				pendingHeader: "Esperando",
 				assignedHeader: "Trabajando en",
 				groupingHeader: "Grupos",
 				noTicketsTitle: "¡Nada acá!",
-				noTicketsMessage:
-					"No se encontraron tickets con este estado o término de búsqueda",
+				noTicketsMessage:"No se encontraron tickets con este estado o término de búsqueda",
+				noQueue: "Sin Fila",
 				buttons: {
 					accept: "Aceptar",
 					cancel: "Cancelar",
@@ -746,6 +767,7 @@ const messages = {
 					financeiro: "Financiero",
 					queueIntegration: "Integraciones",
 					version: "Versión",
+					kanban: "Kanban"
 				},
 				appBar: {
 					user: {
@@ -989,6 +1011,7 @@ const messages = {
 					scheduledAt: "Programa",
 					confirmation: "Confirmación",
 					contactList: "Listado de Contacto",
+					tagList:"Tags"
 				  },
 				  buttons: {
 					add: "Agregar",
@@ -1261,6 +1284,7 @@ const messages = {
 				},
 				table: {
 				  name: "Nombre",
+				  kanban: "Kanban",
 				  color: "Color",
 				  tickets: "Registros Tags",
 				  contacts:"Contactos",
@@ -1408,6 +1432,8 @@ const messages = {
 				header: "Detalles del contacto",
 				buttons: {
 					edit: "Editar contacto",
+					block: "Bloquear",
+          			unblock: "Desbloquear",
 				},
 				extraInfo: "Otras informaciones",
 			},

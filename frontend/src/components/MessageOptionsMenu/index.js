@@ -28,10 +28,10 @@ const MessageOptionsMenu = ({
     const { setReplyingMessage } = useContext(ReplyMessageContext);
     const [confirmationOpen, setConfirmationOpen] = useState(false);
     const { user } = useContext(AuthContext);
-    const [forwardModalOpen, setForwardModalOpen] = useState(false);
-    const [loading, setLoading] = useState(false);
+    // const [forwardModalOpen, setForwardModalOpen] = useState(false);
+    // const [loading, setLoading] = useState(false);
     const history = useHistory();
-    const [forwardMessage, setForwardMessage] = useState(null);
+    // const [forwardMessage, setForwardMessage] = useState(null);
 
     const [ openAlert, setOpenAlert ] = useState(false);
     const [ userTicketOpen, setUserTicketOpen] = useState("");
@@ -87,17 +87,17 @@ const MessageOptionsMenu = ({
       }
     };
 
-    const handleForwardMessage = (msg) => {
-      setForwardModalOpen(true);
-      setForwardMessage(msg);
-      handleClose();
-    };
-    const handleCloseForwardModal = () => {
+    // const handleForwardMessage = (msg) => {
+    //   setForwardModalOpen(true);
+    //   setForwardMessage(msg);
+    //   handleClose();
+    // };
+    // const handleCloseForwardModal = () => {
       
-      //setSelectedSchedule(null);
-      setForwardModalOpen(false);
-      handleClose();
-    };
+    //   //setSelectedSchedule(null);
+    //   setForwardModalOpen(false);
+    //   handleClose();
+    // };
 
     const hanldeReplyMessage = () => {
       setReplyingMessage(message);

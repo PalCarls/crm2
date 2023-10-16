@@ -36,6 +36,8 @@ import toastError from "../../errors/toastError";
 import QueueSelect from "../QueueSelect";
 import TabPanel from "../TabPanel";
 import { Autorenew, FileCopy } from "@material-ui/icons";
+import useCompanySettings from "../../hooks/useSettings/companySettings";
+import SchedulesForm from "../SchedulesForm";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -132,7 +134,8 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     greetingMediaAttachment: "",
     importRecentMessages: "",
     importOldMessages: "",
-    importOldMessagesGroups:""
+    importOldMessagesGroups:"",
+    integrationId: "",
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
@@ -144,6 +147,33 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const [importOldMessages, setImportOldMessages] = useState(moment().add(-1, "days").format("YYYY-MM-DDTHH:mm"));
   const [importRecentMessages, setImportRecentMessages] = useState( moment().add(-1, "minutes").format("YYYY-MM-DDTHH:mm"));
   const [copied, setCopied] = useState(false);
+  const [integrations, setIntegrations] = useState([]);
+  const [schedulesEnabled, setSchedulesEnabled] = useState(false);
+
+
+  const [schedules, setSchedules] = useState([
+    { weekday: i18n.t("queueModal.serviceHours.monday"),weekdayEn: "monday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: i18n.t("queueModal.serviceHours.tuesday"),weekdayEn: "tuesday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: i18n.t("queueModal.serviceHours.wednesday"),weekdayEn: "wednesday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: i18n.t("queueModal.serviceHours.thursday"),weekdayEn: "thursday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: i18n.t("queueModal.serviceHours.friday"), weekdayEn: "friday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: "Sábado", weekdayEn: "saturday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+    { weekday: "Domingo", weekdayEn: "sunday",startTimeA: "08:00",endTimeA: "12:00",startTimeB: "13:00",endTimeB: "18:00",},
+  ]);
+
+  const { get:getSetting } = useCompanySettings();
+
+  useEffect(() => {
+
+    const fetchData = async () => {
+
+      const setting = await getSetting({
+        "column":"scheduleType"
+    });
+      setSchedulesEnabled(setting.scheduleType === "connection");
+    }
+    fetchData();
+  }, []);
 
   const handleEnableImportMessage = async (e) => {
     setEnableImportMessage(e.target.checked);
@@ -161,6 +191,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         setAutoToken(data.token);
         const whatsQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(whatsQueueIds);
+        setSchedules(data.schedules)
         if (data?.importOldMessages) {
           setEnableImportMessage(true);
           setImportOldMessages(data?.importOldMessages);
@@ -186,6 +217,18 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     })();
   }, []);
 
+  useEffect(() => {
+		(async () => {
+			try {
+				const { data } = await api.get("/queueIntegration");
+
+        setIntegrations(data.queueIntegrations);
+			} catch (err) {
+				toastError(err);
+			}
+		})();
+	}, []);
+
   const handleSaveWhatsApp = async (values) => {
     if (!whatsAppId) setAutoToken(generateRandomCode(30));
 
@@ -195,7 +238,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       importRecentMessages: enableImportMessage ? importRecentMessages : null,
       importOldMessagesGroups: importOldMessagesGroups ? importOldMessagesGroups : null,
       closedTicketsPostImported: closedTicketsPostImported ? closedTicketsPostImported : null,
-      token: autoToken ? autoToken : null,
+      token: autoToken ? autoToken : null, schedules
     };
     //delete whatsappData["queues"];
     delete whatsappData["session"];
@@ -260,6 +303,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     setCopied(true); // Define o estado de cópia como verdadeiro
   };
 
+  const handleSaveSchedules = async (values) => {
+    toast.success("Clique em salvar para registar as alterações");
+    setSchedules(values);
+  };
+
   const handleClose = () => {
     onClose();
     setWhatsApp(initialState);
@@ -290,7 +338,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        maxWidth="md"
+        maxWidth="xl"
         fullWidth
         scroll="paper"
       >
@@ -323,9 +371,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                   className={classes.tab}
                 >
                   <Tab label={i18n.t("whatsappModal.tabs.general")} value={"general"} />
+                  <Tab label={i18n.t("whatsappModal.tabs.integrations")} value={"integrations"} />
                   <Tab label={i18n.t("whatsappModal.tabs.messages")} value={"messages"} />
                   <Tab label="Chatbot" value={"chatbot"} />
                   <Tab label={i18n.t("whatsappModal.tabs.assessments")} value={"nps"} />
+                  {schedulesEnabled && <Tab label={i18n.t("whatsappModal.tabs.schedules")} value={"schedules"} />}
                 </Tabs>
               </Paper>
               <Paper className={classes.paper} elevation={0}>
@@ -673,6 +723,40 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                 <TabPanel
                   className={classes.container}
                   value={tab}
+                  name={"integrations"}
+                >
+                  <DialogContent dividers>
+                  <FormControl
+                        variant="outlined"
+                        margin="dense"
+                        className={classes.FormControl}
+                        fullWidth
+                      >
+                        <InputLabel id="integrationId-selection-label">
+                          {i18n.t("queueModal.form.integrationId")}
+                        </InputLabel>
+                        <Field
+                          as={Select}
+                          label={i18n.t("queueModal.form.integrationId")}
+                          name="integrationId"
+                          id="integrationId"
+                          variant="outlined"
+                          margin="dense"
+                          placeholder={i18n.t("queueModal.form.integrationId")}
+                          labelId="integrationId-selection-label"                        >
+                          <MenuItem value={null} >{"Desabilitado"}</MenuItem>
+                          {integrations.map((integration) => (
+                          <MenuItem key={integration.id} value={integration.id}>
+                            {integration.name}
+                          </MenuItem>
+                          ))}
+                        </Field>
+                      </FormControl>
+                  </DialogContent>
+                </TabPanel>
+                <TabPanel
+                  className={classes.container}
+                  value={tab}
                   name={"messages"}
                 >
                   <DialogContent dividers>
@@ -917,6 +1001,23 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                       />
                     </div>
                   </DialogContent>
+                </TabPanel>
+                <TabPanel
+                  className={classes.container}
+                  value={tab}
+                  name={"schedules"}
+                >
+                  {tab === "schedules" && (
+                    <Paper style={{ padding: 20 }}>
+                      <SchedulesForm
+                        loading={false}
+                        onSubmit={handleSaveSchedules}
+                        initialValues={schedules}
+                        labelSaveButton={i18n.t("whatsappModal.buttons.okAdd")}
+                      />
+                    </Paper>
+                  )}
+
                 </TabPanel>
               </Paper>
               <DialogActions>

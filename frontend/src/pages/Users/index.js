@@ -271,6 +271,7 @@ const Users = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
+              <TableCell align="center">{i18n.t("users.table.ID")}</TableCell>
               <TableCell align="center">{i18n.t("users.table.status")}</TableCell>
               <TableCell align="center">
                 Avatar
@@ -287,6 +288,7 @@ const Users = () => {
             <>
               {users.map((user) => (
                 <TableRow key={user.id}>
+                  <TableCell align="center">{user.id}</TableCell>
                   <TableCell align="center"><UserStatusIcon user={user} /></TableCell>
                   <TableCell align="center" >
                     <div className={classes.avatarDiv}>

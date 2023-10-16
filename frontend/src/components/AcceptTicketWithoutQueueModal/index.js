@@ -87,8 +87,8 @@ const handleSendMessage = async (id) => {
 	} catch (err) {
 		toastError(err);
 	}
-
-	if (isGreetingMessage && !ticket.isGroup && ticket.status === "pending") {
+	console.log(ticket)
+	if (isGreetingMessage && (!ticket.isGroup || ticket.whatsapp?.groupAsTicket === "enabled") && ticket.status === "pending") {
 		const msg = `{{ms}} *{{name}}*, ${i18n.t("mainDrawer.appBar.user.myName")} *${user?.name}* ${i18n.t("mainDrawer.appBar.user.continuity")}.`;
 		const message = {
 			read: 1,

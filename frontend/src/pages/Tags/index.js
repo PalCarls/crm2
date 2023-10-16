@@ -213,6 +213,7 @@ const Tags = () => {
         reload={fetchTags}
         aria-labelledby="form-dialog-title"
         tagId={selectedTag && selectedTag.id}
+        kanban={0}
       />
       <MainHeader>
         <Title>{i18n.t("tags.title")} ({tags.length})</Title>

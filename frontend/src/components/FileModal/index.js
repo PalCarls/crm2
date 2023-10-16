@@ -121,24 +121,6 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
         setFiles([]);
         onClose();
     };
-    const handleChangeMedias = (e, index) => {
-        if (!e.target.files) {
-          return;
-        }       
-        const selectedMedias = Array.from(e.target.files);
-        
-        setFiles((prevFiles) => {
-            const newFiles = [...prevFiles];
-            newFiles[index] = selectedMedias[0];
-            return newFiles;
-          });
-
-        setSelectedFileNames((prevNames) => {
-        const newNames = [...prevNames];
-        newNames[index] = selectedMedias[0].name;
-        return newNames;
-        });
-    };
 
     const handleSaveFileList = async (values) => {
 
@@ -308,7 +290,7 @@ const FilesModal = ({ open, onClose, fileListId, reload }) => {
                                                                 </IconButton>    
                                                             </Grid>
                                                             <Grid xs={12} md={12} item>
-                                                                {info.path? info.path : selectedFileNames}                               
+                                                                {info.path? info.path : selectedFileNames[index]}                               
                                                             </Grid> 
                                                         </Grid>                                                    
                                                 </div>                     

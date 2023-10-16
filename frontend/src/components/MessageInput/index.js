@@ -67,6 +67,7 @@ import axios from "axios";
 
 import { getBackendUrl } from "../../config";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
+import { private_excludeVariablesFromRoot } from "@mui/material";
 
 
 const Mp3Recorder = new MicRecorder({ bitRate: 128 });
@@ -362,7 +363,11 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
         const signMessageStorage = JSON.parse(
         localStorage.getItem("persistentSignMessage")
         );
-        setSignMessage(signMessageStorage);
+        if (isNil(signMessageStorage)) {
+          setSignMessage(true)
+        } else {
+          setSignMessage(signMessageStorage);
+        }
       } else {
         setSignMessagePar(false);
       }
@@ -535,7 +540,7 @@ const MessageInput = ({ ticketId, ticketStatus }) => {
       read: 1,
       fromMe: true,
       mediaUrl: "",
-      body: signMessage
+      body: signMessage || privateMessage
         ? `*${userName}:*\n${inputMessage.trim()}`
         : inputMessage.trim(),
       quotedMsg: replyingMessage,

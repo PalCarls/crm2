@@ -65,6 +65,7 @@ export default function VerticalLinearStepper(props) {
     name: "",
     greetingMessage: "",
     options: [],
+    closeTicket: false
   };
 
   const classes = useStyles();
@@ -325,6 +326,17 @@ export default function VerticalLinearStepper(props) {
                                               <MenuItem value={"integration"}>Integração</MenuItem>
                                               <MenuItem value={"file"}>Arquivo</MenuItem>
                                         </Field>
+                                        <FormControlLabel
+                                            control={
+                                              <Field
+                                                as={Switch}
+                                                color="primary"
+                                                name={`options[${index}].closeTicket`}
+                                                checked={values.options[index].closeTicket || false}
+                                              />
+                                            }
+                                            label={i18n.t("queueModal.form.closeTicket")}
+                                          />
                                       </>
                                     }
                                   />

@@ -165,8 +165,7 @@ const Queues = () => {
       <ConfirmationModal
         title={
           selectedQueue &&
-          `${i18n.t("queues.confirmationModal.deleteTitle")} ${
-            selectedQueue.name
+          `${i18n.t("queues.confirmationModal.deleteTitle")} ${selectedQueue.name
           }?`
         }
         open={confirmModalOpen}
@@ -180,10 +179,10 @@ const Queues = () => {
         onClose={handleCloseQueueModal}
         queueId={selectedQueue?.id}
         onEdit={(res) => {
-          if(res) {
-              setTimeout(() => {
-                handleEditQueue(res)
-              }, 500)
+          if (res) {
+            setTimeout(() => {
+              handleEditQueue(res)
+            }, 500)
           }
         }}
       />
@@ -203,6 +202,9 @@ const Queues = () => {
         <Table size="small">
           <TableHead>
             <TableRow>
+              <TableCell align="center">
+                {i18n.t("queues.table.ID")}
+              </TableCell>
               <TableCell align="center">
                 {i18n.t("queues.table.name")}
               </TableCell>
@@ -224,6 +226,7 @@ const Queues = () => {
             <>
               {queues.map((queue) => (
                 <TableRow key={queue.id}>
+                  <TableCell align="center">{queue.id}</TableCell>
                   <TableCell align="center">{queue.name}</TableCell>
                   <TableCell align="center">
                     <div className={classes.customTableCell}>

@@ -37,8 +37,8 @@ const MessagesAPI = () => {
   const classes = useStyles();
   const history = useHistory();
 
-  const [formMessageTextData,] = useState({ token: '', number: '', body: '' })
-  const [formMessageMediaData,] = useState({ token: '', number: '', medias: '', body:'' })
+  const [formMessageTextData,] = useState({ token: '', number: '', body: '', userId: '', queueId: '' })
+  const [formMessageMediaData,] = useState({ token: '', number: '', medias: '', body:'', userId: '', queueId: '' })
   const [file, setFile] = useState({})
   const { user } = useContext(AuthContext);
 
@@ -73,7 +73,7 @@ const MessagesAPI = () => {
         data,
         headers: {
           'Content-type': 'application/json',
-          'Authorization': `Bearer ${values.token}`
+          'Authorization': `Bearer ${values.token}` 
         }
       })
       toast.success('Mensagem enviada com sucesso');
@@ -365,6 +365,7 @@ const MessagesAPI = () => {
              "body": "Message" <br></br> 
              "userId": "ID usuário" <br></br>
              "queueId": "ID Fila"<br></br>
+             "sendSignature": "Assinar mensagem true/false"
              {"}"} 
           </Typography>
         </Grid>
@@ -401,6 +402,9 @@ const MessagesAPI = () => {
               </li>
               <li>
                 <b>medias: </b> arquivo
+              </li>
+              <li>
+                <b>sendSignature:</b> Assinar mensagem true/false
               </li>
             </ul>
           </Typography>

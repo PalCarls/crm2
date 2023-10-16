@@ -184,11 +184,12 @@ const Announcements = () => {
     setAnnouncementModalOpen(true);
   };
 
-  const handleDeleteAnnouncement = async (announcementId) => {
+  const handleDeleteAnnouncement = async (announcement) => {
     try {
-      await api.delete(`/announcements/${announcementId}/media-upload`);
+      if (announcement.mediaName)
+      await api.delete(`/announcements/${announcement.id}/media-upload`);
 
-      await api.delete(`/announcements/${announcementId}`);
+      await api.delete(`/announcements/${announcement.id}`);
       
       toast.success(i18n.t("announcements.toasts.deleted"));
     } catch (err) {
@@ -233,7 +234,7 @@ const Announcements = () => {
         }
         open={confirmModalOpen}
         onClose={setConfirmModalOpen}
-        onConfirm={() => handleDeleteAnnouncement(deletingAnnouncement.id)}
+        onConfirm={() => handleDeleteAnnouncement(deletingAnnouncement)}
       >
         {i18n.t("announcements.confirmationModal.deleteMessage")}
       </ConfirmationModal>

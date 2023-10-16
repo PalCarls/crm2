@@ -370,6 +370,7 @@ const Dashboard = () => {
 
     const data = await find(params);
 
+    console.log(data)
     setCounters(data.counters);
     if (isArray(data.attendants)) {
       setAttendants(data.attendants);
@@ -642,7 +643,7 @@ const Dashboard = () => {
                           variant="h6"
                           paragraph
                         >
-                          {i18n.t("dashboard.cards.finalized")}
+                          {i18n.t("dashboard.cards.finalized")} 
                         </Typography>
                         <Grid item>
                           <Typography

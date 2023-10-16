@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback } from "react";
+import React, { useState, useEffect, useContext, useCallback, Suspense, lazy, useRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
@@ -65,6 +65,7 @@ const Ticket = ({selectedQueuesMessage}) => {
   const classes = useStyles();
 
   const { user } = useContext(AuthContext);
+  const isMounted = useRef(true);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -92,9 +93,11 @@ const Ticket = ({selectedQueuesMessage}) => {
               history.push("/tickets");
               return;
             }
-            setContact(data.contact);
-            setTicket(data);
-            setLoading(false);
+            if (isMounted.current) {
+              setContact(data.contact);
+              setTicket(data);
+              setLoading(false);
+            }
           }
         } catch (err) {
           history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
@@ -104,8 +107,10 @@ const Ticket = ({selectedQueuesMessage}) => {
       };
       fetchTicket();
     }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [ticketId]);
+    return () => 
+      clearTimeout(delayDebounceFn);
+      isMounted.current = false;
+    }, [ticketId]);
 
   useEffect(() => {
     const companyId = user.companyId;
@@ -119,7 +124,7 @@ const Ticket = ({selectedQueuesMessage}) => {
       }
 
       if (data.action === "delete") {
-        toast.success("Ticket deleted sucessfully.");
+        toast.success("Ticket encerrado com sucesso.");
         history.push("/tickets");
       }
     });
@@ -142,11 +147,11 @@ const Ticket = ({selectedQueuesMessage}) => {
 
   const handleDrawerOpen = useCallback(() => {
     setDrawerOpen(true);
-  },[setDrawerOpen]);
+  },[]);
 
   const handleDrawerClose = useCallback(() => {
     setDrawerOpen(false);
-  },[setDrawerOpen]);
+  },[]);
 
   const renderTicketInfo = () => {
     if (ticket.user !== undefined) {

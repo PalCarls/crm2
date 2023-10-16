@@ -67,42 +67,6 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
 
-  // useEffect(() => {
-  //   let delayDebounceFn = null;
-  //   if (open) {
-  //     setLoading(true);
-  //     delayDebounceFn = setTimeout(() => {
-  //       const fetchTicket = async () => {
-  //         try {
-  //           const { data } = await api.get("/tickets/" + ticketId);
-  //           const { queueId } = data;
-  //           const { queues, profile } = user;
-
-  //           const queueAllowed = queues.find((q) => q.id === queueId);
-  //           if (queueAllowed === undefined && profile !== "admin") {
-  //             toast.error("Acesso não permitido");
-  //             history.push("/tickets");
-  //             return;
-  //           }
-
-  //           setContact(data.contact);
-  //           setTicket(data);
-  //           setLoading(false);
-  //         } catch (err) {
-  //           setLoading(false);
-  //           toastError(err);
-  //         }
-  //       };
-  //       fetchTicket();
-  //     }, 500);
-  //   }
-  //   return () => {
-  //     if (delayDebounceFn !== null) {
-  //       clearTimeout(delayDebounceFn);
-  //     }
-  //   };
-  // }, [ticketId, user, history, open]);
-
   useEffect(() => {
     const companyId = user.companyId;
     let socket = null;
@@ -117,7 +81,7 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
         }
 
         if (data.action === "delete") {
-          toast.success("Ticket deleted sucessfully.");
+          toast.success("Ticket encerrado com sucesso.");
           history.push("/tickets");
         }
       });
@@ -143,7 +107,7 @@ export default function TicketMessagesDialog({ open, handleClose, ticketId }) {
 
   const handleDrawerOpen = useCallback(() => {
     setDrawerOpen(true);
-  },[setDrawerOpen]);
+  },[]);
 
   const renderTicketInfo = () => {
     if (ticket.user !== undefined) {

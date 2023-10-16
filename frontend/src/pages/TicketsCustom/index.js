@@ -52,40 +52,21 @@ const TicketsCustom = () => {
 	const classes = useStyles();
 	const { ticketId } = useParams();
 	const [selectedQueuesMessage, setSelectedQueuesMessage] = useState([]);
-	// Usando useCallback para memoizar setSelectedQueuesMessage
-	const memoizedSetSelectedQueuesMessage = useCallback((newSelectedQueuesMessage) => {
-		setSelectedQueuesMessage(newSelectedQueuesMessage);
-	}, []);
-	const memoizedTicketsManager = useMemo(() => {
-		return (
-		  <TicketsManager
-			setSelectedQueuesMessage={memoizedSetSelectedQueuesMessage}
-			selectedQueuesMessage={selectedQueuesMessage}
-		  />
-		);
-	  }, [selectedQueuesMessage]);
-	
-	  const memoizedTicket = useMemo(() => {
-		return (
-		  <Ticket selectedQueuesMessage={selectedQueuesMessage} />
-		);
-	  }, [selectedQueuesMessage]);
+	 
 	return (
 		<div className={classes.chatContainer}>
 			<div className={classes.chatPapper}>
 				<Grid container spacing={0}>
 					<Grid item xs={12} md={4} className={classes.contactsWrapper}>
-						{memoizedTicketsManager}
-						{/* <TicketsManager
+						<TicketsManager
 							setSelectedQueuesMessage={setSelectedQueuesMessage}
 							selectedQueuesMessage={selectedQueuesMessage}
-						/> */}
+						/>
 					</Grid>
 					<Grid item xs={12} md={8} className={classes.messagesWrapper}>
 						{ticketId ? (
 							<>
-							{memoizedTicket}
-								{/* <Ticket selectedQueuesMessage={selectedQueuesMessage} /> */}
+								<Ticket selectedQueuesMessage={selectedQueuesMessage} />
 							</>
 						) : (
 							<Hidden only={["sm", "xs"]}>

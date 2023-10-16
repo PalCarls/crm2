@@ -113,6 +113,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 			});
            
             if (lgpdHideNumber === "enabled") setHideNum(true);
+
         }
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +121,7 @@ const ContactDrawer = ({ open, handleDrawerClose, contact, ticket, loading }) =>
 
 	useEffect(() => {
 		setOpenForm(false);
+		setDisableBot(contact.disableBot)
 	}, [open, contact]);
 
 	const handleContactToggleDisableBot = async () => {
