@@ -87,7 +87,7 @@ const NotificationsVolume = ({ volume, setVolume }) => {
                         </Grid>
                         <Grid item xs>
                             <Slider
-                                value={volume}
+                                value={Number(volume)}
                                 aria-labelledby="continuous-slider"
                                 step={0.1}
                                 min={0}

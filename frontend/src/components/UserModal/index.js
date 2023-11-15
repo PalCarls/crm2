@@ -113,6 +113,7 @@ const UserSchema = Yup.object().shape({
 		.required("Required"),
 	password: Yup.string().min(5, "Too Short!").max(50, "Too Long!"),
 	email: Yup.string().email("Invalid email").required("Required"),
+	allHistoric: Yup.string().nullable(),
 });
 
 const UserModal = ({ open, onClose, userId }) => {
@@ -129,7 +130,9 @@ const UserModal = ({ open, onClose, userId }) => {
 		allTicket: "disable",
 		allowGroup: false,
 		defaultTheme: "light",
-		defaultMenu: "open"
+		defaultMenu: "open",
+		allHistoric: "disabled",
+		allUserChat: "disabled",
 	};
 
 	const { user: loggedInUser } = useContext(AuthContext);
@@ -144,11 +147,11 @@ const UserModal = ({ open, onClose, userId }) => {
 	const startWorkRef = useRef();
 	const endWorkRef = useRef();
 
-	
+
 
 	useEffect(() => {
 		const fetchUser = async () => {
-			
+
 			if (!userId) return;
 			try {
 				const { data } = await api.get(`/users/${userId}`);
@@ -184,14 +187,14 @@ const UserModal = ({ open, onClose, userId }) => {
 
 			const { data } = await api.post(`/users/${file.id}/media-upload`, formData);
 
-			localStorage.setItem("profileImage", data.user.profileImage); 
+			localStorage.setItem("profileImage", data.user.profileImage);
 
 		}
 		const userData = { ...values, whatsappId, queueIds: selectedQueueIds };
 		try {
 			if (userId) {
 				const { data } = await api.put(`/users/${userId}`, userData);
-				console.log( user, profileUrl, data)
+				console.log(user, profileUrl, data)
 				window.localStorage.setItem("preferredTheme", values.defaultTheme);
 
 				if (user.profileImage && user.profileImage !== path.basename(profileUrl))
@@ -380,7 +383,7 @@ const UserModal = ({ open, onClose, userId }) => {
 												value={whatsappId}
 												onChange={(e) => setWhatsappId(e.target.value)}
 												label={i18n.t("userModal.form.whatsapp")}
-												
+
 											>
 												<MenuItem value={''}>&nbsp;</MenuItem>
 												{whatsApps.map((whatsapp) => (
@@ -569,6 +572,62 @@ const UserModal = ({ open, onClose, userId }) => {
 										</>
 									</FormControl>
 								</div>
+								<Can
+									role={loggedInUser.profile}
+									perform="user-modal:editProfile"
+									yes={() => (!loading &&
+										<>
+											<div className={classes.multFieldLine}>
+												<FormControl
+													variant="outlined"
+													className={classes.maxWidth}
+													margin="dense"
+													fullWidth
+												>
+													<>
+														<InputLabel >
+															{i18n.t("userModal.form.allHistoric")}
+														</InputLabel>
+
+														<Field
+															as={Select}
+															label={i18n.t("userModal.form.allHistoric")}
+															name="allHistoric"
+															type="allHistoric"
+															required
+														>
+															<MenuItem value="disabled">{i18n.t("userModal.form.allHistoricDisabled")}</MenuItem>
+															<MenuItem value="enabled">{i18n.t("userModal.form.allHistoricEnabled")}</MenuItem>
+														</Field>
+													</>
+												</FormControl>
+												<FormControl
+													variant="outlined"
+													className={classes.maxWidth}
+													margin="dense"
+													fullWidth
+												>
+													<>
+														<InputLabel >
+															{i18n.t("userModal.form.allUserChat")}
+														</InputLabel>
+
+														<Field
+															as={Select}
+															label={i18n.t("userModal.form.allUserChat")}
+															name="allUserChat"
+															type="allUserChat"
+															required
+														>
+															<MenuItem value="disabled">{i18n.t("userModal.form.allHistoricDisabled")}</MenuItem>
+															<MenuItem value="enabled">{i18n.t("userModal.form.allHistoricEnabled")}</MenuItem>
+														</Field>
+													</>
+												</FormControl>
+											</div>
+										</>
+									)}
+								/>
 							</DialogContent>
 							<DialogActions>
 								<Button

@@ -285,6 +285,7 @@ const TicketsList = ({
     });
 
     socket.on(`company-${companyId}-contact`, (data) => {
+
       if (data.action === "update") {
         dispatch({
           type: "UPDATE_TICKET_CONTACT",

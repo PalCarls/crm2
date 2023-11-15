@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Avatar, CardHeader } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
 import { makeStyles } from "@material-ui/core/styles";
+import { Avatar, CardHeader } from "@mui/material";
 
 const useStyles = makeStyles(theme => ({
 	userQueueStyle: {
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
 
 const TicketInfo = ({ contact, ticket, onClick }) => {
 	const classes = useStyles();
-	
+
 	const { user } = ticket
 	const [userName, setUserName] = useState('')
 	const [contactName, setContactName] = useState('')
@@ -45,27 +45,27 @@ const TicketInfo = ({ contact, ticket, onClick }) => {
 			}
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [])
+	}, [contact])
 
 	return (
-		<CardHeader
-			onClick={onClick}
-			style={{ cursor: "pointer" }}
-			titleTypographyProps={{ noWrap: true }}
-			subheaderTypographyProps={{ noWrap: true }}
-			avatar={
-				<Avatar
-					src={`${ticket?.contact?.urlPicture}`}					
-					alt="contact_image"
-					style={{
-						width: "50px",
-						height: "50px",
-						borderRadius: "50%"
-					}}
-				/>}
-			title={`${contactName} #${ticket.id}`}
-			subheader={ticket.user && `${userName}`}
-		/>
+			<CardHeader
+				onClick={onClick}
+				sx={{ cursor: "pointer" }}
+				titleTypographyProps={{ noWrap: true }}
+				subheaderTypographyProps={{ noWrap: true }}
+				avatar={
+					<Avatar
+						src={`${contact?.urlPicture}`}
+						alt="contact_image"
+						sx={{
+							width: "50px",
+							height: "50px",
+							borderRadius: "50%"
+						}}
+					/>}
+				title={`${contactName} #${ticket.id}`}
+				subheader={ticket.user && `${userName}`}
+			/>
 	);
 };
 

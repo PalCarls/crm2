@@ -52,9 +52,9 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   const { user } = useContext(AuthContext);
   const { companyId, whatsappId } = user;
 
-  const [ openAlert, setOpenAlert ] = useState(false);
-	const [ userTicketOpen, setUserTicketOpen] = useState("");
-	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
+  const [openAlert, setOpenAlert] = useState(false);
+  const [userTicketOpen, setUserTicketOpen] = useState("");
+  const [queueTicketOpen, setQueueTicketOpen] = useState("");
 
   useEffect(() => {
     if (initialContact?.id !== undefined) {
@@ -72,7 +72,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
           .then(({ data }) => setWhatsapps(data));
       };
 
-      if (whatsappId !== null && whatsappId!== undefined) {
+      if (whatsappId !== null && whatsappId !== undefined) {
         setSelectedWhatsapp(whatsappId)
       }
 
@@ -145,7 +145,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
       toast.error("Selecione uma fila");
       return;
     }
-    
+
     setLoading(true);
     try {
       const queueId = selectedQueue !== "" ? selectedQueue : null;
@@ -156,17 +156,17 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         whatsappId,
         userId: user.id,
         status: "open",
-      });      
+      });
 
       onClose(ticket);
     } catch (err) {
-      
-      const ticket  = JSON.parse(err.response.data.error);
+
+      const ticket = JSON.parse(err.response.data.error);
 
       if (ticket.userId !== user?.id) {
         setOpenAlert(true);
-        setUserTicketOpen(ticket.user.name);
-        setQueueTicketOpen(ticket.queue.name);
+        setUserTicketOpen(ticket?.user?.name);
+        setQueueTicketOpen(ticket?.queue?.name);
       } else {
         setOpenAlert(false);
         setUserTicketOpen("");
@@ -174,7 +174,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
         setLoading(false);
         onClose(ticket);
       }
-    }  
+    }
     setLoading(false);
   };
 
@@ -188,7 +188,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   };
 
   const handleCloseContactModal = () => {
-    setContactModalOpen(false);    
+    setContactModalOpen(false);
   };
 
   const handleAddNewContactTicket = contact => {
@@ -277,12 +277,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
 
   return (
     <>
-      <ContactModal
-        open={contactModalOpen}
-        initialValues={newContact}
-        onClose={handleCloseContactModal}
-        onSave={handleAddNewContactTicket}
-      ></ContactModal>
+
       <Dialog open={modalOpen} onClose={handleClose}>
         <DialogTitle id="form-dialog-title">
           {i18n.t("newTicketModal.title")}
@@ -357,7 +352,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
                     return "Selecione uma Conexão"
                   }
                   const whatsapp = whatsapps.find(w => w.id === selectedWhatsapp)
-                  return whatsapp.name
+                  return whatsapp?.name
                 }}
               >
                 {whatsapps?.length > 0 &&
@@ -399,12 +394,22 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
             {i18n.t("newTicketModal.buttons.ok")}
           </ButtonWithSpinner>
         </DialogActions>
-        <ShowTicketOpen
-          isOpen={openAlert}
-          handleClose={handleCloseAlert}
-          user={userTicketOpen}
-          queue={queueTicketOpen}
-			  />
+        {contactModalOpen && (
+          <ContactModal
+            open={contactModalOpen}
+            initialValues={newContact}
+            onClose={handleCloseContactModal}
+            onSave={handleAddNewContactTicket}
+          ></ContactModal>
+        )}
+        {openAlert && (
+          <ShowTicketOpen
+            isOpen={openAlert}
+            handleClose={handleCloseAlert}
+            user={userTicketOpen}
+            queue={queueTicketOpen}
+          />
+        )}
       </Dialog >
     </>
   );

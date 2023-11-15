@@ -510,11 +510,13 @@ const Connections = () => {
       >
         {confirmModalInfo.message}
       </ConfirmationModal>
-      <QrcodeModal
-        open={qrModalOpen}
-        onClose={handleCloseQrModal}
-        whatsAppId={!whatsAppModalOpen && selectedWhatsApp?.id}
-      />
+      {qrModalOpen && (
+        <QrcodeModal
+          open={qrModalOpen}
+          onClose={handleCloseQrModal}
+          whatsAppId={!whatsAppModalOpen && selectedWhatsApp?.id}
+        />
+      )}
       <WhatsAppModal
         open={whatsAppModalOpen}
         onClose={handleCloseWhatsAppModal}

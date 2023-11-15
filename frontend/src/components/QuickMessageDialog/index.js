@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme) => ({
 
 const QuickeMessageSchema = Yup.object().shape({
   shortcode: Yup.string().required("Obrigatório"),
-//   message: Yup.string().required("Obrigatório"),
+  //   message: Yup.string().required("Obrigatório"),
 });
 
 const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
@@ -92,7 +92,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
   const [attachment, setAttachment] = useState(null);
   const attachmentFile = useRef(null);
 
-  
+
 
   useEffect(() => {
     try {
@@ -100,6 +100,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
         if (!quickemessageId) return;
 
         const { data } = await api.get(`/quick-messages/${quickemessageId}`);
+
         setQuickemessage((prevState) => {
           return { ...prevState, ...data };
         });
@@ -123,7 +124,9 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
   };
 
   const handleSaveQuickeMessage = async (values) => {
-    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? attachment.name : values.mediaPath ? path.basename(values.mediaPath) : null };
+
+    const quickemessageData = { ...values, isMedia: true, mediaPath: attachment ? String(attachment.name).replace(/ /g, "_") : values.mediaPath ? path.basename(values.mediaPath).replace(/ /g, "_") : null };
+    
     try {
       if (quickemessageId) {
         await api.put(`/quick-messages/${quickemessageId}`, quickemessageData);
@@ -188,7 +191,7 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
 
     await new Promise(r => setTimeout(r, 100));
     messageInputRef.current.setSelectionRange(newCursorPos, newCursorPos);
-};
+  };
 
   return (
     <div className={classes.root}>
@@ -231,13 +234,14 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
             }, 400);
           }}
         >
-          {({ touched, errors, isSubmitting, setFieldValue  }) => (
+          {({ touched, errors, isSubmitting, setFieldValue, values }) => (
             <Form>
               <DialogContent dividers>
                 <Grid spacing={2} container>
                   <Grid xs={12} item>
                     <Field
                       as={TextField}
+                      autoFocus
                       label={i18n.t("quickMessages.dialog.shortcode")}
                       name="shortcode"
                       error={touched.shortcode && Boolean(errors.shortcode)}
@@ -260,36 +264,59 @@ const QuickMessageDialog = ({ open, onClose, quickemessageId, reload }) => {
                       multiline={true}
                       rows={7}
                       fullWidth
-                      // disabled={quickemessage.mediaPath || attachment ? true : false}
+                    // disabled={quickemessage.mediaPath || attachment ? true : false}
                     />
                   </Grid>
                   <Grid item>
-                      <MessageVariablesPicker
-                          disabled={isSubmitting}
-                          onClick={value => handleClickMsgVar(value, setFieldValue)}
-                      />
+                    <MessageVariablesPicker
+                      disabled={isSubmitting}
+                      onClick={value => handleClickMsgVar(value, setFieldValue)}
+                    />
                   </Grid>
-                  {(profile === "admin" || profile === "supervisor") && (
-                  <Grid xs={12} item>
-                    <FormControl variant="outlined" margin="dense" fullWidth>
-                      <InputLabel id="geral-selection-label">
-                        {i18n.t("quickMessages.dialog.geral")}
-                      </InputLabel>
-                      <Field
-                        as={Select}
-                        label={i18n.t("quickMessages.dialog.geral")}
-                        placeholder={i18n.t("quickMessages.dialog.geral")}
-                        labelId="geral-selection-label"
-                        id="geral"
-                        name="geral"
-                        error={touched.geral && Boolean(errors.geral)}
-                      >
-                        <MenuItem value={true}>{i18n.t("announcements.active")}</MenuItem>
-                        <MenuItem value={false}>{i18n.t("announcements.inactive")}</MenuItem>
-                      </Field>
-                    </FormControl>
-                  </Grid>
-                  )}
+                  {/* {(profile === "admin" || profile === "supervisor") && ( */}
+                    <Grid xs={12} item>
+                      <FormControl variant="outlined" margin="dense" fullWidth>
+                        <InputLabel id="geral-selection-label">
+                          {i18n.t("quickMessages.dialog.visao")}
+                        </InputLabel>
+                        <Field
+                          as={Select}
+                          label={i18n.t("quickMessages.dialog.visao")}
+                          placeholder={i18n.t("quickMessages.dialog.visao")}
+                          labelId="visao-selection-label"
+                          id="visao"
+                          name="visao"
+                          error={touched.visao && Boolean(errors.visao)}
+                          value={values.visao ? "true" : "false"} // Converte o valor booleano para string
+                          >
+                          <MenuItem value={"true"}>{i18n.t("announcements.active")}</MenuItem>
+                          <MenuItem value={"false"}>{i18n.t("announcements.inactive")}</MenuItem>
+                        </Field>
+                      </FormControl>
+
+                      {/* Renderização condicional do novo item */}
+                      {values.visao === true && (
+                        <FormControl variant="outlined" margin="dense" fullWidth>
+                          <InputLabel id="geral-selection-label">
+                            {i18n.t("quickMessages.dialog.geral")}
+                          </InputLabel>
+                          <Field
+                            as={Select}
+                            label={i18n.t("quickMessages.dialog.geral")}
+                            placeholder={i18n.t("quickMessages.dialog.geral")}
+                            labelId="novo-item-selection-label"
+                            id="geral"
+                            name="geral"
+                            value={values.geral ? "true" : "false"} // Converte o valor booleano para string
+                            error={touched.geral && Boolean(errors.geral)}
+                          >
+                            <MenuItem value={"true"}>{i18n.t("announcements.active")}</MenuItem>
+                          <MenuItem value={"false"}>{i18n.t("announcements.inactive")}</MenuItem>
+                          </Field>
+                        </FormControl>
+                      )}
+                    </Grid>
+                  {/* )} */}
                   {(quickemessage.mediaPath || attachment) && (
                     <Grid xs={12} item>
                       <Button startIcon={<AttachFileIcon />}>

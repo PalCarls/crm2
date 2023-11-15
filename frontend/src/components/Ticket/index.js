@@ -4,7 +4,7 @@ import { useParams, useHistory } from "react-router-dom";
 import { toast } from "react-toastify";
 import clsx from "clsx";
 
-import { Button, IconButton, Paper, Tooltip, makeStyles } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core";
 
 import ContactDrawer from "../ContactDrawer";
 import MessageInput from "../MessageInput/";
@@ -14,6 +14,8 @@ import TicketActionButtons from "../TicketActionButtonsCustom";
 import MessagesList from "../MessagesList";
 import api from "../../services/api";
 import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
+import { ForwardMessageProvider } from "../../context/ForwarMessage/ForwardMessageContext";
+
 import toastError from "../../errors/toastError";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { TagsContainer } from "../TagsContainer";
@@ -21,6 +23,7 @@ import { socketConnection } from "../../services/socket";
 import { isNil } from 'lodash';
 import { Lock, LockOpen } from "@material-ui/icons";
 import { i18n } from "../../translate/i18n";
+import { Paper } from "@mui/material";
 
 const drawerWidth = 320;
 
@@ -59,10 +62,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const Ticket = ({selectedQueuesMessage}) => {
+const Ticket = () => {
   const { ticketId } = useParams();
   const history = useHistory();
   const classes = useStyles();
+  const currentTicketId = useRef(ticketId);
 
   const { user } = useContext(AuthContext);
   const isMounted = useRef(true);
@@ -72,27 +76,26 @@ const Ticket = ({selectedQueuesMessage}) => {
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
 
-  const [showSelectMessageCheckbox, setShowSelectMessageCheckbox] = useState(false);
-  const [selectedMessages, setSelectedMessages] = useState([]);
-  const [forwardMessageModalOpen, setForwardMessageModalOpen] = useState(false);
-
   useEffect(() => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       const fetchTicket = async () => {
         try {
+
+          const ticketIdNew = ticketId ? ticketId : ticket.id;
+
           if (!isNil(ticketId) && ticketId !== "undefined") {
             const { data } = await api.get("/tickets/u/" + ticketId);
 
-            const { queueId } = data;
-            const { queues, profile, allowGroup } = user;
+            // const { queueId } = data;
+            // const { queues, profile, allowGroup } = user;
 
-            const queueAllowed = queues.find((q) => q.id === queueId);
-            if (queueAllowed === undefined && profile !== "admin" && !allowGroup) {
-              toast.error("Acesso não permitido");
-              history.push("/tickets");
-              return;
-            }
+            // const queueAllowed = queues.find((q) => q.id === queueId);
+            // if (queueAllowed === undefined && profile !== "admin" && !allowGroup) {
+            //   toast.error("Acesso não permitido");
+            //   history.push("/tickets");
+            //   return;
+            // }
             if (isMounted.current) {
               setContact(data.contact);
               setTicket(data);
@@ -107,10 +110,11 @@ const Ticket = ({selectedQueuesMessage}) => {
       };
       fetchTicket();
     }, 500);
-    return () => 
+
+    return () =>
       clearTimeout(delayDebounceFn);
-      isMounted.current = false;
-    }, [ticketId]);
+    isMounted.current = false;
+  }, [ticketId]);
 
   useEffect(() => {
     const companyId = user.companyId;
@@ -145,13 +149,13 @@ const Ticket = ({selectedQueuesMessage}) => {
     };
   }, [ticketId, ticket, history]);
 
-  const handleDrawerOpen = useCallback(() => {
+  const handleDrawerOpen = () => {
     setDrawerOpen(true);
-  },[]);
+  };
 
-  const handleDrawerClose = useCallback(() => {
+  const handleDrawerClose = () => {
     setDrawerOpen(false);
-  },[]);
+  };
 
   const renderTicketInfo = () => {
     if (ticket.user !== undefined) {
@@ -168,20 +172,15 @@ const Ticket = ({selectedQueuesMessage}) => {
   const renderMessagesList = () => {
     return (
       <>
-      {/*VER AQUI PARA FAZER O DRAG GERAL*/}
-        <MessagesList
-          ticket={ticket}
-          ticketId={ticket.id}
-          isGroup={ticket.isGroup}
-          showSelectMessageCheckbox={showSelectMessageCheckbox}
-          setShowSelectMessageCheckbox={setShowSelectMessageCheckbox}
-          setSelectedMessagesList={setSelectedMessages}
-          selectedMessagesList={selectedMessages}
-          forwardMessageModalOpen={forwardMessageModalOpen}
-          setForwardMessageModalOpen={setForwardMessageModalOpen}
-          selectedQueues={selectedQueuesMessage}
-        ></MessagesList>
-        <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} />
+        {/*VER AQUI PARA FAZER O DRAG GERAL*/}
+        <>
+          <MessagesList
+            ticket={ticket}
+            ticketId={ticket.id}
+            isGroup={ticket.isGroup}
+          ></MessagesList>
+          <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} currentTicketId={currentTicketId}/>
+        </>
       </>
     );
   };
@@ -195,19 +194,24 @@ const Ticket = ({selectedQueuesMessage}) => {
           [classes.mainWrapperShift]: drawerOpen,
         })}
       >
-        <TicketHeader loading={loading}>             
-          {renderTicketInfo()}
-          <TicketActionButtons 
-            ticket={ticket} 
-            showSelectMessageCheckbox={showSelectMessageCheckbox} 
-            selectedMessages={selectedMessages} 
-            forwardMessageModalOpen={forwardMessageModalOpen}
-            setForwardMessageModalOpen={setForwardMessageModalOpen}/>
+        {/* <div id="TicketHeader"> */}
+        <TicketHeader loading={loading}>
+          <div id="TicketHeader">
+            {renderTicketInfo()}
+          </div>
+          <TicketActionButtons
+            ticket={ticket}
+          />
         </TicketHeader>
+        {/* </div> */}
         <Paper>
           <TagsContainer contact={contact} />
         </Paper>
-        <ReplyMessageProvider>{renderMessagesList()}</ReplyMessageProvider>
+        <ReplyMessageProvider>
+          <ForwardMessageProvider>
+            {renderMessagesList()}
+          </ForwardMessageProvider>
+        </ReplyMessageProvider>
       </Paper>
       <ContactDrawer
         open={drawerOpen}

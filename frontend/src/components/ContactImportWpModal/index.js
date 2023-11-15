@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext} from 'react';
 import { Dialog, DialogTitle, DialogActions, Button, Box, } from '@mui/material';
 import { i18n } from '../../translate/i18n';
 import { makeStyles } from '@material-ui/core';
-import { Label } from '@material-ui/icons';
 import api from "../../services/api";
+import { Can } from "../Can";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
+import { AuthContext } from "../../context/Auth/AuthContext";
 import * as XLSX from "xlsx";
 const useStyles = makeStyles((theme) => ({
   multFieldLine: {
@@ -36,11 +37,11 @@ const useStyles = makeStyles((theme) => ({
 
   },
 
-}));;
+}));
 
 const ContactImportWpModal = ({ isOpen, handleClose, selectedTags, hideNum, userProfile }) => {
   const classes = useStyles();
-
+  const { user } = useContext(AuthContext);
   const initialContact = { name: "", number: "", error: "" }
 
   const [contactsToImport, setContactsToImport] = useState([])
@@ -96,7 +97,7 @@ const ContactImportWpModal = ({ isOpen, handleClose, selectedTags, hideNum, user
     if (!model) {
       while (i !== 0) {
         const { data } = await api.get("/contacts/", {
-          params: { searchParam: "", pageNumber: i, contactTag: JSON.stringify(selectedTags)},
+          params: { searchParam: "", pageNumber: i, contactTag: JSON.stringify(selectedTags) },
         });
         data.contacts.forEach((element) => {
           const tagsContact = element.tags.map(tag => tag.name).join(', '); // Concatenando as tags com vírgula
@@ -113,13 +114,13 @@ const ContactImportWpModal = ({ isOpen, handleClose, selectedTags, hideNum, user
     } else {
       allDatas.push({
         name: "João",
-        number: "5547989845213",
-        email: "joao@possoatender.com",
+        number: "5599999999999",
+        email: "",
       });
     }
-    
+
     const exportData = allDatas.map((e) => {
-      return { name: e.name, number: (hideNum && userProfile === "user" ? e.isGroup ? e.number : e.number.slice(0,-6)+"**-**"+ e.number.slice(-2): e.number), email: e.email, tags: e.tags };
+      return { name: e.name, number: (hideNum && userProfile === "user" ? e.isGroup ? e.number : e.number.slice(0, -6) + "**-**" + e.number.slice(-2) : e.number), email: e.email, tags: e.tags };
     });
     //console.log({ allDatas });
     let wb = XLSX.utils.book_new();
@@ -148,17 +149,23 @@ const ContactImportWpModal = ({ isOpen, handleClose, selectedTags, hideNum, user
       <DialogTitle>{i18n.t("Exportar / Importar contatos")}</DialogTitle>
       <div>
         <Box style={{ padding: "0px 10px 10px" }} >
-          <div className={classes.multFieldLine}>
-            <Button
-              fullWidth
-              size="small"
-              color="primary"
-              variant="contained"
-              onClick={() => handleOnExportContacts(false)}
-            >
-              {i18n.t("contactImportWpModal.title")}
-            </Button>
-          </div>
+          <Can
+            role={user.profile}
+            perform="contacts-page:deleteContact"
+            yes={() => (
+              <div className={classes.multFieldLine}>
+                <Button
+                  fullWidth
+                  size="small"
+                  color="primary"
+                  variant="contained"
+                  onClick={() => handleOnExportContacts(false)}
+                >
+                  {i18n.t("contactImportWpModal.title")}
+                </Button>
+              </div>
+            )}
+          />
           <div className={classes.multFieldLine}>
             <Button
               fullWidth

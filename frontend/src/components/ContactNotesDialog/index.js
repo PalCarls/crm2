@@ -12,6 +12,7 @@ import { Formik, Form, Field } from "formik";
 
 import ContactNotesDialogListItem from '../ContactNotesDialogListItem';
 import ConfirmationModal from '../ConfirmationModal';
+import ContactNotesEditModal from '../ContactNotesEditModal';
 
 import { toast } from "react-toastify";
 
@@ -40,12 +41,12 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const NoteSchema = Yup.object().shape({
-	note: Yup.string()
-		.min(2, "Too Short!")
-		.required("Required")
+    note: Yup.string()
+        .min(2, "Too Short!")
+        .required("Required")
 });
 
-export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
+export default function ContactNotesDialog({ modalOpen, onClose, ticket }) {
     const { id: ticketId, contactId } = ticket
     const classes = useStyles()
     const [open, setOpen] = useState(false);
@@ -57,7 +58,7 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
     const { saveNote, deleteNote, listNotes } = useTicketNotes()
 
     useEffect(() => {
-        async function openAndFetchData () {
+        async function openAndFetchData() {
             if (modalOpen) {
                 setOpen(true)
                 handleResetState()
@@ -76,7 +77,7 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
     const handleChangeComment = (e) => {
         setNewNote({ note: e.target.value })
     }
-    
+
     const handleClose = () => {
         setOpen(false);
         onClose()
@@ -87,7 +88,7 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
         try {
             await saveNote({
                 ...values,
-                ticketId, 
+                ticketId,
                 contactId
             })
             await loadNotes()
@@ -117,6 +118,8 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
         setLoading(false)
     }
 
+   
+
     const loadNotes = async () => {
         setLoading(true)
         try {
@@ -130,16 +133,18 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
 
     const renderNoteList = () => {
         return notes.map((note) => {
-            return <ContactNotesDialogListItem 
-                note={note} 
+            return <ContactNotesDialogListItem
+                note={note}
                 key={note.id}
                 deleteItem={handleOpenDialogDelete}
+                editItem={() => handleEdit(note)}
             />
         })
     }
 
     return (
         <>
+            
             <ConfirmationModal
                 title="Excluir Registro"
                 open={showOnDeleteDialog}
@@ -155,7 +160,7 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
                 aria-describedby="alert-dialog-description"
             >
                 <DialogTitle id="alert-dialog-title">
-                    { i18n.t("ticketOptionsMenu.appointmentsModal.title") }
+                    {i18n.t("ticketOptionsMenu.appointmentsModal.title")}
                 </DialogTitle>
                 <Formik
                     initialValues={newNote}
@@ -183,10 +188,11 @@ export default function ContactNotesDialog ({ modalOpen, onClose, ticket }) {
                                     helperText={touched.note && errors.note}
                                     variant="outlined"
                                     onChange={handleChangeComment}
+                                    style={{ whiteSpace: "pre-line" }}
                                 />
 
                                 <List className={classes.list}>
-                                    { renderNoteList() }
+                                    {renderNoteList()}
                                 </List>
                             </DialogContent>
                             <DialogActions>

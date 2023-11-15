@@ -65,12 +65,12 @@ const reducer = (state, action) => {
         const contacts = action.payload;
         const newContacts = [];
 
-        contacts.forEach((contact) => {            
+        contacts.forEach((contact) => {
             const contactIndex = state.findIndex((c) => c.id === contact.id);
             if (contactIndex !== -1) {
                 state[contactIndex] = contact;
             } else {
-                newContacts.push(contact);                
+                newContacts.push(contact);
             }
         });
 
@@ -141,14 +141,14 @@ const Contacts = () => {
     const [selectedTags, setSelectedTags] = useState([]);
 
 
-    const { get:getSetting } = useCompanySettings();
-	const [hideNum, setHideNum] = useState(false);
+    const { get: getSetting } = useCompanySettings();
+    const [hideNum, setHideNum] = useState(false);
 
     useEffect(() => {
 
         async function fetchData() {
             const setting = await getSetting({
-                "column":"lgpdHideNumber"
+                "column": "lgpdHideNumber"
             });
 
             if (setting.lgpdHideNumber === "enabled") {
@@ -177,7 +177,7 @@ const Contacts = () => {
     useEffect(() => {
         dispatch({ type: "RESET" });
         setPageNumber(1);
-    }, [searchParam,selectedTags]);
+    }, [searchParam, selectedTags]);
 
     useEffect(() => {
         setLoading(true);
@@ -186,7 +186,7 @@ const Contacts = () => {
                 try {
                     const { data } = await api.get("/contacts/", {
                         params: { searchParam, pageNumber, contactTag: JSON.stringify(selectedTags) },
-                    });                    
+                    });
                     dispatch({ type: "LOAD_CONTACTS", payload: data.contacts });
                     setHasMore(data.hasMore);
                     setLoading(false);
@@ -197,11 +197,11 @@ const Contacts = () => {
             fetchContacts();
         }, 500);
         return () => clearTimeout(delayDebounceFn);
-    }, [searchParam, pageNumber,selectedTags]);
+    }, [searchParam, pageNumber, selectedTags]);
 
     useEffect(() => {
         const companyId = user.companyId;
-        const socket = socketConnection({ companyId, userId: user.id }); 
+        const socket = socketConnection({ companyId, userId: user.id });
 
         socket.on(`company-${companyId}-contact`, (data) => {
             if (data.action === "update" || data.action === "create") {
@@ -228,7 +228,7 @@ const Contacts = () => {
     const handleSelectedTags = (selecteds) => {
         const tags = selecteds.map((t) => t.id);
         setSelectedTags(tags);
-      };
+    };
 
     const handleSearch = (event) => {
         setSearchParam(event.target.value.toLowerCase());
@@ -322,25 +322,22 @@ const Contacts = () => {
     function getDateLastMessage(contact) {
         if (!contact) return null;
         if (!contact.tickets) return null;
-
+    
         if (contact.tickets.length > 0) {
-            const date = new Date(
-                contact.tickets[contact.tickets.length - 1].updatedAt
-            );
-
-            const day =
-                date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`;
-            const month = date.getMonth() + 1;
+            const date = new Date(contact.tickets[contact.tickets.length - 1].updatedAt);
+    
+            const day = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`;
+            const month = date.getMonth() + 1 > 9 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`;
             const year = date.getFullYear();
-
-            const hours = date.getHours();
-            const minutes = date.getMinutes();
-
+            const hours = date.getHours() > 9 ? date.getHours() : `0${date.getHours()}`;
+            const minutes = date.getMinutes() > 9 ? date.getMinutes() : `0${date.getMinutes()}`;
+    
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
-
+    
         return null;
     }
+    
 
     return (
 
@@ -387,19 +384,19 @@ const Contacts = () => {
                 }
             >
                 {exportContact
-                ?
-                `${i18n.t("contacts.confirmationModal.exportContact")}`
-                :deletingContact
-                    ? `${i18n.t("contacts.confirmationModal.deleteMessage")}`
-                    : blockingContact
-                        ? `${i18n.t("contacts.confirmationModal.blockContact")}`
-                        : unBlockingContact
-                            ? `${i18n.t("contacts.confirmationModal.unblockContact")}`
-                            : ImportContacts
-                                ? `${i18n.t("contacts.confirmationModal.importMessage")}`
-                                : `${i18n.t(
-                                    "contactListItems.confirmationModal.importMessage"
-                                )}`}
+                    ?
+                    `${i18n.t("contacts.confirmationModal.exportContact")}`
+                    : deletingContact
+                        ? `${i18n.t("contacts.confirmationModal.deleteMessage")}`
+                        : blockingContact
+                            ? `${i18n.t("contacts.confirmationModal.blockContact")}`
+                            : unBlockingContact
+                                ? `${i18n.t("contacts.confirmationModal.unblockContact")}`
+                                : ImportContacts
+                                    ? `${i18n.t("contacts.confirmationModal.importMessage")}`
+                                    : `${i18n.t(
+                                        "contactListItems.confirmationModal.importMessage"
+                                    )}`}
             </ConfirmationModal>
             <ConfirmationModal
                 title={i18n.t("contacts.confirmationModal.importChat")}
@@ -412,8 +409,8 @@ const Contacts = () => {
             <MainHeader>
                 <Title>{i18n.t("contacts.title")} ({contacts.length})</Title>
                 <MainHeaderButtonsWrapper>
-                    <TagsFilter 
-                        onFiltered={handleSelectedTags} 
+                    <TagsFilter
+                        onFiltered={handleSelectedTags}
                     />
                     <TextField
                         placeholder={i18n.t("contacts.searchPlaceholder")}
@@ -457,8 +454,8 @@ const Contacts = () => {
                                         {i18n.t("contacts.menu.importYourPhone")}
                                     </MenuItem>
                                     <MenuItem
-                                        onClick={() => {setImportContactModalOpen(true)}}
-                                        
+                                        onClick={() => { setImportContactModalOpen(true) }}
+
                                     >
                                         <Backup
                                             fontSize="small"
@@ -513,13 +510,15 @@ const Contacts = () => {
                 </MainHeaderButtonsWrapper>
             </MainHeader>
 
-            <ContactImportWpModal
-            isOpen={importContactModalOpen}
-            handleClose={()=>setImportContactModalOpen(false)}
-            selectedTags={selectedTags}
-            hideNum={hideNum}
-            userProfile={user.profile}
-            />
+            {importContactModalOpen && (
+                <ContactImportWpModal
+                    isOpen={importContactModalOpen}
+                    handleClose={() => setImportContactModalOpen(false)}
+                    selectedTags={selectedTags}
+                    hideNum={hideNum}
+                    userProfile={user.profile}
+                />
+            )}
             <Paper
                 className={classes.mainPaper}
                 variant="outlined"
@@ -569,7 +568,13 @@ const Contacts = () => {
                                     </TableCell>
                                     <TableCell>{contact.name}</TableCell>
                                     <TableCell align="center">
-                                        {(hideNum && user.profile === "user" ? contact.isGroup ? contact.number : formatSerializedId(contact.number).slice(0,-6)+"**-**"+ contact.number.slice(-2): contact.isGroup ? contact.number : formatSerializedId(contact.number))}
+                                        {(hideNum && user.profile === "user"
+                                            ? contact.isGroup
+                                                ? contact.number :
+                                                formatSerializedId(contact?.number) === null ? contact.number.slice(0, -6) + "**-**" + contact?.number.slice(-2) :
+                                                    formatSerializedId(contact?.number).slice(0, -6) + "**-**" + contact?.number.slice(-2) :
+                                            contact.isGroup ? contact.number : formatSerializedId(contact?.number)
+                                        )}
                                     </TableCell>
                                     <TableCell align="center">
                                         {contact.email}
@@ -599,9 +604,9 @@ const Contacts = () => {
                                                 // handleSaveTicket(contact.id);
                                             }}
                                         >
-                                            {contact.channel === "whatsapp" && (<WhatsApp style={{ color: "green" }}  />)}
-                                            {contact.channel === "instagram" && (<Instagram style={{ color: "purple" }}  />)}
-                                            {contact.channel === "facebook" && (<Facebook style={{ color: "blue" }}  />)}
+                                            {contact.channel === "whatsapp" && (<WhatsApp style={{ color: "green" }} />)}
+                                            {contact.channel === "instagram" && (<Instagram style={{ color: "purple" }} />)}
+                                            {contact.channel === "facebook" && (<Facebook style={{ color: "blue" }} />)}
                                         </IconButton>
 
                                         <IconButton

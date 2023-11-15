@@ -4,7 +4,7 @@ import { useHistory } from "react-router-dom";
 import { Can } from "../Can";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
-import { DeviceHubOutlined, History, Replay, SwapHorizOutlined } from "@material-ui/icons";
+import { DeviceHubOutlined, History, PictureAsPdf, Replay, SwapHorizOutlined } from "@material-ui/icons";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -40,6 +40,8 @@ import ShowTicketOpen from "../ShowTicketOpenModal";
 import { toast } from "react-toastify";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import ShowTicketLogModal from "../../components/ShowTicketLogModal";
+import TicketMessagesDialog from "../TicketMessagesDialog";
+import { blue } from "@material-ui/core/colors";
 
 const useStyles = makeStyles(theme => ({
     actionButtons: {
@@ -56,7 +58,7 @@ const useStyles = makeStyles(theme => ({
     },
     bottomButtonVisibilityIcon: {
         padding: 1,
-        color: theme.mode === "light" ? '#0872b9' : '#FFF', 
+        color: theme.mode === "light" ? '#0872b9' : '#FFF',
     },
     botoes: {
         display: "flex",
@@ -72,10 +74,12 @@ const SessionSchema = Yup.object().shape({
     ratingId: Yup.string().required("Avaliação obrigatória"),
 });
 
-const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox, 
-	selectedMessages, 
-	forwardMessageModalOpen,
-	setForwardMessageModalOpen }) => {
+const TicketActionButtonsCustom = ({ ticket
+    // , showSelectMessageCheckbox,
+    // selectedMessages,
+    // forwardMessageModalOpen,
+    // setForwardMessageModalOpen
+}) => {
     const classes = useStyles();
     const history = useHistory();
     const isMounted = useRef(true);
@@ -91,15 +95,17 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
     const [acceptAudioMessage, setAcceptAudio] = useState(ticket.contact.acceptAudioMessage);
     const [acceptTicketWithouSelectQueueOpen, setAcceptTicketWithouSelectQueueOpen] = useState(false);
     const [showTicketLogOpen, setShowTicketLogOpen] = useState(false);
+    const [openTicketMessageDialog, setOpenTicketMessageDialog] = useState(false);
+
     const [showSchedules, setShowSchedules] = useState(false);
     const [enableIntegration, setEnableIntegration] = useState(ticket.useIntegration);
 
-    const [ openAlert, setOpenAlert ] = useState(false);
-	const [ userTicketOpen, setUserTicketOpen] = useState("");
-	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
-    const [ logTicket, setLogTicket] = useState([]);
+    const [openAlert, setOpenAlert] = useState(false);
+    const [userTicketOpen, setUserTicketOpen] = useState("");
+    const [queueTicketOpen, setQueueTicketOpen] = useState("");
+    const [logTicket, setLogTicket] = useState([]);
 
-    const { get:getSetting } = useCompanySettings()
+    const { get: getSetting } = useCompanySettings()
     const { getPlanCompany } = usePlans();
 
     useEffect(() => {
@@ -107,35 +113,36 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
             const companyId = user.companyId;
             const planConfigs = await getPlanCompany(undefined, companyId);
             setShowSchedules(planConfigs.plan.useSchedules);
+            setOpenTicketMessageDialog(false);
         }
         fetchData();
         setShowTicketLogOpen(false)
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    
+
     const handleClickOpen = async (e) => {
         const setting = await getSetting({
-            "column":"requiredTag"
+            "column": "requiredTag"
         });
 
-        if(setting?.requiredTag === "enabled"){
+        if (setting?.requiredTag === "enabled") {
             //verificar se tem uma tag   
             try {
-                const contactTags =  await api.get(`/contactTags/${ticket.contact.id}`);
-                if(!contactTags.data.tags){
+                const contactTags = await api.get(`/contactTags/${ticket.contact.id}`);
+                if (!contactTags.data.tags) {
                     toast.warning(i18n.t("messagesList.header.buttons.requiredTag"))
                 } else {
-                        setOpen(true);
-                        // handleUpdateTicketStatus(e, "closed", user?.id);
+                    setOpen(true);
+                    // handleUpdateTicketStatus(e, "closed", user?.id);
                 }
             } catch (err) {
                 toastError(err);
-            }   
+            }
         } else {
-            
-                setOpen(true);
-                // handleUpdateTicketStatus(e, "closed", user?.id);
+
+            setOpen(true);
+            // handleUpdateTicketStatus(e, "closed", user?.id);
         }
     };
 
@@ -148,11 +155,11 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
         setOpenAlert(false);
         setLoading(false);
     };
-    const handleOpenAcceptTicketWithouSelectQueue = async () => {              
+    const handleOpenAcceptTicketWithouSelectQueue = async () => {
 
         setAcceptTicketWithouSelectQueueOpen(true);
 
-	};
+    };
 
     const handleOpenScheduleModal = () => {
         if (typeof handleClose == "function") handleClose();
@@ -165,25 +172,19 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
         setContactId(null);
     }
 
-    const handleOpenModalForward = () => {
-		if (selectedMessages.length === 0) {
-			toastError({response: {data: {message: i18n.t("messagesList.header.notMessage")}}});
-			return;
-		}
-		setForwardMessageModalOpen(true);
-	}
+
 
     const handleOpenTransferModal = (e) => {
         setTransferTicketModalOpen(true);
         if (typeof handleClose == "function") handleClose();
-    }; 
+    };
 
     const handleOpenConfirmationModal = (e) => {
         setConfirmationOpen(true);
         if (typeof handleClose == "function") handleClose();
     };
 
-   
+
     const handleCloseTicketWithoutFarewellMsg = async () => {
         setLoading(true);
         try {
@@ -281,19 +282,19 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
 
             try {
                 setting = await getSetting({
-                    "column":"sendGreetingAccepted"
+                    "column": "sendGreetingAccepted"
                 })
             } catch (err) {
                 toastError(err);
             }
- 
+
             if (setting?.sendGreetingAccepted === "enabled" && (!ticket.isGroup || ticket.whatsapp?.groupAsTicket === "enabled") && ticket.status === "pending") {
                 handleSendMessage(ticket.id);
             }
-           
+
             setLoading(false);
             if (status === "open" || status === "group") {
-                setCurrentTicket({ ...ticket, code: "#"+status });
+                setCurrentTicket({ ...ticket, code: "#" + status });
                 history.push(`/tickets/${ticket.uuid}`);
             } else {
                 setCurrentTicket({ id: null, code: null })
@@ -322,40 +323,63 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                     history.push(`/tickets/${otherTicket.data.uuid}`);
                 }
             } else {
-                if (isMounted.current) { 
+                if (isMounted.current) {
                     setLoading(false);
                 }
-        
+
                 // handleChangeTab(null, "tickets");
                 history.push(`/tickets/${ticket.uuid}`);
             }
         } catch (err) {
             setLoading(false);
             toastError(err);
-        }       
+        }
     };
 
     return (
         <>
-            <ShowTicketOpen
-				isOpen={openAlert}
-				handleClose={handleCloseAlert}
-				user={userTicketOpen}
-				queue={queueTicketOpen}
-			/>
-            <AcceptTicketWithouSelectQueue
-				modalOpen={acceptTicketWithouSelectQueueOpen}
-				onClose={(e) => setAcceptTicketWithouSelectQueueOpen(false)}
-				ticketId={ticket.id}
-                ticket={ticket}
-			/>
-            <ShowTicketLogModal
-                isOpen={showTicketLogOpen}
-                handleClose={(e) => setShowTicketLogOpen(false)}
-                logs={logTicket}
-            />
+            {openAlert && (
+                <ShowTicketOpen
+                    isOpen={openAlert}
+                    handleClose={handleCloseAlert}
+                    user={userTicketOpen}
+                    queue={queueTicketOpen}
+                />
+            )}
+            {acceptTicketWithouSelectQueueOpen && (
+                <AcceptTicketWithouSelectQueue
+                    modalOpen={acceptTicketWithouSelectQueueOpen}
+                    onClose={(e) => setAcceptTicketWithouSelectQueueOpen(false)}
+                    ticketId={ticket.id}
+                    ticket={ticket}
+                />
+            )}
+            {showTicketLogOpen && (
+                <ShowTicketLogModal
+                    isOpen={showTicketLogOpen}
+                    handleClose={(e) => setShowTicketLogOpen(false)}
+                    logs={logTicket}
+                />
+            )}
+            {openTicketMessageDialog && (
+                <TicketMessagesDialog
+                    open={openTicketMessageDialog}
+                    handleClose={() => setOpenTicketMessageDialog(false)}
+                    ticketId={ticket.id}
+                />
+            )}
             <div className={classes.actionButtons}>
-                {ticket.status === "closed" && (ticket.queueId === null || ticket.queueId=== undefined) && (
+                <IconButton
+                    className={classes.bottomButtonVisibilityIcon}
+                    onClick={() => setOpenTicketMessageDialog(true)}
+                >
+                    <Tooltip title={i18n.t("ticketsList.buttons.exportAsPDF")}>
+                        <PictureAsPdf />
+
+                    </Tooltip>
+                </IconButton>
+
+                {ticket.status === "closed" && (ticket.queueId === null || ticket.queueId === undefined) && (
                     <ButtonWithSpinner
                         loading={loading}
                         startIcon={<Replay />}
@@ -365,7 +389,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                         {i18n.t("messagesList.header.buttons.reopen")}
                     </ButtonWithSpinner>
                 )}
-                 {(ticket.status === "closed" && ticket.queueId !== null ) && (
+                {(ticket.status === "closed" && ticket.queueId !== null) && (
                     <ButtonWithSpinner
                         startIcon={<Replay />}
                         loading={loading}
@@ -374,29 +398,29 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                         {i18n.t("messagesList.header.buttons.reopen")}
                     </ButtonWithSpinner>
                 )}
-                {(ticket.status === "open" || ticket.status === "group" ) && (
+                {(ticket.status === "open" || ticket.status === "group") && (
                     <>
-                        {!showSelectMessageCheckbox ? (
-                            <>
-                            <IconButton 
+                        {/* {!showSelectMessageCheckbox ? ( */}
+                        <>
+                            <IconButton
                                 className={classes.bottomButtonVisibilityIcon}
                                 onClick={handleShowLogTicket}
                             >
                                 <Tooltip title={i18n.t("messagesList.header.buttons.logTicket")}>
-                                <History />
-                                
+                                    <History />
+
                                 </Tooltip>
                             </IconButton>
-                            <IconButton 
+                            <IconButton
                                 className={classes.bottomButtonVisibilityIcon}
                                 onClick={handleEnableIntegration}
                             >
                                 <Tooltip title={i18n.t("messagesList.header.buttons.enableIntegration")}>
-                                {enableIntegration === true ? <DeviceHubOutlined style={{ color: "green" }} /> : <DeviceHubOutlined />}
-                                
+                                    {enableIntegration === true ? <DeviceHubOutlined style={{ color: "green" }} /> : <DeviceHubOutlined />}
+
                                 </Tooltip>
                             </IconButton>
-                            
+
                             <IconButton className={classes.bottomButtonVisibilityIcon}>
                                 <Tooltip title={i18n.t("messagesList.header.buttons.resolve")}>
                                     <HighlightOffIcon
@@ -410,7 +434,7 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                                 <Tooltip title={i18n.t("tickets.buttons.returnQueue")}>
                                     <UndoIcon
                                         // color="primary"
-                                        onClick={(e) => handleUpdateTicketStatus(e,  "pending", null)}
+                                        onClick={(e) => handleUpdateTicketStatus(e, "pending", null)}
                                     />
                                 </Tooltip>
                             </IconButton>
@@ -423,18 +447,18 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                                     />
                                 </Tooltip>
                             </IconButton>
-                            </>
-                        ) : (
-                            <IconButton className={classes.bottomButtonVisibilityIcon}>
-                                <Tooltip title={i18n.t("messageOptionsMenu.forward")}>
-                                    <BiSend
-                                        // color="primary"
-                                        onClick={handleOpenModalForward}
-                                    />
-                                </Tooltip>
-                            </IconButton>                           
-                        )}
-                            
+                        </>
+                        {/* // ) : (
+                        //     <IconButton className={classes.bottomButtonVisibilityIcon}>
+                        //         <Tooltip title={i18n.t("messageOptionsMenu.forward")}>
+                        //             <BiSend
+                        //                 // color="primary"
+                        //                 onClick={handleOpenModalForward}
+                        //             />
+                        //         </Tooltip>
+                        //     </IconButton>
+                        // )} */}
+
                         {showSchedules && (
                             <>
                                 <IconButton className={classes.bottomButtonVisibilityIcon}>
@@ -474,30 +498,36 @@ const TicketActionButtonsCustom = ({ ticket,showSelectMessageCheckbox,
                             )}
                         />
 
-                        <ConfirmationModal
-                            title={`${i18n.t("ticketOptionsMenu.confirmationModal.title")} #${ticket.id}?`}
-                            open={confirmationOpen}
-                            onClose={setConfirmationOpen}
-                            onConfirm={handleDeleteTicket}
-                        >
-                            {i18n.t("ticketOptionsMenu.confirmationModal.message")}
-                        </ConfirmationModal>
-                        <TransferTicketModalCustom
-                            modalOpen={transferTicketModalOpen}
-                            onClose={handleCloseTransferTicketModal}
-                            ticketid={ticket.id}
-                            ticket={ticket}
-                        />
-                        <ScheduleModal
-                            open={scheduleModalOpen}
-                            onClose={handleCloseScheduleModal}
-                            aria-labelledby="form-dialog-title"
-                            contactId={contactId}
-                        />
+                        {confirmationOpen && (
+                            <ConfirmationModal
+                                title={`${i18n.t("ticketOptionsMenu.confirmationModal.title")} #${ticket.id}?`}
+                                open={confirmationOpen}
+                                onClose={setConfirmationOpen}
+                                onConfirm={handleDeleteTicket}
+                            >
+                                {i18n.t("ticketOptionsMenu.confirmationModal.message")}
+                            </ConfirmationModal>
+                        )}
+                        {transferTicketModalOpen && (
+                            <TransferTicketModalCustom
+                                modalOpen={transferTicketModalOpen}
+                                onClose={handleCloseTransferTicketModal}
+                                ticketid={ticket.id}
+                                ticket={ticket}
+                            />
+                        )}
+                        {scheduleModalOpen && (
+                            <ScheduleModal
+                                open={scheduleModalOpen}
+                                onClose={handleCloseScheduleModal}
+                                aria-labelledby="form-dialog-title"
+                                contactId={contactId}
+                            />
+                        )}
 
                     </>
                 )}
-                {ticket.status === "pending" && (ticket.queueId === null || ticket.queueId=== undefined) && (
+                {ticket.status === "pending" && (ticket.queueId === null || ticket.queueId === undefined) && (
                     <ButtonWithSpinner
                         loading={loading}
                         size="small"

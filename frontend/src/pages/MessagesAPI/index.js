@@ -363,9 +363,10 @@ const MessagesAPI = () => {
             <b>Body: </b> {"{"} <br></br>
              "number": "558599999999" <br></br>
              "body": "Message" <br></br> 
-             "userId": "ID usuário" <br></br>
-             "queueId": "ID Fila"<br></br>
-             "sendSignature": "Assinar mensagem true/false"
+             "userId": ID usuário ou "" <br></br>
+             "queueId": ID Fila ou ""<br></br>
+             "sendSignature": Assinar mensagem "true"/"false" <br></br>
+             "closeTicket": Encerrar o ticket "true"/"false"<br></br>
              {"}"} 
           </Typography>
         </Grid>
@@ -395,16 +396,19 @@ const MessagesAPI = () => {
                 <b>body:</b> Message
               </li>
               <li>
-                <b>userId:</b> ID usuário
+                <b>userId:</b> ID usuário ou ""
               </li>
               <li>
-                <b>queueId:</b> ID da fila
+                <b>queueId:</b> ID da fila ou ""
               </li>
               <li>
                 <b>medias: </b> arquivo
               </li>
               <li>
                 <b>sendSignature:</b> Assinar mensagem true/false
+              </li>
+              <li>
+                <b>closeTicket:</b> Encerrar ticket "true"/"false"
               </li>
             </ul>
           </Typography>

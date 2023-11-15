@@ -59,16 +59,24 @@ function AnnouncementDialog({ announcement, open, handleClose }) {
               border: "1px solid #f1f1f1",
               margin: "0 auto 20px",
               textAlign: "center",
-              width: "90%",
+              width: "95%",
               height: 300,
-              backgroundImage: `url(${announcement.mediaPath})`,
               backgroundRepeat: "no-repeat",
               backgroundSize: "cover",
               backgroundPosition: "center",
             }}
-          ></div>
+          >
+            <img
+              alt={`announcement image`}
+              src={announcement.mediaPath}
+              style={{
+                width: "95%",
+                height: "100%",
+              }}
+            />
+          </div>
         )}
-        <DialogContentText id="alert-dialog-description" style={{ whiteSpace: "pre-line" }}> 
+        <DialogContentText id="alert-dialog-description" style={{ whiteSpace: "pre-line" }}>
           {announcement.text}
         </DialogContentText>
       </DialogContent>
@@ -312,7 +320,7 @@ export default function AnnouncementsPopover() {
               ))}
             {isArray(announcements) && announcements.length === 0 && (
               <ListItemText primary={i18n.t("mainDrawer.appBar.notRegister")} />
-              )}
+            )}
           </List>
         </Paper>
       </Popover>

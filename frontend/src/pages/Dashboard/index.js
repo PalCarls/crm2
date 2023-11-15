@@ -1,27 +1,16 @@
 import React, { useContext, useState, useEffect } from "react";
 
 import Paper from "@material-ui/core/Paper";
-import Container from "@material-ui/core/Container";
-import Grid from "@material-ui/core/Grid";
-import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import TextField from "@material-ui/core/TextField";
-import FormHelperText from "@material-ui/core/FormHelperText";
 import Typography from "@material-ui/core/Typography";
-import { AppBar, Button, Card, Tab, Tabs } from "@material-ui/core";
+// import {  Button, Grid } from "@material-ui/core";
+import { makeStyles } from "@material-ui/core/styles";
+import { useTheme } from "@material-ui/core/styles";
 
-import SpeedIcon from "@material-ui/icons/Speed";
-import GroupIcon from "@material-ui/icons/Group";
-import AssignmentIcon from "@material-ui/icons/Assignment";
-import PersonIcon from "@material-ui/icons/Person";
 import CallIcon from "@material-ui/icons/Call";
 import RecordVoiceOverIcon from "@material-ui/icons/RecordVoiceOver";
 import GroupAddIcon from "@material-ui/icons/GroupAdd";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import CheckCircleIcon from "@material-ui/icons/CheckCircle";
-import ForumIcon from "@material-ui/icons/Forum";
 import FilterListIcon from "@material-ui/icons/FilterList";
 import ClearIcon from "@material-ui/icons/Clear";
 import SendIcon from '@material-ui/icons/Send';
@@ -29,14 +18,9 @@ import MessageIcon from '@material-ui/icons/Message';
 import AccessAlarmIcon from '@material-ui/icons/AccessAlarm';
 import TimerIcon from '@material-ui/icons/Timer';
 
-import { makeStyles } from "@material-ui/core/styles";
 import { grey, blue } from "@material-ui/core/colors";
 import { toast } from "react-toastify";
 
-import Chart from "./Chart";
-import ButtonWithSpinner from "../../components/ButtonWithSpinner";
-
-import CardCounter from "../../components/Dashboard/CardCounter";
 import TabPanel from "../../components/TabPanel"
 import TableAttendantsStatus from "../../components/Dashboard/TableAttendantsStatus";
 import { isArray } from "lodash";
@@ -44,8 +28,6 @@ import { isArray } from "lodash";
 import { AuthContext } from "../../context/Auth/AuthContext";
 
 import useDashboard from "../../hooks/useDashboard";
-import useTickets from "../../hooks/useTickets";
-import useUsers from "../../hooks/useUsers";
 import useContacts from "../../hooks/useContacts";
 import useMessages from "../../hooks/useMessages";
 import { ChatsUser } from "./ChartsUser";
@@ -55,19 +37,66 @@ import Filters from "./Filters";
 import { isEmpty } from "lodash";
 import moment from "moment";
 import { ChartsDate } from "./ChartsDate";
-import { Avatar } from "@mui/material";
+import { Avatar, Button, Card, CardContent, Container, Stack, SvgIcon, Tab, Tabs } from "@mui/material";
 import { Score } from "@material-ui/icons";
 import { number } from "yup";
 import { i18n } from "../../translate/i18n";
+import Grid2 from "@mui/material/Unstable_Grid2/Grid2";
 
 const useStyles = makeStyles((theme) => ({
+  overline: {
+    fontSize: '0.9rem',
+    fontWeight: 700,
+    color: "grey",
+    letterSpacing: '0.5px',
+    lineHeight: 2.5,
+    textTransform: 'uppercase',
+    fontFamily: "'Plus Jakarta Sans', sans-serif'",
+  },
+  h4: {
+    fontFamily: "'Plus Jakarta Sans', sans-serif'",
+    fontWeight: 500,
+    fontSize: '2rem',
+    lineHeight: 1,
+    color: "grey",
+  },
   tab: {
-    paddingTop: theme.spacing(8),
-    display: "flex",
-    alignItems: "center",
-    height: "111px",
-    width: "100%",
-    backgroundColor: theme.palette.background.paper,
+    minWidth: "auto",
+    width: "auto",
+    padding: theme.spacing(0.5, 1),
+    borderRadius: 8,
+    transition: "0.3s",
+    borderWidth: "1px",
+    borderStyle: "solid",
+    marginRight: theme.spacing(0.5),
+    marginLeft: theme.spacing(0.5),
+
+    [theme.breakpoints.down("lg")]: {
+      fontSize: "0.9rem",
+      padding: theme.spacing(0.4, 0.8),
+      marginRight: theme.spacing(0.4),
+      marginLeft: theme.spacing(0.4),
+    },
+    [theme.breakpoints.down("md")]: {
+      fontSize: "0.8rem",
+      padding: theme.spacing(0.3, 0.6),
+      marginRight: theme.spacing(0.3),
+      marginLeft: theme.spacing(0.3),
+    },
+    "&:hover": {
+      backgroundColor: "rgba(6, 81, 131, 0.3)",
+    },
+    "&$selected": {
+      color: "#FFF",
+      backgroundColor: theme.palette.primary.main,
+    },
+  },
+  tabIndicator: {
+    borderWidth: "2px",
+    borderStyle: "solid",
+    height: 6,
+    bottom: 0,
+    color: theme.mode === "light" ? "#065183" : "#FFF",
   },
   container: {
     paddingTop: theme.spacing(1),
@@ -142,157 +171,16 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: "column",
     height: "100%",
   },
-  card1: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#0094bb",
-    color: "#eee",
-  },
-  card2: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#748e9d",
-    color: "#eee",
-  },
-  card3: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#7f78e6",
-    color: "#eee",
-  },
-  card4: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#cc991b",
-    color: "#eee",
-  },
-  card5: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#434243",
-    color: "#eee",
-  },
-  card6: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#b87d77",
-    color: "#eee",
-  },
-  card7: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#7bc780",
-    color: "#eee",
-  },
-  card8: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#b05c38",
-    color: "#eee",
-  },
-  card9: {
-    padding: theme.spacing(2),
-    display: "flex",
-    overflow: "auto",
-    flexDirection: "column",
-    height: "100%",
-    backgroundColor: "#bd3c58",
-    color: "#eee",
-  },
   fixedHeightPaper2: {
     padding: theme.spacing(2),
     display: "flex",
     overflow: "auto",
     flexDirection: "column",
   },
-  cardContainer4: {
-    backgroundColor: "#fbe7edff",
-    width: "350px",
-    height: "111px",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    minHeight: "48px",
-  },
-  cardContainer5: {
-    backgroundColor: "#e6f8f3ff",
-    width: "350px",
-    height: "111px",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    minHeight: "48px",
-  },
-  cardContainer6: {
-    backgroundColor: "#eef1fdff",
-    width: "350px",
-    height: "111px",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    minHeight: "48px",
-  },
-  cardContainer7: {
-    backgroundColor: "#eef1fdff",
-    //width: "350px",
-    height: "111px",
-    display: "flex",
-    alignItems: "center",
-    padding: "0 8px",
-    minHeight: "48px",
-    justifyItems: "center",
-  },
-  cardAvatar4: {
-    color: "#fa7070ff",
-    backgroundColor: "#fbe7edff",
-    width: "93px",
-    height: "100px",
-    display: "flex",
-    fontSize: "71px",
-  },
-  cardAvatar5: {
-    color: "#0abb87ff",
-    backgroundColor: "#e6f8f3ff",
-    width: "93px",
-    height: "100px",
-    display: "flex",
-    fontSize: "71px",
-  },
-  cardAvatar6: {
-    color: "#5578eb",
-    backgroundColor: "#eef1fdff",
-    width: "93px",
-    height: "100px",
-    display: "flex",
-    fontSize: "71px",
-  },
 }));
 
 const Dashboard = () => {
+  const theme = useTheme();
   const classes = useStyles();
   const [counters, setCounters] = useState({});
   const [attendants, setAttendants] = useState([]);
@@ -312,10 +200,12 @@ const Dashboard = () => {
   let date = newDate.getDate();
   let month = newDate.getMonth() + 1;
   let year = newDate.getFullYear();
+  let nowIni = `${year}-${month < 10 ? `0${month}` : `${month}`}-01`;
+
   let now = `${year}-${month < 10 ? `0${month}` : `${month}`}-${date < 10 ? `0${date}` : `${date}`}`;
 
   const [showFilter, setShowFilter] = useState(false);
-  const [dateStartTicket, setDateStartTicket] = useState(now);
+  const [dateStartTicket, setDateStartTicket] = useState(nowIni);
   const [dateEndTicket, setDateEndTicket] = useState(now);
   const [queueTicket, setQueueTicket] = useState(false);
   const [fetchDataFilter, setFetchDataFilter] = useState(false);
@@ -347,7 +237,7 @@ const Dashboard = () => {
         days: period,
       };
     }
-    
+
     if (!isEmpty(dateStartTicket) && moment(dateStartTicket).isValid()) {
       params = {
         ...params,
@@ -370,7 +260,7 @@ const Dashboard = () => {
 
     const data = await find(params);
 
-    console.log(data)
+
     setCounters(data.counters);
     if (isArray(data.attendants)) {
       setAttendants(data.attendants);
@@ -462,10 +352,10 @@ const Dashboard = () => {
   return (
     <div>
       <Container maxWidth="lg" className={classes.container}>
-        <Grid container spacing={3} className={classes.container}>
+        <Grid2 container spacing={3} className={classes.container}>
 
           {/* FILTROS */}
-          <Grid item xs={12}>
+          <Grid2 xs={12}>
             <Button
               onClick={toggleShowFilter}
               style={{ float: "right" }}
@@ -477,7 +367,7 @@ const Dashboard = () => {
                 <ClearIcon />
               )}
             </Button>
-          </Grid>
+          </Grid2>
 
           {showFilter && (
             <Filters
@@ -492,375 +382,489 @@ const Dashboard = () => {
             />
           )}
 
-          <AppBar position="static">
-            <Grid container width="100%" >
-              <Tabs
-                value={tab}
-                onChange={handleChangeTab}                
-                aria-label="primary tabs example"
-                variant="fullWidth"
-              >
-                <Tab value="Indicadores" label={i18n.t("dashboard.tabs.indicators")} />
-                <Tab value="NPS" label={i18n.t("dashboard.tabs.assessments")} />
-                <Tab value="Atendentes" label={i18n.t("dashboard.tabs.attendants")} />
-              </Tabs>
-            </Grid>
-          </AppBar>
+          <Grid2 container width="100%" justifyContent="center">
+            <Tabs
+              value={tab}
+              onChange={handleChangeTab}
+              variant="fullWidth"
+              indicatorColor="primary"
+              textColor="primary"
+              aria-label="icon label tabs example"
+              classes={{ indicator: classes.tabIndicator }}
+              sx={{
+                borderRadius: "5px",
+                borderColor: "#aaa",
+                borderWidth: "1px",
+                borderStyle: "solid",
+                fontFamily: '"Plus Jakarta Sans", sans-serif',
+              }}
+            >
+              <Tab classes={{ root: classes.tab }}
+                style={{ color: theme.mode === "light" ? "#065183" : "#FFF" }}
+                value="Indicadores"
+                label={i18n.t("dashboard.tabs.indicators")}
+              />
+              <Tab classes={{ root: classes.tab }}
+                style={{ color: theme.mode === "light" ? "#065183" : "#FFF" }}
+                value="NPS"
+                label={i18n.t("dashboard.tabs.assessments")}
+              />
+              <Tab classes={{ root: classes.tab }}
+                style={{ color: theme.mode === "light" ? "#065183" : "#FFF" }}
+                value="Atendentes"
+                label={i18n.t("dashboard.tabs.attendants")}
+              />
+            </Tabs>
+          </Grid2>
           <TabPanel
             className={classes.container}
             value={tab}
             name={"Indicadores"}
           >
-            <Container maxWidth="xl" className={classes.container}>
-              <Grid container spacing={3}>
+            <Container maxWidth="xl" >
+              <Grid2
+                container
+                spacing={3}
+              >
                 {/* EM ATENDIMENTO */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card1}
-                    style={{ overflow: "hidden" }}
-                    elevation={4}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.inAttendance")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
                           >
+                            {i18n.t("dashboard.cards.inAttendance")}
+                          </Typography>
+                          <Typography variant="h4" className={classes.h4}>
                             {counters.supportHappening}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={2}>
-                        <CallIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#0b708c",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#0b708c',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <CallIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* AGUARDANDO */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card2}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                         {i18n.t("dashboard.cards.waiting")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.waiting")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
                           >
                             {counters.supportPending}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <HourglassEmptyIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#47606e",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#47606e',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
-
-                {/* ATENDENTES ATIVOS */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card6}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
                         >
-                          {i18n.t("dashboard.cards.activeAttendants")}
-                        </Typography>
-                        <Grid item>
-                          <Typography
-                            component="h1"
-                            variant="h4"
-                          >
-                            {GetUsers()}
-                            <span
-                              style={{ color: "#805753" }}
-                            >
-                              /{attendants.length}
-                            </span>
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <RecordVoiceOverIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#805753",
-                          }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                          <SvgIcon>
+                            <HourglassEmptyIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* FINALIZADOS */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card3}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.finalized")} 
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.finalized")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
                           >
                             {counters.supportFinished}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <CheckCircleIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#5852ab",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#5852ab',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <CheckCircleIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
+
+                {/* ATENDENTES ATIVOS */}
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
+                          <Typography
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.activeAttendants")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
+                          >
+                            {GetUsers()}/{attendants.length}
+                          </Typography>
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#805753',
+                            height: 60,
+                            width: 60
+                          }}
+                        >
+                          <SvgIcon>
+                            <RecordVoiceOverIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* NOVOS CONTATOS */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card4}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.newContacts")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.newContacts")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
                           >
                             {GetContacts(true)}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <GroupAddIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#8c6b19",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#8c6b19',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <GroupAddIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* MINHAS MENSAGEM RECEBIDAS */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card5}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.totalReceivedMessages")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
                           >
-                            {GetMessages(false, false)}
-                            <span
-                              style={{ color: "#787878" }}
-                            >
-                              /{GetMessages(true, false)}
-                            </span>
+                            {i18n.t("dashboard.cards.totalReceivedMessages")}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <MessageIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#333133",
+                          <Typography variant="h4"
+                            className={classes.h4}
+                          >
+                            {GetMessages(false, false)}/{GetMessages(true, false)}
+                          </Typography>
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#333133',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <MessageIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* MINHAS MENSAGEM ENVIADAS */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card7}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.totalSentMessages")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
                           >
-                            {GetMessages(false, true)}
-                            <span
-                              style={{ color: "#558a59" }}
-                            >
-                              /{GetMessages(true, true)}
-                            </span>
+                            {i18n.t("dashboard.cards.totalSentMessages")}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <SendIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#558a59",
+                          <Typography variant="h4"
+                            className={classes.h4}
+                          >
+                            {GetMessages(false, true)}/{GetMessages(true, true)}
+                          </Typography>
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#558a59',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <SendIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* T.M. DE ATENDIMENTO */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card8}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.averageServiceTime")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.averageServiceTime")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
                           >
                             {formatTime(counters.avgSupportTime)}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <AccessAlarmIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#7a3f26",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#F79009',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
+                        >
+                          <SvgIcon>
+                            <AccessAlarmIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
 
                 {/* T.M. DE ESPERA */}
-                <Grid item xs={12} sm={6} md={4}>
-                  <Paper
-                    className={classes.card9}
-                    style={{ overflow: "hidden" }}
-                    elevation={6}
-                  >
-                    <Grid container spacing={3}>
-                      <Grid item xs={8}>
-                        <Typography
-                          component="h3"
-                          variant="h6"
-                          paragraph
-                        >
-                          {i18n.t("dashboard.cards.averageWaitingTime")}
-                        </Typography>
-                        <Grid item>
+                <Grid2 xs={12}
+                  sm={8}
+                  lg={4}
+                >
+                  <Card sx={{
+                    height: "100%",
+                    backgroundColor:
+                      theme.mode === "light"
+                        ? "transparent"
+                        : "rgba(170, 170, 170, 0.2)",
+                  }}>
+                    <CardContent>
+                      <Stack
+                        alignItems="flex-start"
+                        direction="row"
+                        justifyContent="space-between"
+                        spacing={3}
+                      >
+                        <Stack spacing={1}>
                           <Typography
-                            component="h1"
-                            variant="h4"
+                            color="primary"
+                            variant="overline"
+                            className={classes.overline}
+                          >
+                            {i18n.t("dashboard.cards.averageWaitingTime")}
+                          </Typography>
+                          <Typography variant="h4"
+                            className={classes.h4}
                           >
                             {formatTime(counters.avgWaitTime)}
                           </Typography>
-                        </Grid>
-                      </Grid>
-                      <Grid item xs={4}>
-                        <TimerIcon
-                          style={{
-                            fontSize: 100,
-                            color: "#8a2c40",
+                        </Stack>
+                        <Avatar
+                          sx={{
+                            backgroundColor: '#8a2c40',
+                            height: 60,
+                            width: 60
                           }}
-                        />
-                      </Grid>
-                    </Grid>
-                  </Paper>
-                </Grid>
-              </Grid>
+                        >
+                          <SvgIcon>
+                            <TimerIcon />
+                          </SvgIcon>
+                        </Avatar>
+                      </Stack>
+                    </CardContent>
+                  </Card>
+                </Grid2>
+              </Grid2>
             </Container>
           </TabPanel>
 
@@ -869,24 +873,24 @@ const Dashboard = () => {
             value={tab}
             name={"NPS"}
           >
-            <Grid className={classes.container}>
-              <Grid container width="100%" spacing={2}>
+            <Grid2 className={classes.container}>
+              <Grid2 container width="100%" spacing={2}>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid2 xs={12} sm={6} md={3}>
                   <Paper elevation={3} >
                     <ChartDonut
                       data={[`{'name': 'Promotores', 'value': ${counters.npsPromotersPerc | 100}}`,
-                            `{'name': 'Detratores', 'value': ${counters.npsDetractorsPerc | 0}}`,
-                            `{'name': 'Neutros', 'value': ${counters.npsPassivePerc | 0}}`
-                          ]}
+                      `{'name': 'Detratores', 'value': ${counters.npsDetractorsPerc | 0}}`,
+                      `{'name': 'Neutros', 'value': ${counters.npsPassivePerc | 0}}`
+                      ]}
                       value={counters.npsScore | 0}
                       title="Score"
-                      color={(parseInt(counters.npsPromotersPerc | 0 ) +  parseInt(counters.npsDetractorsPerc   | 0 ) + parseInt(counters.npsPassivePerc  | 0 )) === 0 ? ["#918F94"]:["#2EA85A","#F73A2C","#F7EC2C"]}
+                      color={(parseInt(counters.npsPromotersPerc | 0) + parseInt(counters.npsDetractorsPerc | 0) + parseInt(counters.npsPassivePerc | 0)) === 0 ? ["#918F94"] : ["#2EA85A", "#F73A2C", "#F7EC2C"]}
                     />
                   </Paper>
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid2 xs={12} sm={6} md={3}>
                   <Paper elevation={3}>
                     <ChartDonut
                       title={i18n.t("dashboard.assessments.prosecutors")}
@@ -895,9 +899,9 @@ const Dashboard = () => {
                       color={["#2EA85A"]}
                     />
                   </Paper>
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid2 xs={12} sm={6} md={3}>
                   <Paper elevation={3} >
                     <ChartDonut
                       data={[`{'name': 'Neutros', 'value': 100}`]}
@@ -906,9 +910,9 @@ const Dashboard = () => {
                       color={["#F7EC2C"]}
                     />
                   </Paper>
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} sm={6} md={3}>
+                <Grid2 xs={12} sm={6} md={3}>
                   <Paper elevation={3}>
                     <ChartDonut
                       data={[`{'name': 'Detratores', 'value': 100}`]}
@@ -917,39 +921,39 @@ const Dashboard = () => {
                       color={["#F73A2C"]}
                     />
                   </Paper>
-                </Grid>
+                </Grid2>
 
-                <Grid item xs={12} sm={6} md={12}>
+                <Grid2 xs={12} sm={6} md={12}>
                   <Paper elevation={3}>
                     <Typography
-                            component="h3"
-                            variant="h6"
-                            paragraph
-                            style={{marginLeft: "10px"}}
-                          >
-                            {i18n.t("dashboard.assessments.totalCalls")}: {counters.tickets} <br></br>
-                            {i18n.t("dashboard.assessments.callsWaitRating")}: {counters.waitRating} <br></br>
-                            {i18n.t("dashboard.assessments.callsWithoutRating")}: {counters.withoutRating} <br></br>
-                            {i18n.t("dashboard.assessments.ratedCalls")}: {counters.withRating} <br></br>
-                            {i18n.t("dashboard.assessments.evaluationIndex")}: {Number(counters.percRating/100).toLocaleString(undefined,{style:'percent'})} <br></br>
+                      component="h3"
+                      variant="h6"
+                      paragraph
+                      style={{ marginLeft: "10px" }}
+                    >
+                      {i18n.t("dashboard.assessments.totalCalls")}: {counters.tickets} <br></br>
+                      {i18n.t("dashboard.assessments.callsWaitRating")}: {counters.waitRating} <br></br>
+                      {i18n.t("dashboard.assessments.callsWithoutRating")}: {counters.withoutRating} <br></br>
+                      {i18n.t("dashboard.assessments.ratedCalls")}: {counters.withRating} <br></br>
+                      {i18n.t("dashboard.assessments.evaluationIndex")}: {Number(counters.percRating / 100).toLocaleString(undefined, { style: 'percent' })} <br></br>
                     </Typography>
                   </Paper>
-                </Grid>
+                </Grid2>
 
-              </Grid>
-            </Grid>
+              </Grid2>
+            </Grid2>
 
           </TabPanel>
-          
+
           <TabPanel
             className={classes.container}
             value={tab}
             name={"Atendentes"}
           >
             <Container width="100%" className={classes.container}>
-              <Grid container width="100%">
+              <Grid2 container width="100%">
                 {/* CARD DE GRAFICO */}
-                {/* <Grid item xs={12}>
+                {/* <Grid2 item xs={12}>
                   <Paper
                     elevation={6}
                     className={classes.fixedHeightPaper}
@@ -960,35 +964,35 @@ const Dashboard = () => {
                       queueTicket={queueTicket}
                     />
                   </Paper>
-                </Grid> */}
+                </Grid2>  */}
 
                 {/* INFO DOS USUARIOS */}
-                <Grid item xs={12}>
+                <Grid2 xs={12}>
                   {attendants.length ? (
                     <TableAttendantsStatus
                       attendants={attendants}
                       loading={loading}
                     />
                   ) : null}
-                </Grid>
+                </Grid2>
 
                 {/* TOTAL DE ATENDIMENTOS POR USUARIO */}
-                <Grid item xs={12}>
+                <Grid2 xs={12}>
                   <Paper className={classes.fixedHeightPaper2}>
                     <ChatsUser />
                   </Paper>
-                </Grid>
+                </Grid2>
 
                 {/* TOTAL DE ATENDIMENTOS */}
-                <Grid item xs={12}>
+                <Grid2 xs={12}>
                   <Paper className={classes.fixedHeightPaper2}>
                     <ChartsDate />
                   </Paper>
-                </Grid>
-              </Grid>
+                </Grid2>
+              </Grid2>
             </Container>
           </TabPanel>
-        </Grid>
+        </Grid2>
       </Container >
     </div >
   );

@@ -15,6 +15,7 @@ import TicketAdvancedLayout from "../../components/TicketAdvancedLayout";
 import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 import { i18n } from "../../translate/i18n";
+import { QueueSelectedProvider } from "../../context/QueuesSelected/QueuesSelectedContext";
 
 const useStyles = makeStyles(theme => ({
     header: {
@@ -28,7 +29,7 @@ const useStyles = makeStyles(theme => ({
         alignItems: "center",
         justifyContent: "center",
         height: "100%",
-		// backgroundColor: "#eee"
+        // backgroundColor: "#eee"
         background: theme.palette.tabHeaderBackground,
     },
     placeholderItem: {
@@ -36,14 +37,14 @@ const useStyles = makeStyles(theme => ({
 }));
 
 const TicketAdvanced = (props) => {
-	const classes = useStyles();
-	const { ticketId } = useParams();
-	const [option, setOption] = useState(0);
+    const classes = useStyles();
+    const { ticketId } = useParams();
+    const [option, setOption] = useState(0);
     const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
-    const [ selectedQueuesMessage, setSelectedQueuesMessage] = useState();
+    const [selectedQueuesMessage, setSelectedQueuesMessage] = useState();
 
     useEffect(() => {
-        if(currentTicket.id !== null) {
+        if (currentTicket.id !== null) {
             setCurrentTicket({ id: currentTicket.id, code: '#open' })
         }
         if (!ticketId) {
@@ -61,49 +62,50 @@ const TicketAdvanced = (props) => {
         }
     }, [currentTicket])
 
-	const renderPlaceholder = () => {
-		return <Box className={classes.placeholderContainer}>
+    const renderPlaceholder = () => {
+        return <Box className={classes.placeholderContainer}>
             <div className={classes.placeholderItem}>{i18n.t("chat.noTicketMessage")}</div><br />
             <Button onClick={() => setOption(1)} variant="contained" color="primary">
                 Selecionar Ticket
             </Button>
         </Box>
-	}
+    }
 
-	const renderMessageContext = () => {
-		if (ticketId) {
-			return <Ticket selectedQueuesMessage={selectedQueuesMessage}/>
-		}
-		return renderPlaceholder()
-	}
+    const renderMessageContext = () => {
+        if (ticketId) {
+            return <Ticket />
+        }
+        return renderPlaceholder()
+    }
 
-	const renderTicketsManagerTabs = () => {
-		return <TicketsManagerTabs 
-                    setSelectedQueuesMessage={setSelectedQueuesMessage}
-                    selectedQueuesMessage={selectedQueuesMessage}
-                />
-	}
+    const renderTicketsManagerTabs = () => {
+        return <TicketsManagerTabs
+        />
+    }
 
-	return (
-        <TicketAdvancedLayout>
-            <Box className={classes.header}>
-                <BottomNavigation
-                    value={option}
-                    onChange={(event, newValue) => {
-                        setOption(newValue);
-                    }}
-                    showLabels
-                    className={classes.root}
-                >
-                    <BottomNavigationAction label="Ticket" icon={<ChatIcon />} />
-                    <BottomNavigationAction label="Atendimentos" icon={<QuestionAnswerIcon />} />
-                </BottomNavigation>
-            </Box>
-            <Box className={classes.content}>
-                { option === 0 ? renderMessageContext() : renderTicketsManagerTabs() }
-            </Box>
-        </TicketAdvancedLayout>
-	);
+    return (
+        <QueueSelectedProvider>
+
+            <TicketAdvancedLayout>
+                <Box className={classes.header}>
+                    <BottomNavigation
+                        value={option}
+                        onChange={(event, newValue) => {
+                            setOption(newValue);
+                        }}
+                        showLabels
+                        className={classes.root}
+                    >
+                        <BottomNavigationAction label="Ticket" icon={<ChatIcon />} />
+                        <BottomNavigationAction label="Atendimentos" icon={<QuestionAnswerIcon />} />
+                    </BottomNavigation>
+                </Box>
+                <Box className={classes.content}>
+                    {option === 0 ? renderMessageContext() : renderTicketsManagerTabs()}
+                </Box>
+            </TicketAdvancedLayout>
+        </QueueSelectedProvider>
+    );
 };
 
 export default TicketAdvanced;

@@ -63,14 +63,14 @@ const TagSchema = Yup.object().shape({
 		.required("Obrigatório")
 });
 
-const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
+const TagModal = ({ open, onClose, tagId, kanban }) => {
 	const classes = useStyles();
 	const { user } = useContext(AuthContext);
 	const [colorPickerModalOpen, setColorPickerModalOpen] = useState(false);
 
 	const initialState = {
 		name: "",
-		color: "",
+		color: getRandomHexColor(),
 		kanban: kanban
 	};
 
@@ -108,14 +108,24 @@ const TagModal = ({ open, onClose, tagId, reload, kanban }) => {
 				await api.post("/tags", tagData);
 			}
 			toast.success(kanban === 0 ? `${i18n.t("tagModal.success")}`: `${i18n.t("tagModal.successKanban")}`);
-			if (typeof reload == 'function') {
-				reload();
-			}
+			
 		} catch (err) {
 			toastError(err);
 		}
 		handleClose();
 	};
+
+	function getRandomHexColor() {
+        // Gerar valores aleatórios para os componentes de cor
+        const red = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+        const green = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+        const blue = Math.floor(Math.random() * 256); // Valor entre 0 e 255
+      
+        // Converter os componentes de cor em uma cor hexadecimal
+        const hexColor = `#${red.toString(16).padStart(2, '0')}${green.toString(16).padStart(2, '0')}${blue.toString(16).padStart(2, '0')}`;
+      
+        return hexColor;
+    }
 	
 	return (
 		<div className={classes.root}>

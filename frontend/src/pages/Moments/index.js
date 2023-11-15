@@ -6,13 +6,23 @@ import Container from "@material-ui/core/Container";
 import MomentsUser from "../../components/MomentsUser";
 // import MomentsQueues from "../../components/MomentsQueues";
 
-import Title from "./Title";
+import MainHeader from "../../components/MainHeader";
+import { Grid, Paper } from "@material-ui/core";
+import Title from "../../components/Title";
 
 const useStyles = makeStyles((theme) => ({
   container: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     paddingLeft: "5px",
+    maxWidth: "100%"
+  },
+  mainPaper: {
+    display: "flex",
+    padding: theme.spacing(1),
+    overflowY: "scroll",
+    ...theme.scrollbarStyles,
+    alignItems: "center"
   },
   fixedHeightPaper: {
     padding: theme.spacing(2),
@@ -34,15 +44,23 @@ const useStyles = makeStyles((theme) => ({
 const ChatMoments = () => {
   const classes = useStyles();
   return (
+    <MainHeader>
+      <Grid style={{ width: "99.6%" }} container justifyContent="center" alignItems="flex-start">
+        <Grid xs={12} sm={8} xl={4} item >
+          <Title>{"Painel de Atendimentos"}</Title>
+        </Grid>
+        <Grid  style={{ width: "100%", height: "100vh" }} item >
+          <Paper
+            className={classes.mainPaper}
+            variant="outlined"
+            style={{ maxWidth: "100%" }}
+          >
+            <MomentsUser />
+          </Paper>
+        </Grid>
+      </Grid>
+    </MainHeader>
 
-    <div >
-      <Container maxWidth="lg" className={classes.container}>
-        <Title variant="h5">Tempo Real</Title>
-        <div className={classes.contactsHeader}>
-          <MomentsUser />
-        </div>
-      </Container>
-    </div>
   );
 };
 

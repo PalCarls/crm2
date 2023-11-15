@@ -2,9 +2,9 @@ import React, { useState, useContext, useEffect, useMemo } from "react";
 import clsx from "clsx";
 import moment from "moment";
 
-import { isNill } from "lodash"
-import SoftPhone from 'react-softphone'
-import { WebSocketInterface } from 'jssip';
+import { isNill } from "lodash";
+import SoftPhone from "react-softphone";
+import { WebSocketInterface } from "jssip";
 
 import {
   makeStyles,
@@ -23,13 +23,14 @@ import {
   FormControl,
   Badge,
   withStyles,
+  Chip,
 } from "@material-ui/core";
 
 import MenuIcon from "@material-ui/icons/Menu";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import CachedIcon from "@material-ui/icons/Cached";
-import whatsappIcon from '../assets/nopicture.png'
+import whatsappIcon from "../assets/nopicture.png";
 
 import MainListItems from "./MainListItems";
 import NotificationsPopOver from "../components/NotificationsPopOver";
@@ -50,9 +51,10 @@ import { useDate } from "../hooks/useDate";
 import UserLanguageSelector from "../components/UserLanguageSelector";
 
 import ColorModeContext from "../layout/themeContext";
-import Brightness4Icon from '@material-ui/icons/Brightness4';
-import Brightness7Icon from '@material-ui/icons/Brightness7';
+import Brightness4Icon from "@material-ui/icons/Brightness4";
+import Brightness7Icon from "@material-ui/icons/Brightness7";
 import { getBackendUrl } from "../config";
+import useSettings from "../hooks/useSettings";
 
 const backendUrl = getBackendUrl();
 
@@ -66,13 +68,20 @@ const useStyles = makeStyles((theme) => ({
       height: "calc(100vh - 56px)",
     },
     backgroundColor: theme.palette.fancyBackground,
-    '& .MuiButton-outlinedPrimary': {
-      color: theme.mode === 'light' ? '#065183' : '#FFF',
-      border: theme.mode === 'light' ? '1px solid rgba(0 124 102)' : '1px solid rgba(255, 255, 255, 0.5)',
+    "& .MuiButton-outlinedPrimary": {
+      color: theme.mode === "light" ? "#065183" : "#FFF",
+      border:
+        theme.mode === "light"
+          ? "1px solid rgba(0 124 102)"
+          : "1px solid rgba(255, 255, 255, 0.5)",
     },
-    '& .MuiTab-textColorPrimary.Mui-selected': {
-      color: theme.mode === 'light' ? '#065183' : '#FFF',
-    }
+    "& .MuiTab-textColorPrimary.Mui-selected": {
+      color: theme.mode === "light" ? "#065183" : "#FFF",
+    },
+  },
+  chip: {
+    background: "red",
+    color: "white",
   },
   avatar: {
     width: "100%",
@@ -86,13 +95,13 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     alignItems: "center",
     justifyContent: "flex-end",
-    backgroundColor: "#FFF",
+    // backgroundColor: "#FFF",
     backgroundSize: "cover",
     padding: "0 8px",
     minHeight: "48px",
     [theme.breakpoints.down("sm")]: {
-      height: "48px"
-    }
+      height: "48px",
+    },
   },
   appBar: {
     zIndex: theme.zIndex.drawer + 1,
@@ -109,8 +118,8 @@ const useStyles = makeStyles((theme) => ({
       duration: theme.transitions.duration.enteringScreen,
     }),
     [theme.breakpoints.down("sm")]: {
-      display: "none"
-    }
+      display: "none",
+    },
   },
   menuButton: {
     marginRight: 36,
@@ -151,7 +160,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flex: 1,
     overflow: "auto",
-
   },
   container: {
     paddingTop: theme.spacing(4),
@@ -161,7 +169,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     display: "flex",
     overflow: "auto",
-    flexDirection: "column"
+    flexDirection: "column",
   },
   containerWithScroll: {
     flex: 1,
@@ -181,47 +189,47 @@ const useStyles = makeStyles((theme) => ({
       height: "100%",
       maxWidth: 180,
     },
-    logo: theme.logo
+    logo: theme.logo,
   },
   avatar2: {
     width: theme.spacing(4),
     height: theme.spacing(4),
-    cursor: 'pointer',
-    borderRadius: '50%',
-    border: '2px solid #ccc',
+    cursor: "pointer",
+    borderRadius: "50%",
+    border: "2px solid #ccc",
   },
   updateDiv: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
   },
 }));
 
 const StyledBadge = withStyles((theme) => ({
   badge: {
-    backgroundColor: '#44b700',
-    color: '#44b700',
+    backgroundColor: "#44b700",
+    color: "#44b700",
     boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
-    '&::after': {
-      position: 'absolute',
+    "&::after": {
+      position: "absolute",
       top: 0,
       left: 0,
-      width: '100%',
-      height: '100%',
-      borderRadius: '50%',
-      animation: '$ripple 1.2s infinite ease-in-out',
-      border: '1px solid currentColor',
+      width: "100%",
+      height: "100%",
+      borderRadius: "50%",
+      animation: "$ripple 1.2s infinite ease-in-out",
+      border: "1px solid currentColor",
       content: '""',
     },
   },
-  '@keyframes ripple': {
-    '0%': {
-      transform: 'scale(.8)',
+  "@keyframes ripple": {
+    "0%": {
+      transform: "scale(.8)",
       opacity: 1,
     },
-    '100%': {
-      transform: 'scale(2.4)',
+    "100%": {
+      transform: "scale(2.4)",
       opacity: 0,
     },
   },
@@ -237,6 +245,8 @@ const SmallAvatar = withStyles((theme) => ({
 
 const LoggedInLayout = ({ children, themeToggle }) => {
   const classes = useStyles();
+  const [userToken, setUserToken] = useState("disabled");
+  const [loadingUserToken, setLoadingUserToken] = useState(false);
   const [userModalOpen, setUserModalOpen] = useState(false);
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -245,7 +255,6 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const [drawerVariant, setDrawerVariant] = useState("permanent");
   // const [dueDate, setDueDate] = useState("");
   const { user } = useContext(AuthContext);
-
   const theme = useTheme();
   const { colorMode } = useContext(ColorModeContext);
   const greaterThenSm = useMediaQuery(theme.breakpoints.up("sm"));
@@ -256,36 +265,40 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   const [profileUrl, setProfileUrl] = useState(null);
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const mainListItems = useMemo(() => <MainListItems drawerOpen={drawerOpen}  collapsed={!drawerOpen} />, [user, drawerOpen])
+  const mainListItems = useMemo(
+    () => <MainListItems drawerOpen={drawerOpen} collapsed={!drawerOpen} />,
+    [user, drawerOpen]
+  );
+
+  const settings = useSettings();
 
   const config = {
-    domain: '192.168.2.4', // sip-server@your-domain.io
-    uri: 'sip:202@192.168.2.4', // sip:sip-user@your-domain.io
-    password: 'btelefonia12', //  PASSWORD ,
-    ws_servers: 'wss://202@192.168.2.4:8089/ws', //ws server
-    sockets: new WebSocketInterface('wss://192.168.2.4:8089/ws'),
-    display_name: '202',//jssip Display Name
-    websocket_url: 'wss://192.168.2.4:443',
-    sip_outbound_ur: 'udp://192.168.2.4:5060',
-    debug: true // Turn debug messages on
-
+    domain: "192.168.2.4", // sip-server@your-domain.io
+    uri: "sip:202@192.168.2.4", // sip:sip-user@your-domain.io
+    password: "btelefonia12", //  PASSWORD ,
+    ws_servers: "wss://202@192.168.2.4:8089/ws", //ws server
+    sockets: new WebSocketInterface("wss://192.168.2.4:8089/ws"),
+    display_name: "202", //jssip Display Name
+    websocket_url: "wss://192.168.2.4:443",
+    sip_outbound_ur: "udp://192.168.2.4:5060",
+    debug: true, // Turn debug messages on
   };
   const setConnectOnStartToLocalStorage = (newValue) => {
     // Handle save the auto connect value to local storage
-    return true
-  }
+    return true;
+  };
   const setNotifications = (newValue) => {
     // Handle save the Show notifications of an incoming call to local storage
-    return true
-  }
+    return true;
+  };
   const setCallVolume = (newValue) => {
     // Handle save the call Volume value to local storage
-    return true
-  }
+    return true;
+  };
   const setRingVolume = (newValue) => {
     // Handle save the Ring Volume value to local storage
-    return true
-  }
+    return true;
+  };
   //################### CODIGOS DE TESTE #########################################
   // useEffect(() => {
   //   navigator.getBattery().then((battery) => {
@@ -333,6 +346,18 @@ const LoggedInLayout = ({ children, themeToggle }) => {
   // }, []);
   //##############################################################################
 
+  useEffect(() => {
+    const getSetting = async () => {
+      const response = await settings.get("wtV");
+      if (response) {
+        setUserToken(response.value);
+      } else {
+        setUserToken("enabled");
+      }
+    };
+
+    getSetting();
+  });
 
   useEffect(() => {
     if (document.body.offsetWidth > 600) {
@@ -359,33 +384,35 @@ const LoggedInLayout = ({ children, themeToggle }) => {
     const companyId = user.companyId;
     const userId = user.id;
 
-    const socket = socketConnection({ companyId, userId: user.id });
-    const ImageUrl = user.profileImage;
-    if (ImageUrl !== undefined && ImageUrl !== null)
-      setProfileUrl(`${backendUrl}/public/company${companyId}/user/${ImageUrl}`);
-    else 
-      setProfileUrl(`${process.env.FRONTEND_URL}/nopicture.png`)
+    if (companyId) {
+      const socket = socketConnection({ companyId, userId: user.id });
+      const ImageUrl = user.profileImage;
+      if (ImageUrl !== undefined && ImageUrl !== null)
+        setProfileUrl(
+          `${backendUrl}/public/company${companyId}/user/${ImageUrl}`
+        );
+      else setProfileUrl(`${process.env.FRONTEND_URL}/nopicture.png`);
 
-    socket.on(`company-${companyId}-auth`, (data) => {
-      if (data.user.id === +userId) {
-        toastError("Sua conta foi acessada em outro computador.");
-        setTimeout(() => {
-          localStorage.clear();
-          window.location.reload();
-        }, 1000);
-      }
+      socket.on(`company-${companyId}-auth`, (data) => {
+        if (data.user.id === +userId) {
+          toastError("Sua conta foi acessada em outro computador.");
+          setTimeout(() => {
+            localStorage.clear();
+            window.location.reload();
+          }, 1000);
+        }
+      });
 
-    });
-
-    socket.emit("userStatus");
-    const interval = setInterval(() => {
       socket.emit("userStatus");
-    }, 1000 * 60 * 5);
+      const interval = setInterval(() => {
+        socket.emit("userStatus");
+      }, 1000 * 60 * 5);
 
-    return () => {
-      socket.disconnect();
-      clearInterval(interval);
-    };
+      return () => {
+        socket.disconnect();
+        clearInterval(interval);
+      };
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -418,7 +445,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
   const handleRefreshPage = () => {
     window.location.reload(false);
-  }
+  };
 
   const handleMenuItemClick = () => {
     const { innerWidth: width } = window;
@@ -429,7 +456,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
 
   const toggleColorMode = () => {
     colorMode.toggleColorMode();
-  }
+  };
 
   if (loading) {
     return <BackdropLoading />;
@@ -449,7 +476,16 @@ const LoggedInLayout = ({ children, themeToggle }) => {
         open={drawerOpen}
       >
         <div className={classes.toolbarIcon}>
-          <img src={logo} style={{ display: "block", margin: "0 auto", height: "50px", width: "100%" }} alt="logo" />
+          <img
+            src={logo}
+            style={{
+              display: "block",
+              margin: "0 auto",
+              height: "50px",
+              width: "100%",
+            }}
+            alt="logo"
+          />
           <IconButton onClick={() => setDrawerOpen(!drawerOpen)}>
             <ChevronLeftIcon />
           </IconButton>
@@ -489,16 +525,31 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             className={classes.title}
           >
             {/* {greaterThenSm && user?.profile === "admin" && getDateAndDifDays(user?.company?.dueDate).difData < 7 ? ( */}
-            {greaterThenSm && user?.profile === "admin" && user?.company?.dueDate ? (
+            {greaterThenSm &&
+            user?.profile === "admin" &&
+            user?.company?.dueDate ? (
               <>
-                {i18n.t("mainDrawer.appBar.user.message")} <b>{user.name}</b>, {i18n.t("mainDrawer.appBar.user.messageEnd")} <b>{user?.company?.name}</b>! ({i18n.t("mainDrawer.appBar.user.active")} {dateToClient(user?.company?.dueDate)})
+                {i18n.t("mainDrawer.appBar.user.message")} <b>{user.name}</b>,{" "}
+                {i18n.t("mainDrawer.appBar.user.messageEnd")}{" "}
+                <b>{user?.company?.name}</b>! (
+                {i18n.t("mainDrawer.appBar.user.active")}{" "}
+                {dateToClient(user?.company?.dueDate)})
               </>
             ) : (
               <>
-                {i18n.t("mainDrawer.appBar.user.message")} <b>{user.name}</b>, {i18n.t("mainDrawer.appBar.user.messageEnd")} <b>{user?.company?.name}</b>!
+                {i18n.t("mainDrawer.appBar.user.message")} <b>{user.name}</b>,{" "}
+                {i18n.t("mainDrawer.appBar.user.messageEnd")}{" "}
+                <b>{user?.company?.name}</b>!
               </>
             )}
           </Typography>
+
+          {userToken === "enabled" && (
+            <Chip
+              className={classes.chip}
+              label={i18n.t("mainDrawer.appBar.user.token")}
+            />
+          )}
 
           {/* DESABILITADO POIS TEM BUGS */}
           {/* <UserLanguageSelector /> */}
@@ -515,13 +566,14 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             timelocale={'UTC-3'} //Set time local for call history
           /> */}
           <IconButton edge="start" onClick={toggleColorMode}>
-            {theme.mode === 'dark' ? <Brightness7Icon style={{ color: "white" }} /> : <Brightness4Icon style={{ color: "white" }} />}
+            {theme.mode === "dark" ? (
+              <Brightness7Icon style={{ color: "white" }} />
+            ) : (
+              <Brightness4Icon style={{ color: "white" }} />
+            )}
           </IconButton>
 
-          <NotificationsVolume
-            setVolume={setVolume}
-            volume={volume}
-          />
+          <NotificationsVolume setVolume={setVolume} volume={volume} />
 
           <IconButton
             onClick={handleRefreshPage}
@@ -543,13 +595,17 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             <StyledBadge
               overlap="circular"
               anchorOrigin={{
-                vertical: 'bottom',
-                horizontal: 'right',
+                vertical: "bottom",
+                horizontal: "right",
               }}
               variant="dot"
               onClick={handleMenu}
             >
-              <Avatar alt="Multi100" className={classes.avatar2} src={profileUrl} />
+              <Avatar
+                alt="Multi100"
+                className={classes.avatar2}
+                src={profileUrl}
+              />
             </StyledBadge>
 
             <UserModal
@@ -582,7 +638,6 @@ const LoggedInLayout = ({ children, themeToggle }) => {
               </MenuItem>
             </Menu>
           </div>
-
         </Toolbar>
       </AppBar>
       <main className={classes.content}>

@@ -34,6 +34,7 @@ import whatsBackground from "../../assets/wa-background.png";
 import whatsBackgroundDark from "../../assets/wa-background-dark.png";
 
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
+import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
 
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
@@ -42,7 +43,8 @@ import { i18n } from "../../translate/i18n";
 import SelectMessageCheckbox from "./SelectMessageCheckbox";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { AuthContext } from "../../context/Auth/AuthContext";
-
+import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
+import AudioModal from "../AudioModal";
 
 const useStyles = makeStyles((theme) => ({
   messagesListWrapper: {
@@ -77,10 +79,11 @@ const useStyles = makeStyles((theme) => ({
 
   messagesList: {
     backgroundImage: theme.mode === 'light' ? `url(${whatsBackground})` : `url(${whatsBackgroundDark})`,
+    backgroundColor: theme.mode === 'light' ? "transparent" : "#0b0b0d",
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
-    padding: "20px 20px 20px 20px",
+    padding: "20px 20px 30px 20px",
     overflowY: "scroll",
     ...theme.scrollbarStyles,
   },
@@ -164,7 +167,7 @@ const useStyles = makeStyles((theme) => ({
     },
     whiteSpace: "pre-wrap",
     backgroundColor: theme.mode === 'light' ? "#dcf8c6" : "#005c4b",
-    color: theme.mode === 'light' ? "#303030" :"#ffffff",
+    color: theme.mode === 'light' ? "#303030" : "#ffffff",
     alignSelf: "flex-end",
     borderTopLeftRadius: 8,
     borderTopRightRadius: 8,
@@ -192,7 +195,7 @@ const useStyles = makeStyles((theme) => ({
       right: 0,
     },
     whiteSpace: "pre-wrap",
-    backgroundColor: "#F0FFFF",
+    backgroundColor: "#F0E68C",
     color: "#303030",
     alignSelf: "flex-end",
     borderTopLeftRadius: 8,
@@ -389,7 +392,7 @@ const reducer = (state, action) => {
   if (action.type === "DELETE_MESSAGE") {
     const messageToDelete = action.payload;
     const messageIndex = state.findIndex((m) => m.id === messageToDelete.id);
-    
+
     if (messageIndex !== -1) {
       state.splice(messageIndex, 1);
     }
@@ -399,7 +402,7 @@ const reducer = (state, action) => {
 
   if (action.type === "UPDATE_MESSAGE") {
     const messageToUpdate = action.payload;
-  
+
     const messageIndex = state.findIndex((m) => m.id === messageToUpdate.id);
 
     if (messageIndex !== -1) {
@@ -414,18 +417,11 @@ const reducer = (state, action) => {
   }
 };
 
-const MessagesList = ({ 
-    ticket, 
-    ticketId, 
-    isGroup, 
-    selectedQueues, 
-    showSelectMessageCheckbox, 
-    setShowSelectMessageCheckbox, 
-    setSelectedMessagesList, 
-    selectedMessagesList,
-    forwardMessageModalOpen,
-    setForwardMessageModalOpen 
-  }) => {
+const MessagesList = ({
+  ticket,
+  ticketId,
+  isGroup,
+}) => {
   const classes = useStyles();
 
   const [messagesList, dispatch] = useReducer(reducer, []);
@@ -441,7 +437,10 @@ const MessagesList = ({
   const currentTicketId = useRef(ticketId);
   const { getAll } = useCompanySettings();
 
-	const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState(false);
+  const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState(false);
+  const { selectedQueuesMessage } = useContext(QueueSelectedContext);
+
+  const { showSelectMessageCheckbox } = useContext(ForwardMessageContext);
 
   const { user } = useContext(AuthContext);
   const companyId = user.companyId;
@@ -454,11 +453,11 @@ const MessagesList = ({
 
       let settinglgpdDeleteMessage;
       let settingEnableLGPD;
-      
+
       for (const [key, value] of Object.entries(settings)) {
 
-        if(key === "lgpdDeleteMessage") settinglgpdDeleteMessage=value
-        if(key === "enableLGPD") settingEnableLGPD=value
+        if (key === "lgpdDeleteMessage") settinglgpdDeleteMessage = value
+        if (key === "enableLGPD") settingEnableLGPD = value
       }
       if (settingEnableLGPD === "enabled" && settinglgpdDeleteMessage === "enabled") {
         setLGPDDeleteMessage(true);
@@ -466,14 +465,14 @@ const MessagesList = ({
     }
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user])
+  }, [])
 
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
 
     currentTicketId.current = ticketId;
-  }, [ticketId,selectedQueues]);
+  }, [ticketId, selectedQueuesMessage]);
 
   useEffect(() => {
     setLoading(true);
@@ -482,7 +481,7 @@ const MessagesList = ({
         if (ticketId === undefined) return;
         try {
           const { data } = await api.get("/messages/" + ticketId, {
-            params: { pageNumber, selectedQueues: JSON.stringify(selectedQueues) },
+            params: { pageNumber, selectedQueues: JSON.stringify(selectedQueuesMessage) },
           });
 
           if (currentTicketId.current === ticketId) {
@@ -499,13 +498,13 @@ const MessagesList = ({
           toastError(err);
         }
       };
-      
+
       fetchMessages();
     }, 500);
     return () => {
       clearTimeout(delayDebounceFn);
     };
-  }, [pageNumber, ticket]);
+  }, [pageNumber, ticketId, selectedQueuesMessage]);
 
   useEffect(() => {
     const socket = socketConnection({ companyId, userId: user.id });
@@ -514,8 +513,8 @@ const MessagesList = ({
 
     socket.on(`company-${companyId}-appMessage`, (data) => {
       if (data.action === "create") {
-          dispatch({ type: "ADD_MESSAGE", payload: data.message });
-          scrollToBottom();
+        dispatch({ type: "ADD_MESSAGE", payload: data.message });
+        scrollToBottom();
       }
 
       if (data.action === "update") {
@@ -527,9 +526,10 @@ const MessagesList = ({
     });
 
     return () => {
+      // if (socket?.status === "connected")
       socket.disconnect();
     };
-  }, [ticketId, user]);
+  }, [ticketId]);
 
   const loadMore = () => {
     setPageNumber((prevPageNumber) => prevPageNumber + 1);
@@ -567,11 +567,11 @@ const MessagesList = ({
     setAnchorEl(null);
   };
 
-  const hanldeReplyMessage = (e,message) => {
+  const hanldeReplyMessage = (e, message) => {
     if (ticket.status === "open" || ticket.status === "group") {
-    setAnchorEl(null);
-    setReplyingMessage(message);
-   }
+      setAnchorEl(null);
+      setReplyingMessage(message);
+    }
   };
 
   const checkMessageMedia = (message) => {
@@ -586,66 +586,67 @@ const MessagesList = ({
         descriptionLocation = message.body.split('|')[2]
 
       return <LocationPreview image={imageLocation} link={linkLocation} description={descriptionLocation} />
-    }
+    } else
 
-    if (message.mediaType === "contactMessage") {
-      let array = message.body.split("\n");
-      let obj = [];
-      let contact = "";
-      for (let index = 0; index < array.length; index++) {
-        const v = array[index];
-        let values = v.split(":");
-        for (let ind = 0; ind < values.length; ind++) {
-          if (values[ind].indexOf("+") !== -1) {
-            obj.push({ number: values[ind] });
-          }
-          if (values[ind].indexOf("FN") !== -1) {
-            contact = values[ind + 1];
+      if (message.mediaType === "contactMessage") {
+        let array = message.body.split("\n");
+        let obj = [];
+        let contact = "";
+        for (let index = 0; index < array.length; index++) {
+          const v = array[index];
+          let values = v.split(":");
+          for (let ind = 0; ind < values.length; ind++) {
+            if (values[ind].indexOf("+") !== -1) {
+              obj.push({ number: values[ind] });
+            }
+            if (values[ind].indexOf("FN") !== -1) {
+              contact = values[ind + 1];
+            }
           }
         }
-      }     
-      return <VcardPreview contact={contact} numbers={obj[0]?.number} queueId={ticket.queueId} whatsappId={ticket.whatsappId}/>
-    }
+        return <VcardPreview contact={contact} numbers={obj[0]?.number} queueId={ticket.queueId} whatsappId={ticket.whatsappId} />
+      } else
 
-    if (message.mediaType === "image") {
-      return <ModalImageCors imageUrl={message.mediaUrl} />;
-    }
+        if (message.mediaType === "image") {
+          return <ModalImageCors imageUrl={message.mediaUrl} />;
+        } else
 
-    if (message.mediaType === "audio") {
-      return (
-        <audio controls>
-          {/* <source src={message.mediaUrl} type="audio/ogg"></source> */}
-          <source src={message.mediaUrl} type="audio/mp3"></source>
-        </audio>
-      );
-    }
+          if (message.mediaType === "audio") {
+            return (
+              <AudioModal url={message.mediaUrl} />
+              // <audio controls>
+              //   <source src={message.mediaUrl} type="audio/ogg"></source>
+              //   {/* <source src={message.mediaUrl} type="audio/mp3"></source> */}
+              // </audio>
+            );
+          } else
 
-    if (message.mediaType === "video") {
-      return (
-        <video
-          className={classes.messageMedia}
-          src={message.mediaUrl}
-          controls
-        />
-      );
-    } else {
-      return (
-        <>
-          <div className={classes.downloadMedia}>
-            <Button
-              startIcon={<GetApp />}
-              color="primary"
-              variant="outlined"
-              target="_blank"
-              href={message.mediaUrl}
-            >
-              Download
-            </Button>
-          </div>
-          <Divider />
-        </>
-      );
-    }
+            if (message.mediaType === "video") {
+              return (
+                <video
+                  className={classes.messageMedia}
+                  src={message.mediaUrl}
+                  controls
+                />
+              );
+            } else {
+              return (
+                <>
+                  <div className={classes.downloadMedia}>
+                    <Button
+                      startIcon={<GetApp />}
+                      color="primary"
+                      variant="outlined"
+                      target="_blank"
+                      href={message.mediaUrl}
+                    >
+                      Download
+                    </Button>
+                  </div>
+                  <Divider />
+                </>
+              );
+            }
   };
 
   const renderMessageAck = (message) => {
@@ -665,15 +666,15 @@ const MessagesList = ({
 
   const renderDailyTimestamps = (message, index) => {
     const today = format(new Date(), "dd/MM/yyyy")
-        
+
     if (index === 0) {
       return (
         <span
           className={classes.dailyTimestamp}
           key={`timestamp-${message.id}`}
         >
-          <div className={classes.dailyTimestampText}>                      
-          {today === format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") ? "HOJE" : format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") }
+          <div className={classes.dailyTimestampText}>
+            {today === format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") ? "HOJE" : format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy")}
           </div>
         </span>
       );
@@ -689,7 +690,7 @@ const MessagesList = ({
             key={`timestamp-${message.id}`}
           >
             <div className={classes.dailyTimestampText}>
-              {today === format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") ? "HOJE" : format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") }
+              {today === format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy") ? "HOJE" : format(parseISO(messagesList[index].createdAt), "dd/MM/yyyy")}
             </div>
           </span>
         );
@@ -706,12 +707,12 @@ const MessagesList = ({
     }
   };
 
-  
+
   const renderTicketsSeparator = (message, index) => {
     let lastTicket = messagesList[index - 1]?.ticketId;
     let currentTicket = message.ticketId;
 
-    if (lastTicket !== currentTicket && lastTicket !== undefined ) {
+    if (lastTicket !== currentTicket && lastTicket !== undefined) {
       if (message.ticket?.queue) {
         return (
           <span
@@ -720,7 +721,7 @@ const MessagesList = ({
           >
             <div
               className={classes.currentTicktText}
-              style={{backgroundColor: message.ticket.queue.color}}
+              style={{ backgroundColor: message.ticket.queue.color }}
             >
               #{i18n.t("ticketsList.called")} {message.ticketId} - {message.ticket.queue?.name}
             </div>
@@ -735,7 +736,7 @@ const MessagesList = ({
           >
             <div
               className={classes.currentTicktText}
-              style={{backgroundColor: "grey"}}
+              style={{ backgroundColor: "grey" }}
             >
               #{i18n.t("ticketsList.called")} {message.ticketId} - {i18n.t("ticketsList.noQueue")}
             </div>
@@ -744,7 +745,7 @@ const MessagesList = ({
         );
       }
     }
-      
+
   }
 
   const renderMessageDivider = (message, index) => {
@@ -785,10 +786,12 @@ const MessagesList = ({
           {message.quotedMsg.mediaType === "audio"
             && (
               <div className={classes.downloadMedia}>
-                <audio controls>
+                <AudioModal url={message.quotedMsg.mediaUrl} />
+
+                {/* <audio controls>
                   <source src={message.quotedMsg.mediaUrl} type="audio/mp3"></source>
-                  {/* <source src={message.quotedMsg.mediaUrl} type="audio/ogg"></source> */}
-                </audio>
+                  {/* <source src={message.quotedMsg.mediaUrl} type="audio/ogg"></source> 
+                </audio> */}
               </div>
             )
           }
@@ -801,7 +804,7 @@ const MessagesList = ({
               />
             )
           }
-           {message.quotedMsg.mediaType === "contactMessage"
+          {message.quotedMsg.mediaType === "contactMessage"
             && (
               "Contato"
             )
@@ -885,14 +888,16 @@ const MessagesList = ({
               <div
                 className={classes.messageLeft}
                 title={message.queueId && message.queue?.name}
-                onDoubleClick={(e) => hanldeReplyMessage(e,message)}
+                onDoubleClick={(e) => hanldeReplyMessage(e, message)}
               >
-                <SelectMessageCheckbox 
-                  showSelectMessageCheckbox={showSelectMessageCheckbox} 
-                  message={message} 
-                  selectedMessagesList={selectedMessagesList} 
-                  setSelectedMessagesList={setSelectedMessagesList} 
-                />
+                {showSelectMessageCheckbox && (
+                  <SelectMessageCheckbox
+                    // showSelectMessageCheckbox={showSelectMessageCheckbox}
+                    message={message}
+                  // selectedMessagesList={selectedMessagesList}
+                  // setSelectedMessagesList={setSelectedMessagesList}
+                  />
+                )}
                 <IconButton
                   variant="contained"
                   size="small"
@@ -903,13 +908,13 @@ const MessagesList = ({
                 >
                   <ExpandMore />
                 </IconButton>
-                
+
                 {message.isForwarded && (
                   <div>
                     <span className={classes.forwardMessage}
-                    ><Reply style={{color: "grey", transform: 'scaleX(-1)'}}/> Encaminhada
+                    ><Reply style={{ color: "grey", transform: 'scaleX(-1)' }} /> Encaminhada
                     </span>
-                    <br/>
+                    <br />
                   </div>
                 )}
                 {isGroup && (
@@ -925,9 +930,9 @@ const MessagesList = ({
                 )} */}
 
                 {/* aviso de mensagem apagado pelo contato */}
-                
+
                 {!lgpdDeleteMessage && message.isDeleted && (
-                  <div>                    
+                  <div>
                     <span className={classes.deletedMessage}
                     >🚫 Essa mensagem foi apagada pelo contato &nbsp;
                     </span>
@@ -946,14 +951,16 @@ const MessagesList = ({
                   //|| message.mediaType === "multi_vcard" 
                 ) && checkMessageMedia(message)}
 
-                <div  className={clsx(classes.textContentItem, {
-                    [classes.textContentItemDeleted]: message.isDeleted,
-                  })}>
+                <div className={clsx(classes.textContentItem, {
+                  [classes.textContentItemDeleted]: message.isDeleted,
+                })}>
                   {message.quotedMsg && renderQuotedMessage(message)}
 
-                  {(message.mediaType === "image" && path.basename(message.mediaUrl) === message.body) || (message.mediaType !== "audio" && message.mediaType != "reactionMessage" && message.mediaType != "locationMessage" && message.mediaType !== "contactMessage") && (
-                    <MarkdownWrapper>{(lgpdDeleteMessage && message.isDeleted) ? "🚫 _Mensagem apagada_ ": message.body}</MarkdownWrapper>
-                  )}
+                  {(message.mediaType !== "audio" &&
+                    message.mediaType != "reactionMessage" &&
+                    message.mediaType != "locationMessage" && message.mediaType !== "contactMessage") && (
+                      <MarkdownWrapper>{(lgpdDeleteMessage && message.isDeleted) ? "🚫 _Mensagem apagada_ " : message.body}</MarkdownWrapper>
+                    )}
 
                   {message.quotedMsg && message.mediaType === "reactionMessage" && (
                     <>
@@ -966,7 +973,7 @@ const MessagesList = ({
                   )}
 
                   <span className={classes.timestamp}>
-                    {message.isEdited? "Editada " + format(parseISO(message.createdAt), "HH:mm"): format(parseISO(message.createdAt), "HH:mm")}
+                    {message.isEdited ? "Editada " + format(parseISO(message.createdAt), "HH:mm") : format(parseISO(message.createdAt), "HH:mm")}
                   </span>
                 </div>
               </div>
@@ -981,14 +988,16 @@ const MessagesList = ({
               <div
                 className={message.isPrivate ? classes.messageRightPrivate : classes.messageRight}
                 title={message.queueId && message.queue?.name}
-                onDoubleClick={(e) => hanldeReplyMessage(e,message)}
+                onDoubleClick={(e) => hanldeReplyMessage(e, message)}
               >
-                <SelectMessageCheckbox 
-                  showSelectMessageCheckbox={showSelectMessageCheckbox} 
-                  message={message} 
-                  selectedMessagesList={selectedMessagesList} 
-                  setSelectedMessagesList={setSelectedMessagesList} 
-                />
+                {showSelectMessageCheckbox && (
+                  <SelectMessageCheckbox
+                    // showSelectMessageCheckbox={showSelectMessageCheckbox}
+                    message={message}
+                  // selectedMessagesList={selectedMessagesList}
+                  // setSelectedMessagesList={setSelectedMessagesList}
+                  />
+                )}
 
                 <IconButton
                   variant="contained"
@@ -1001,13 +1010,20 @@ const MessagesList = ({
                   <ExpandMore />
                 </IconButton>
                 {message.isForwarded && (
-                  <div>                 
+                  <div>
                     <span className={classes.forwardMessage}
-                    ><Reply style={{color: "grey", transform: 'scaleX(-1)'}}/> Encaminhada
+                    ><Reply style={{ color: "grey", transform: 'scaleX(-1)' }} /> Encaminhada
                     </span>
-                    <br/>
-                  </div>                  
+                    <br />
+                  </div>
                 )}
+                 {!lgpdDeleteMessage && message.isDeleted && (
+                    <div>
+                      <span className={classes.deletedMessage}
+                      >🚫 Essa mensagem foi apagada &nbsp;
+                      </span>
+                    </div>
+                  )}
                 {(message.mediaUrl || message.mediaType === "locationMessage" || message.mediaType === "contactMessage"
                   //|| message.mediaType === "multi_vcard" 
                 ) && checkMessageMedia(message)}
@@ -1016,14 +1032,14 @@ const MessagesList = ({
                     [classes.textContentItemDeleted]: message.isDeleted,
                   })}
                 >
-
+                 
                   {/* {message.isDeleted && (`🚫`)} */}
 
-                  {message.isEdited && (`Mensagem Editada`)}
+
 
                   {message.quotedMsg && renderQuotedMessage(message)}
 
-                  {(message.mediaType === "image" && path.basename(message.mediaUrl) === message.body) ||( message.mediaType !== "audio" && message.mediaType != "reactionMessage" && message.mediaType != "locationMessage" && message.mediaType !== "contactMessage") && (
+                  {(message.mediaType === "image" && path.basename(message.mediaUrl) === message.body) || (message.mediaType !== "audio" && message.mediaType != "reactionMessage" && message.mediaType != "locationMessage" && message.mediaType !== "contactMessage") && (
                     <MarkdownWrapper>{message.body}</MarkdownWrapper>
                   )}
 
@@ -1038,7 +1054,7 @@ const MessagesList = ({
                   )}
 
                   <span className={classes.timestamp}>
-                    {format(parseISO(message.createdAt), "HH:mm")}
+                    {message.isEdited ? "Editada " + format(parseISO(message.createdAt), "HH:mm") : format(parseISO(message.createdAt), "HH:mm")}
                     {renderMessageAck(message)}
                   </span>
                 </div>
@@ -1061,11 +1077,11 @@ const MessagesList = ({
         menuOpen={messageOptionsMenuOpen}
         handleClose={handleCloseMessageOptionsMenu}
         ticketGroup={ticket}
-        showSelectCheckBox={showSelectMessageCheckbox}
-        setShowSelectCheckbox={setShowSelectMessageCheckbox}
-        forwardMessageModalOpen={forwardMessageModalOpen}
-        setForwardMessageModalOpen={setForwardMessageModalOpen}
-        selectedMessages={selectedMessagesList}
+      // showSelectCheckBox={showSelectMessageCheckbox}
+      // setShowSelectCheckbox={setShowSelectMessageCheckbox}
+      // forwardMessageModalOpen={forwardMessageModalOpen}
+      // setForwardMessageModalOpen={setForwardMessageModalOpen}
+      // selectedMessages={selectedMessagesList}
       />
       <div
         id="messagesList"
@@ -1074,7 +1090,7 @@ const MessagesList = ({
       >
         {messagesList.length > 0 ? renderMessages() : []}
       </div>
-      
+
       {(ticket?.channel !== "whatsapp" && ticket?.channel !== undefined) && (
         <div
           style={{
@@ -1086,9 +1102,9 @@ const MessagesList = ({
           }}
         >
           {ticket?.channel === "facebook" ? (
-            <Facebook  />
+            <Facebook />
           ) : (
-            <Instagram  />
+            <Instagram />
           )}
 
           <span>

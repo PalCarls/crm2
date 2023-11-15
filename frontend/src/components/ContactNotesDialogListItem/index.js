@@ -10,6 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import DeleteIcon from '@material-ui/icons/Delete';
 import moment from 'moment';
+import EditIcon from "@material-ui/icons/Edit";
 
 const useStyles = makeStyles((theme) => ({
     inline: {
@@ -17,14 +18,17 @@ const useStyles = makeStyles((theme) => ({
     }
 }));
 
-export default function ContactNotesDialogListItem (props) {
-    const { note, deleteItem } = props;
+export default function ContactNotesDialogListItem(props) {
+    const { note, deleteItem, editItem } = props;
     const classes = useStyles();
 
     const handleDelete = (item) => {
         deleteItem(item);
     }
 
+    const handleEdit = (item) => {
+        editItem(item);
+    }
     return (
         <ListItem alignItems="flex-start">
             <ListItemAvatar>
@@ -49,13 +53,17 @@ export default function ContactNotesDialogListItem (props) {
                     </>
                 }
             />
-            <ListItemSecondaryAction>
+            <ListItemSecondaryAction style={{ display: 'flex', flexDirection: 'column' }}>
+                <IconButton onClick={() => handleEdit(note)} edge="end" aria-label="edit">
+                    <EditIcon />
+                </IconButton>
                 <IconButton onClick={() => handleDelete(note)} edge="end" aria-label="delete">
                     <DeleteIcon />
                 </IconButton>
             </ListItemSecondaryAction>
+
         </ListItem>
-    )   
+    )
 }
 
 ContactNotesDialogListItem.propTypes = {

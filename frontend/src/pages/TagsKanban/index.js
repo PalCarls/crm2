@@ -68,7 +68,7 @@ const reducer = (state, action) => {
     }
   }
 
-  if (action.type === "DELETE_TAG") {
+  if (action.type === "DELETE_TAGS") {
     const tagId = action.payload;
 
     const tagIndex = state.findIndex((s) => s.id === tagId);
@@ -107,31 +107,30 @@ const Tags = () => {
   const [tags, dispatch] = useReducer(reducer, []);
   const [tagModalOpen, setTagModalOpen] = useState(false);
 
-  const fetchTags = useCallback(async () => {
-    try {
-      const { data } = await api.get("/tags/", {
-        params: { searchParam, pageNumber, kanban: 1 },
-      });
-      dispatch({ type: "LOAD_TAGS", payload: data.tags });
-      setHasMore(data.hasMore);
-      setLoading(false);
-    } catch (err) {
-      toastError(err);
-    }
+  useEffect(() => {
+    setLoading(true);
+    const delayDebounceFn = setTimeout(() => {
+      const fetchTags = async () => {
+        try {
+          const { data } = await api.get("/tags/", {
+            params: { searchParam, pageNumber, kanban: 1 },
+          });
+          dispatch({ type: "LOAD_TAGS", payload: data.tags });
+          setHasMore(data.hasMore);
+          setLoading(false);
+        } catch (err) {
+          toastError(err);
+        }
+      };
+      fetchTags();
+    }, 500);
+    return () => clearTimeout(delayDebounceFn);
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
     setPageNumber(1);
   }, [searchParam]);
-
-  useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      fetchTags();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
-  }, [searchParam, pageNumber, fetchTags]);
 
   useEffect(() => {
     const socket = socketConnection({ companyId: user.companyId });
@@ -142,7 +141,7 @@ const Tags = () => {
       }
 
       if (data.action === "delete") {
-        dispatch({ type: "DELETE_TAG", payload: +data.tagId });
+        dispatch({ type: "DELETE_TAGS", payload: +data.tagId });
       }
     });
 
@@ -180,10 +179,6 @@ const Tags = () => {
     setDeletingTag(null);
     setSearchParam("");
     setPageNumber(1);
-
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-    await fetchTags();
   };
 
   const loadMore = () => {
@@ -211,7 +206,6 @@ const Tags = () => {
       <TagModal
         open={tagModalOpen}
         onClose={handleCloseTagModal}
-        reload={fetchTags}
         aria-labelledby="form-dialog-title"
         tagId={selectedTag && selectedTag.id}
         kanban={1}

@@ -79,29 +79,31 @@ const useWhatsApps = () => {
     const companyId = user.companyId;
     const userId = user.id;
 
-    const socket = socketConnection({ companyId, userId });
+    if (companyId) {
+      const socket = socketConnection({ companyId, userId });
 
-    socket.on(`company-${companyId}-whatsapp`, (data) => {
-      if (data.action === "update") {
-        dispatch({ type: "UPDATE_WHATSAPPS", payload: data.whatsapp });
-      }
-    });
+      socket.on(`company-${companyId}-whatsapp`, (data) => {
+        if (data.action === "update") {
+          dispatch({ type: "UPDATE_WHATSAPPS", payload: data.whatsapp });
+        }
+      });
 
-    socket.on(`company-${companyId}-whatsapp`, (data) => {
-      if (data.action === "delete") {
-        dispatch({ type: "DELETE_WHATSAPPS", payload: data.whatsappId });
-      }
-    });
+      socket.on(`company-${companyId}-whatsapp`, (data) => {
+        if (data.action === "delete") {
+          dispatch({ type: "DELETE_WHATSAPPS", payload: data.whatsappId });
+        }
+      });
 
-    socket.on(`company-${companyId}-whatsappSession`, (data) => {
-      if (data.action === "update") {
-        dispatch({ type: "UPDATE_SESSION", payload: data.session });
-      }
-    });
+      socket.on(`company-${companyId}-whatsappSession`, (data) => {
+        if (data.action === "update") {
+          dispatch({ type: "UPDATE_SESSION", payload: data.session });
+        }
+      });
 
-    return () => {
-      socket.disconnect();
-    };
+      return () => {
+        socket.disconnect();
+      };
+    }
   }, [user]);
 
   return { whatsApps, loading };

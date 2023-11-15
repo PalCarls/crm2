@@ -22,9 +22,11 @@ const isLocalhost = Boolean(
 );
 
 export function register(config) {
-  if (process.env.NODE_ENV === 'development' && 'serviceWorker' in navigator) {
+  if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
     // The URL constructor is available in all browsers that support SW.
     const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
+
+    console.log(publicUrl.origin , window.location.origin)
     if (publicUrl.origin !== window.location.origin) {
       // Our service worker won't work if PUBLIC_URL is on a different origin
       // from what our page is served on. This might happen if a CDN is used to
@@ -55,23 +57,6 @@ export function register(config) {
   }
 }
 
-// Função para exibir um alerta de atualização
-function showUpdateAlert() {
-  toast.error('Nova atualização disponível', {
-    position: 'top-right',
-    autoClose: false, // Mantenha o toast aberto até que o usuário o feche manualmente
-    closeButton: true, // Exibir botão de fechar no toast
-    onClick: () => {
-      // Lógica a ser executada quando o toast é clicado
-      // Por exemplo, você pode executar a atualização aqui
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
-        // Atualize o Service Worker imediatamente
-        navigator.serviceWorker.controller.postMessage({ action: 'skipWaiting' });
-      }
-    },
-  });
-}
-
 function registerValidSW(swUrl, config) {
   navigator.serviceWorker
     .register(swUrl)
@@ -87,7 +72,16 @@ function registerValidSW(swUrl, config) {
               // At this point, the updated precached content has been fetched,
               // but the previous service worker will still serve the older
               // content until all client tabs are closed.
-              showUpdateAlert();
+              toast.dismiss(`Nova atualização disponível!\n Clique aqui para atualizar.`, {
+                position: 'top-right',
+                autoClose: false, // Mantém a notificação visível até o clique
+                closeOnClick: false, // Não fecha a notificação automaticamente
+                onClick: () => {
+                  if (window.location) {
+                    window.location.reload(true);
+                  }
+                },
+              });
 
               console.log(
                 'New content is available and will be used when all ' +
@@ -119,10 +113,11 @@ function registerValidSW(swUrl, config) {
 }
 
 function checkValidServiceWorker(swUrl, config) {
+  console.log("checkvalid")
   // Check if the service worker can be found. If it can't reload the page.
   fetch(swUrl, {
     headers: { 'Service-Worker': 'script' },
-  })
+  })  
     .then(response => {
       // Ensure service worker exists, and that we really are getting a JS file.
       const contentType = response.headers.get('content-type');

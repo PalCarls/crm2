@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useReducer, useContext, useCallback  } from "react";
+import React, { useState, useEffect, useReducer, useContext, useCallback } from "react";
 import { toast } from "react-toastify";
 
 import { makeStyles } from "@material-ui/core/styles";
@@ -146,7 +146,7 @@ const Quickemessages = () => {
       const companyId = user.companyId;
       //const searchParam = ({ companyId, userId: user.id });
       const { data } = await api.get("/quick-messages", {
-        params: { searchParam, companyId, userId: user.id },
+        params: { searchParam, pageNumber },
       });
 
       dispatch({ type: "LOAD_QUICKMESSAGES", payload: data.records });
@@ -165,7 +165,7 @@ const Quickemessages = () => {
   const handleCloseQuickMessageDialog = () => {
     setSelectedQuickemessage(null);
     setQuickMessageDialogOpen(false);
-  	//window.location.reload();
+    //window.location.reload();
     fetchQuickemessages();
   };
 
@@ -191,7 +191,7 @@ const Quickemessages = () => {
     setPageNumber(1);
     fetchQuickemessages();
     dispatch({ type: "RESET" });
-        
+
   };
 
   const loadMore = () => {
@@ -274,7 +274,7 @@ const Quickemessages = () => {
               <TableCell align="center">
                 {i18n.t("quickMessages.table.shortcode")}
               </TableCell>
-              
+
               <TableCell align="center">
                 {i18n.t("quickMessages.table.mediaName")}
               </TableCell>
@@ -291,40 +291,35 @@ const Quickemessages = () => {
               {quickemessages.map((quickemessage) => (
                 <TableRow key={quickemessage.id}>
                   <TableCell align="center">{quickemessage.shortcode}</TableCell>
-                  
+
                   <TableCell align="center">
                     {quickemessage.mediaName ?? i18n.t("quickMessages.noAttachment")}
                   </TableCell>
                   <TableCell align="center">
-  					{quickemessage.geral === true ? (
-    					<CheckCircleIcon style={{ color: 'green' }} />
-  						) : (
-    					''
-  						)}
-				  </TableCell>
+                    {quickemessage.geral === true ? (
+                      <CheckCircleIcon style={{ color: 'green' }} />
+                    ) : (
+                      ''
+                    )}
+                  </TableCell>
                   <TableCell align="center">
-{(profile === "admin" || profile === "supervisor" ||
-  (profile === "user" && !quickemessage.geral)) && (
-  <IconButton
-    size="small"
-    onClick={() => handleEditQuickemessage(quickemessage)}
-  >
-    <EditIcon />
-  </IconButton>
-)}
+                    <IconButton
+                      size="small"
+                      onClick={() => handleEditQuickemessage(quickemessage)}
+                    >
+                      <EditIcon />
+                    </IconButton>
 
-{(profile === "admin" || profile === "supervisor" ||
-  (profile === "user" && !quickemessage.geral)) && (
-  <IconButton
-    size="small"
-    onClick={(e) => {
-      setConfirmModalOpen(true);
-      setDeletingQuickemessage(quickemessage);
-    }}
-  >
-    <DeleteOutlineIcon />
-  </IconButton>
-)}
+
+                    <IconButton
+                      size="small"
+                      onClick={(e) => {
+                        setConfirmModalOpen(true);
+                        setDeletingQuickemessage(quickemessage);
+                      }}
+                    >
+                      <DeleteOutlineIcon />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

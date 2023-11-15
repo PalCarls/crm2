@@ -29,7 +29,7 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from '@material-ui/icons/LocalAtm';
 import BusinessIcon from '@material-ui/icons/Business';
-import { AddToQueueRounded, AttachFile, CalendarToday, DeviceHubOutlined, ExploreOutlined, Label } from '@material-ui/icons';
+import { AllInclusive, Assignment, AttachFile, CalendarToday, DeviceHubOutlined } from '@material-ui/icons';
 
 
 import Typography from "@material-ui/core/Typography";
@@ -270,7 +270,7 @@ const MainListItems = (props, { collapsed }) => {
           <ListItemLink
             to="/"
             primary="Dashboard"
-            icon={<DashboardOutlinedIcon  />}
+            icon={<DashboardOutlinedIcon />}
           />
         )}
       />
@@ -278,14 +278,14 @@ const MainListItems = (props, { collapsed }) => {
       <ListItemLink
         to="/tickets"
         primary={i18n.t("mainDrawer.listItems.tickets")}
-        icon={<WhatsAppIcon  />}
+        icon={<WhatsAppIcon />}
       />
 
-      {/* <ListItemLink
+      <ListItemLink
         to="/moments"
         primary={i18n.t("mainDrawer.listItems.chatsTempoReal")}
-        icon={<AssignmentIcon style={{ color: "#fbbc05ff" }} />}
-      /> */}
+        icon={<Assignment />}
+      />
 
       <ListItemLink
         to="/quick-messages"
@@ -323,27 +323,34 @@ const MainListItems = (props, { collapsed }) => {
                 <ListItemIcon>
                   <ListIcon />
                 </ListItemIcon>
-                <ListItemText primary={i18n.t("kanban.subMenus.list")}/>
+                <ListItemText primary={i18n.t("kanban.subMenus.list")} />
               </ListItem>
-              <ListItem
-                onClick={() => history.push("/tagsKanban")}
-                button
-              >
-                <ListItemIcon>
-                  <CalendarToday />
-                </ListItemIcon>
-                <ListItemText primary={i18n.t("kanban.subMenus.tags")} />
-              </ListItem>                
+              <Can
+                role={user.profile}
+                perform="dashboard:view"
+                yes={() => (
+                  <ListItem
+                    onClick={() => history.push("/tagsKanban")}
+                    button
+                  >
+                    <ListItemIcon>
+                      <CalendarToday />
+                    </ListItemIcon>
+                    <ListItemText primary={i18n.t("kanban.subMenus.tags")} />
+                  </ListItem>
+                )}
+              />
+
             </List>
           </Collapse>
         </>
       )}
-     
+
 
       <ListItemLink
         to="/contacts"
         primary={i18n.t("mainDrawer.listItems.contacts")}
-        icon={<ContactPhoneOutlinedIcon  />}
+        icon={<ContactPhoneOutlinedIcon />}
       />
 
       {showSchedules && (
@@ -351,7 +358,7 @@ const MainListItems = (props, { collapsed }) => {
           <ListItemLink
             to="/schedules"
             primary={i18n.t("mainDrawer.listItems.schedules")}
-            icon={<Schedule  />}
+            icon={<Schedule />}
           />
         </>
       )}
@@ -427,7 +434,7 @@ const MainListItems = (props, { collapsed }) => {
                       <ListItemIcon>
                         <ListIcon />
                       </ListItemIcon>
-                      <ListItemText primary={i18n.t("campaigns.subMenus.list")}/>
+                      <ListItemText primary={i18n.t("campaigns.subMenus.list")} />
                     </ListItem>
                     <ListItem
                       onClick={() => history.push("/contact-lists")}
@@ -482,6 +489,11 @@ const MainListItems = (props, { collapsed }) => {
             />
 
             <ListItemLink
+              to="/prompts"
+              primary={i18n.t("mainDrawer.listItems.prompts")}
+              icon={<AllInclusive />}
+            />
+            <ListItemLink
               to="/queue-integration"
               primary={i18n.t("mainDrawer.listItems.queueIntegration")}
               icon={<DeviceHubOutlined />}
@@ -503,16 +515,6 @@ const MainListItems = (props, { collapsed }) => {
               icon={<AttachFile />}
             />
 
-            {/* <ListItemLink
-              to="/integrations"
-              primary={'Integrações'}
-              icon={<AddToQueueRounded />}
-            /> */}
-            {/* <ListItemLink
-              to="/financeiro"
-              primary={i18n.t("mainDrawer.listItems.financeiro")}
-              icon={<LocalAtmIcon />}
-            /> */}
             <ListItemLink
               to="/settings"
               primary={i18n.t("mainDrawer.listItems.settings")}
@@ -541,7 +543,7 @@ const MainListItems = (props, { collapsed }) => {
               </Hidden> 
               */}
               <Typography style={{ fontSize: "12px", padding: "10px", textAlign: "right", fontWeight: "bold" }}>
-              {`${version}` }
+                {`${version}`}
 
               </Typography>
             </React.Fragment>

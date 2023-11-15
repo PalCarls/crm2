@@ -33,7 +33,10 @@ const TicketHeader = ({ loading, children }) => {
 			{loading ? (
 				<TicketHeaderSkeleton />
 			) : (
-				<Card square className={classes.ticketHeader}>
+				<Card 
+					square
+					className={classes.ticketHeader}
+				>
 					<Button color="primary" onClick={handleBack}>
 						<ArrowBackIos />
 					</Button>

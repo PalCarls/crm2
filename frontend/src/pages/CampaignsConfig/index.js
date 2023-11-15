@@ -108,7 +108,7 @@ const CampaignsConfig = () => {
       const settingsList = [];
       if (Array.isArray(data) && data.length > 0) {
         data.forEach((item) => {
-          settingsList.push([item.key, JSON.parse(item.value)]);
+          settingsList.push([item.key, item.value]);
         });
         setSettings(Object.fromEntries(settingsList));
       }

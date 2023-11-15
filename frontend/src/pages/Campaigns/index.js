@@ -123,7 +123,7 @@ const Campaigns = () => {
       const planConfigs = await getPlanCompany(undefined, companyId);
       if (!planConfigs.plan.useCampaigns) {
         toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
-        setTimeout(() => {          
+        setTimeout(() => {
           history.push(`/`)
         }, 1000);
       }
@@ -271,16 +271,18 @@ const Campaigns = () => {
       >
         {i18n.t("campaigns.confirmationModal.deleteMessage")}
       </ConfirmationModal>
-      <CampaignModal
-        resetPagination={() => {
-          setPageNumber(1);
-          fetchCampaigns();
-        }}
-        open={campaignModalOpen}
-        onClose={handleCloseCampaignModal}
-        aria-labelledby="form-dialog-title"
-        campaignId={selectedCampaign && selectedCampaign.id}
-      />
+      {campaignModalOpen && (
+        <CampaignModal
+          resetPagination={() => {
+            setPageNumber(1);
+            fetchCampaigns();
+          }}
+          open={campaignModalOpen}
+          onClose={handleCloseCampaignModal}
+          aria-labelledby="form-dialog-title"
+          campaignId={selectedCampaign && selectedCampaign.id}
+        />
+      )}
       <MainHeader>
         <Grid style={{ width: "99.6%" }} container>
           <Grid xs={12} sm={8} item>

@@ -14,7 +14,10 @@ const ShowTicketLogModal = ({ isOpen, handleClose, logs }) => {
     open: i18n.t("showTicketLogModal.options.open"),
     access: i18n.t("showTicketLogModal.options.access"),
     transfered: i18n.t("showTicketLogModal.options.transfered"),
-    receivedTransfer: i18n.t("showTicketLogModal.options.receivedTransfer")
+    receivedTransfer: i18n.t("showTicketLogModal.options.receivedTransfer"),
+    pending: i18n.t("showTicketLogModal.options.pending"),
+    closed:  i18n.t("showTicketLogModal.options.closed"),
+    reopen:  i18n.t("showTicketLogModal.options.reopen")
     // Adicione outros mapeamentos conforme necessário
   };
 
@@ -29,18 +32,18 @@ const ShowTicketLogModal = ({ isOpen, handleClose, logs }) => {
                 <Step key={index}>
                   <StepLabel>
                     {`${log.type === 'access' ||
-                    log.type === 'transfered' ||
-                    log.type === 'open'
+                      log.type === 'transfered' ||
+                      log.type === 'open' || log.type === 'pending' || log.type === "closed" || log.type === "reopen"
                       ? log.user.name
                       : log.type === 'queue'
-                      ? log.queue.name
-                      : log.type === 'receivedTransfer'
-                      ? log.queue.name + ' - ' + log.user.name
-                      : ''} 
+                        ? log.queue.name
+                        : log.type === 'receivedTransfer'
+                          ? log?.queue?.name + ' - ' + log?.user?.name
+                          : ''} 
                     ${typeDescriptions[log.type]} - ${format(
-                      parseISO(log.createdAt),
-                      'dd/MM/yyyy HH:mm'
-                    )}`}
+                            parseISO(log.createdAt),
+                            'dd/MM/yyyy HH:mm'
+                          )}`}
                   </StepLabel>
                 </Step>
               ))}

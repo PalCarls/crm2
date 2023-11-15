@@ -15,7 +15,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import Badge from "@material-ui/core/Badge";
 import ChatIcon from "@material-ui/icons/Chat";
 
-import TicketListItem from "../TicketListItemCustom";
+import TicketListItem from "../TicketListItem";
 import useTickets from "../../hooks/useTickets";
 import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 	},
 }));
 
-const NotificationsPopOver = () => {
+const NotificationsPopOver = (volume) => {
 	const classes = useStyles();
 
 	const history = useHistory();
@@ -57,9 +57,9 @@ const NotificationsPopOver = () => {
 
 	const [, setDesktopNotifications] = useState([]);
 
-	const { tickets } = useTickets({  withUnreadMessages: "true" });
+	const { tickets } = useTickets({ withUnreadMessages: "true" });
 
-	const [play] = useSound(alertSound);
+	const [play] = useSound(alertSound, volume);
 	const soundAlertRef = useRef();
 
 	const historyRef = useRef(history);

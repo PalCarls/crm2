@@ -7,18 +7,26 @@ const ShowTicketOpen = ({ isOpen, handleClose, user, queue }) => {
     <Dialog open={isOpen} onClose={handleClose}>
       <DialogTitle>{i18n.t("showTicketOpenModal.title.header")}</DialogTitle>
       <DialogContent>
-        <DialogContentText>
-          {i18n.t("showTicketOpenModal.form.message")} <br></br>
-          {`${i18n.t("showTicketOpenModal.form.user")}: ${user}`}<br></br>
-          {`${i18n.t("showTicketOpenModal.form.queue")}: ${queue}`}<br></br>
-        </DialogContentText>
+        {user !== undefined && queue !== undefined && (
+          <DialogContentText>
+            {i18n.t("showTicketOpenModal.form.message")} <br></br>
+            { `${i18n.t("showTicketOpenModal.form.user")}: ${user}`}<br></br>
+            {`${i18n.t("showTicketOpenModal.form.queue")}: ${queue}`}<br></br>
+          </DialogContentText>
+        )}
+        {!user && (
+          <DialogContentText>
+            {i18n.t("showTicketOpenModal.form.messageWait")} <br></br>
+            {queue && (`${i18n.t("showTicketOpenModal.form.queue")}: ${queue}`)}<br></br>
+          </DialogContentText>
+        )}
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose} color="primary">
           Fechar
         </Button>
       </DialogActions>
-    </Dialog>
+    </Dialog >
   );
 };
 

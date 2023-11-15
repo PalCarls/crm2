@@ -8,6 +8,7 @@ import { Formik, Form, Field } from "formik";
 
 import ContactNotesDialogListItem from '../ContactNotesDialogListItem';
 import ConfirmationModal from '../ConfirmationModal';
+import ContactNotesEditModal from '../ContactNotesEditModal';
 
 import { toast } from "react-toastify";
 
@@ -38,11 +39,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const NoteSchema = Yup.object().shape({
-	note: Yup.string()
-		.min(2, "Too Short!")
-		.required("Required")
+    note: Yup.string()
+        .min(2, "Too Short!")
+        .required("Required")
 });
-export function ContactNotes ({ ticket }) {
+export function ContactNotes({ ticket }) {
     const { id: ticketId, contactId } = ticket
     const classes = useStyles()
     const [newNote, setNewNote] = useState({ note: "" });
@@ -51,9 +52,10 @@ export function ContactNotes ({ ticket }) {
     const [selectedNote, setSelectedNote] = useState({})
     const [notes, setNotes] = useState([])
     const { saveNote, deleteNote, listNotes } = useTicketNotes()
+    const [editingNote, setEditingNote] = useState(null);
 
     useEffect(() => {
-        async function openAndFetchData () {
+        async function openAndFetchData() {
             handleResetState()
             await loadNotes()
         }
@@ -69,6 +71,11 @@ export function ContactNotes ({ ticket }) {
     const handleChangeComment = (e) => {
         setNewNote({ note: e.target.value })
     }
+
+    const handleEdit = (note) => {
+        console.log(note)
+        setEditingNote(note);
+    };
 
     const handleSave = async values => {
         setLoading(true)
@@ -116,18 +123,26 @@ export function ContactNotes ({ ticket }) {
         setLoading(false)
     }
 
+
     const renderNoteList = () => {
         return notes.map((note) => {
             return <ContactNotesDialogListItem
                 note={note}
                 key={note.id}
                 deleteItem={handleOpenDialogDelete}
+                editItem={() => handleEdit(note)}
             />
         })
     }
 
     return (
         <>
+            <ContactNotesEditModal
+                open={editingNote !== null}
+                onClose={() => setEditingNote(null)}
+                note={editingNote ? editingNote.note : ''}
+                onSave={handleSave}
+            />
             <ConfirmationModal
                 title="Excluir Registro"
                 open={showOnDeleteDialog}
@@ -166,13 +181,13 @@ export function ContactNotes ({ ticket }) {
                                     fullWidth
                                 />
                             </Grid>
-                            { notes.length > 0 && (
+                            {notes.length > 0 && (
                                 <Grid xs={12} item>
                                     <List className={classes.list}>
-                                        { renderNoteList() }
+                                        {renderNoteList()}
                                     </List>
                                 </Grid>
-                            ) }
+                            )}
                             <Grid xs={12} item>
                                 <Grid container spacing={2}>
                                     <Grid xs={6} item>

@@ -11,6 +11,15 @@ const useTicketNotes = () => {
         return responseData;
     }
 
+    const editNote = async (data) => {
+        const { data: responseData } = await api.request({
+            url: `/ticket-notes/${data.id}`,
+            method: 'POST',
+            data
+        });
+        return responseData;
+    }
+
     const deleteNote = async (id) => {
         const { data } = await api.request({
             url: `/ticket-notes/${id}`,
