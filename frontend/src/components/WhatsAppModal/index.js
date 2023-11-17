@@ -121,10 +121,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     expiresTicket: 0,
     allowGroup: false,
     groupAsTicket: "disabled",
-    timeUseBotQueues: 0,
-    timeSendQueue: 0,
+    timeUseBotQueues: '0',
+    timeSendQueue: '0',
     sendIdQueue: 0,
-    expiresTicketNPS: 0,
+    expiresTicketNPS: '0',
     expiresInactiveMessage: "",
     timeInactiveMessage: "",
     inactiveMessage: "",
@@ -255,14 +255,19 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
   const handleSaveWhatsApp = async (values) => {
     if (!whatsAppId) setAutoToken(generateRandomCode(30));
-    // console.log(values.sendIdQueue, values.timeSendQueue)
+   
+    if ((!isNil(values.ratingMessage) && values.ratingMessage !== '') && (values.expiresTicketNPS === '0' || values.expiresTicketNPS === '' || values.expiresTicketNPS === 0)) {
+      toastError(i18n.t("whatsappModal.errorExpiresNPS"));
+      return;
+    }
 
     if (!isNil(values.ratingMessage) && (values.expiresTicketNPS === '0' || values.expiresTicketNPS === '')) {
       toastError(i18n.t("whatsappModal.errorExpiresNPS"));
       return;
     }
     if (values.timeSendQueue === '') values.timeSendQueue = '0'
-    if  ((values.sendIdQueue === 0 || values.sendIdQueue === '' || isNil(values.sendIdQueue)) &&  values.timeSendQueue !== '0') {
+    
+    if  ((values.sendIdQueue === 0 || values.sendIdQueue === '' || isNil(values.sendIdQueue)) &&  (values.timeSendQueue !== 0 && values.timeSendQueue !== '0')) {
       toastError(i18n.t("whatsappModal.errorSendQueue"));
       return;
     }

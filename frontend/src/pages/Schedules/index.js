@@ -20,6 +20,7 @@ import { socketConnection } from "../../services/socket";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import usePlans from "../../hooks/usePlans";
 import { Calendar, momentLocalizer } from "react-big-calendar";
+import "moment/locale/pt-br";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import SearchIcon from "@material-ui/icons/Search";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
@@ -41,6 +42,26 @@ const eventTitleStyle = {
 };
 
 const localizer = momentLocalizer(moment);
+var defaultMessages = {
+  date: "Data",
+  time: "Hora",
+  event: "Evento",
+  allDay: "Dia Todo",
+  week: "Semana",
+  work_week: "Agendamentos",
+  day: "Dia",
+  month: "Mês",
+  previous: "Anterior",
+  next: "Próximo",
+  yesterday: "Ontem",
+  tomorrow: "Amanhã",
+  today: "Hoje",
+  agenda: "Agenda",
+  noEventsInRange: "Não há agendamentos no período.",
+  showMore: function showMore(total) {
+    return "+" + total + " mais";
+  }
+};
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_SCHEDULES") {
@@ -278,6 +299,11 @@ const Schedules = () => {
       </MainHeader>
       <Paper className={classes.mainPaper} variant="outlined" onScroll={handleScroll}>
         <Calendar
+          messages={defaultMessages}
+          formats={{
+          agendaDateFormat: "DD/MM ddd",
+          weekdayFormat: "dddd"
+      }}
           localizer={localizer}
           events={schedules.map((schedule) => ({
             title: (
