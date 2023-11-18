@@ -345,8 +345,10 @@ const messages = {
           minutes: "minutos",
         },
         success: "Conexão salvo com sucesso.",
-        errorSendQueue: "Foi informado tempo para redirecionar fila, porém não foi selecionada fila para redirecionar. Os dois campos precisam estar preenchidos",
-        errorExpiresNPS: "É obrigado informar um tempo para avaliação quando se utiliza o NPS."
+        errorSendQueue:
+          "Foi informado tempo para redirecionar fila, porém não foi selecionada fila para redirecionar. Os dois campos precisam estar preenchidos",
+        errorExpiresNPS:
+          "É obrigado informar um tempo para avaliação quando se utiliza o NPS.",
       },
       qrCode: {
         message: "Leia o QrCode para iniciar a sessão",
@@ -861,7 +863,7 @@ const messages = {
             continuity: "e darei continuidade em seu atendimento.",
             virtualAssistant: "Assistente Virtual",
             token:
-              "Token inválido, por favor entre em contato com o adminstrador da plataforma.",
+              "Token inválido, por favor entre em contato com o administrador da plataforma.",
           },
           message: {
             location: "Localização",
@@ -1104,7 +1106,7 @@ const messages = {
             closedTicketStatus: "Fechado",
             enabledOpenTicket: "Habilitado",
             disabledOpenTicket: "Desabilitado",
-            openTicket: "Abrir ticket"
+            openTicket: "Abrir ticket",
           },
           buttons: {
             add: "Adicionar",

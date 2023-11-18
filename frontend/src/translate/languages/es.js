@@ -861,7 +861,7 @@ const messages = {
             continuity: "y te seguiré apoyando.",
             virtualAssistant: "Asistente Virtual",
             token:
-              "Token inválido, favor comunicarse com el admintrador de la plataforma.",
+              "Token inválido, favor comunicarse con el administrador de la plataforma.",
           },
           message: {
             location: "Localización",
