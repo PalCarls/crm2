@@ -49,6 +49,7 @@ import NewTicketModal from "../../components/NewTicketModal";
 import { TagsFilter } from "../../components/TagsFilter";
 import PopupState, { bindTrigger, bindMenu } from "material-ui-popup-state";
 import formatSerializedId from '../../utils/formatSerializedId';
+import { v4 as uuidv4 } from "uuid";
 
 import {
     ArrowDropDown,
@@ -59,6 +60,7 @@ import { Menu, MenuItem } from "@material-ui/core";
 
 import ContactImportWpModal from "../../components/ContactImportWpModal";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 const reducer = (state, action) => {
     if (action.type === "LOAD_CONTACTS") {
@@ -139,6 +141,7 @@ const Contacts = () => {
     const [contactTicket, setContactTicket] = useState({});
     const fileUploadRef = useRef(null);
     const [selectedTags, setSelectedTags] = useState([]);
+    const { setCurrentTicket } = useContext(TicketsContext);
 
 
     const { get: getSetting } = useCompanySettings();
@@ -218,9 +221,16 @@ const Contacts = () => {
         };
     }, []);
 
+    const handleSelectTicket = (ticket) => {
+        const code = uuidv4();
+        const { id, uuid } = ticket;
+        setCurrentTicket({ id, uuid, code });
+    }
+
     const handleCloseOrOpenTicket = (ticket) => {
         setNewTicketModalOpen(false);
         if (ticket !== undefined && ticket.uuid !== undefined) {
+            handleSelectTicket(ticket);
             history.push(`/tickets/${ticket.uuid}`);
         }
     };
@@ -322,22 +332,22 @@ const Contacts = () => {
     function getDateLastMessage(contact) {
         if (!contact) return null;
         if (!contact.tickets) return null;
-    
+
         if (contact.tickets.length > 0) {
             const date = new Date(contact.tickets[contact.tickets.length - 1].updatedAt);
-    
+
             const day = date.getDate() > 9 ? date.getDate() : `0${date.getDate()}`;
             const month = date.getMonth() + 1 > 9 ? date.getMonth() + 1 : `0${date.getMonth() + 1}`;
             const year = date.getFullYear();
             const hours = date.getHours() > 9 ? date.getHours() : `0${date.getHours()}`;
             const minutes = date.getMinutes() > 9 ? date.getMinutes() : `0${date.getMinutes()}`;
-    
+
             return `${day}/${month}/${year} ${hours}:${minutes}`;
         }
-    
+
         return null;
     }
-    
+
 
     return (
 

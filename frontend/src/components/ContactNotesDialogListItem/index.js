@@ -54,9 +54,9 @@ export default function ContactNotesDialogListItem(props) {
                 }
             />
             <ListItemSecondaryAction style={{ display: 'flex', flexDirection: 'column' }}>
-                <IconButton onClick={() => handleEdit(note)} edge="end" aria-label="edit">
+                {/* <IconButton onClick={() => handleEdit(note)} edge="end" aria-label="edit">
                     <EditIcon />
-                </IconButton>
+                </IconButton> */}
                 <IconButton onClick={() => handleDelete(note)} edge="end" aria-label="delete">
                     <DeleteIcon />
                 </IconButton>

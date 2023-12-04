@@ -8,7 +8,7 @@ import Select from "@material-ui/core/Select";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
-import { makeStyles } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -24,6 +24,7 @@ import ButtonWithSpinner from "../ButtonWithSpinner";
 import toastError from "../../errors/toastError";
 import useQueues from "../../hooks/useQueues";
 import UserStatusIcon from "../UserModal/statusIcon";
+import { isNil } from "lodash";
 
 const useStyles = makeStyles((theme) => ({
   maxWidth: {
@@ -47,6 +48,7 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
   const classes = useStyles();
   const { findAll: findAllQueues } = useQueues();
   const isMounted = useRef(true);
+  const [msgTransfer, setMsgTransfer] = useState('');
 
   useEffect(() => {
     return () => {
@@ -60,7 +62,7 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
         const list = await findAllQueues();
         setAllQueues(list);
         setQueues(list);
-        
+
       };
       loadQueues();
     }
@@ -94,6 +96,10 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
     return () => clearTimeout(delayDebounceFn);
   }, [searchParam, modalOpen]);
 
+  const handleMsgTransferChange = (event) => {
+    setMsgTransfer(event.target.value);
+  };
+
   const handleClose = () => {
     onClose();
     setSearchParam("");
@@ -108,19 +114,11 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
     try {
       let data = {};
 
-      if (selectedUser) {
-        data.userId = selectedUser.id;
-        data.status = ticket.isGroup ? "group" : "open";
-      }
-
-      if (selectedQueue && selectedQueue !== null) {
+        data.userId = !selectedUser ? null : selectedUser.id;
+        data.status = !selectedUser ? "pending" : ticket.isGroup ? "group" : "open";
         data.queueId = selectedQueue;
-
-        if (!selectedUser) {
-          data.status = "pending";
-          data.userId = null;
-        }
-      }
+        data.msgTransfer = msgTransfer ? msgTransfer : null;
+        data.isTransfered = true;
 
       await api.put(`/tickets/${ticketid}`, data);
       setLoading(false);
@@ -131,97 +129,117 @@ const TransferTicketModalCustom = ({ modalOpen, onClose, ticketid, ticket }) => 
       toastError(err);
     }
   };
-  
+
 
   return (
-    <Dialog open={modalOpen} onClose={handleClose} maxWidth="lg" scroll="paper">
+    <Dialog open={modalOpen} onClose={handleClose} maxWidth="md" fullWidth scroll="paper">
       {/* <form onSubmit={handleSaveTicket}> */}
-        <DialogTitle id="form-dialog-title">
-          {i18n.t("transferTicketModal.title")}
-        </DialogTitle>
-        <DialogContent dividers>
-          <Autocomplete
-            style={{ width: 300, marginBottom: 20 }}
-            getOptionLabel={(option) => `${option.name}`}
-            onChange={(e, newValue) => {
-              setSelectedUser(newValue);
-              if (newValue != null && Array.isArray(newValue.queues)) {
-                if (newValue.queues.length === 1) {
-                  setSelectedQueue(newValue.queues[0].id);
-                } 
-                setQueues(newValue.queues);
-                
-              } else {
-                setQueues(allQueues);
-                setSelectedQueue("");
-              }
-            }}
-            options={options}
-            filterOptions={filterOptions}
-            freeSolo
-            autoHighlight
-            noOptionsText={i18n.t("transferTicketModal.noOptions")}
-            loading={loading}
-            renderOption={option => (<span> <UserStatusIcon user={option} /> {option.name}</span>)}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                label={i18n.t("transferTicketModal.fieldLabel")}
-                variant="outlined"
-                autoFocus
-                onChange={(e) => setSearchParam(e.target.value)}
-                InputProps={{
-                  ...params.InputProps,
-                  endAdornment: (
-                    <React.Fragment>
-                      {loading ? (
-                        <CircularProgress color="inherit" size={20} />
-                      ) : null}
-                      {params.InputProps.endAdornment}
-                    </React.Fragment>
-                  ),
-                }}
-              />
-            )}
-          />
-          <FormControl variant="outlined" className={classes.maxWidth}>
-            <InputLabel>
-              {i18n.t("transferTicketModal.fieldQueueLabel")}
-            </InputLabel>
-            <Select
-              value={selectedQueue}
-              onChange={(e) => setSelectedQueue(e.target.value)}
-              label={i18n.t("transferTicketModal.fieldQueuePlaceholder")}
-            >
-              {queues.map((queue) => (
-                <MenuItem key={queue.id} value={queue.id}>
-                  {queue.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleClose}
-            color="secondary"
-            disabled={loading}
-            variant="outlined"
-          >
-            {i18n.t("transferTicketModal.buttons.cancel")}
-          </Button>
-          <ButtonWithSpinner
-            variant="contained"
-            type="submit"
-            color="primary"
-            loading={loading}
-            disabled={selectedQueue===""}
-            onClick={() => handleSaveTicket(selectedQueue)}
+      <DialogTitle id="form-dialog-title">
+        {i18n.t("transferTicketModal.title")}
+      </DialogTitle>
+      <DialogContent dividers>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={6} xl={6}>
+            <Autocomplete
+              fullWidth
+              getOptionLabel={(option) => `${option.name}`}
+              onChange={(e, newValue) => {
+                setSelectedUser(newValue);
+                if (newValue != null && Array.isArray(newValue.queues)) {
+                  if (newValue.queues.length === 1) {
+                    setSelectedQueue(newValue.queues[0].id);
+                  }
+                  setQueues(newValue.queues);
 
-          >
-            {i18n.t("transferTicketModal.buttons.ok")}
-          </ButtonWithSpinner>
-        </DialogActions>
+                } else {
+                  setQueues(allQueues);
+                  setSelectedQueue("");
+                }
+              }}
+              options={options}
+              filterOptions={filterOptions}
+              freeSolo
+              autoHighlight
+              noOptionsText={i18n.t("transferTicketModal.noOptions")}
+              loading={loading}
+              renderOption={option => (<span> <UserStatusIcon user={option} /> {option.name}</span>)}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label={i18n.t("transferTicketModal.fieldLabel")}
+                  variant="outlined"
+                  autoFocus
+                  onChange={(e) => setSearchParam(e.target.value)}
+                  InputProps={{
+                    ...params.InputProps,
+                    endAdornment: (
+                      <React.Fragment>
+                        {loading ? (
+                          <CircularProgress color="inherit" size={20} />
+                        ) : null}
+                        {params.InputProps.endAdornment}
+                      </React.Fragment>
+                    ),
+                  }}
+                />
+              )}
+            />
+          </Grid>
+          <Grid xs={12} sm={6} xl={6} item >
+            <FormControl variant="outlined" fullWidth>
+              <InputLabel>
+                {i18n.t("transferTicketModal.fieldQueueLabel")}
+              </InputLabel>
+              <Select
+                value={selectedQueue}
+                onChange={(e) => setSelectedQueue(e.target.value)}
+                label={i18n.t("transferTicketModal.fieldQueuePlaceholder")}
+              >
+                {queues.map((queue) => (
+                  <MenuItem key={queue.id} value={queue.id}>
+                    {queue.name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+        </Grid>
+        <Grid container spacing={2}>
+          <Grid item xs={12} sm={12} xl={12} >
+            <TextField
+              label={i18n.t("transferTicketModal.msgTransfer")}
+              value={msgTransfer}
+              onChange={handleMsgTransferChange}
+              variant="outlined"
+              multiline
+              maxRows={5}
+              minRows={5}
+              fullWidth
+            />
+          </Grid>
+        </Grid>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={handleClose}
+          color="secondary"
+          disabled={loading}
+          variant="outlined"
+        >
+          {i18n.t("transferTicketModal.buttons.cancel")}
+        </Button>
+        <ButtonWithSpinner
+          variant="contained"
+          type="submit"
+          color="primary"
+          loading={loading}
+          disabled={selectedQueue === ""}
+          onClick={() => handleSaveTicket(selectedQueue)}
+
+        >
+          {i18n.t("transferTicketModal.buttons.ok")}
+        </ButtonWithSpinner>
+      </DialogActions>
       {/* </form> */}
     </Dialog>
   );

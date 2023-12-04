@@ -544,7 +544,7 @@ const LoggedInLayout = ({ children, themeToggle }) => {
             )}
           </Typography>
 
-          {userToken === "enabled" && (
+          {userToken === "enabled" && user?.companyId === 1 && (
             <Chip
               className={classes.chip}
               label={i18n.t("mainDrawer.appBar.user.token")}

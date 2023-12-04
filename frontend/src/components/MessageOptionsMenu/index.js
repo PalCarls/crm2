@@ -9,6 +9,9 @@ import { Menu } from "@material-ui/core";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
 
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import { v4 as uuidv4 } from "uuid";
+
 import toastError from "../../errors/toastError";
 import { useHistory } from "react-router-dom";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -20,42 +23,45 @@ const MessageOptionsMenu = ({
   menuOpen,
   handleClose,
   anchorEl,
-  ticketGroup,
-  // setShowSelectCheckbox, 
-  // showSelectCheckBox, 
-  // forwardMessageModalOpen, 
-  // setForwardMessageModalOpen,
-  // selectedMessages, 
+  isGroup,
+  queueId,
+  whatsappId
 }) => {
   const { setReplyingMessage } = useContext(ReplyMessageContext);
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const { user } = useContext(AuthContext);
-  // const [forwardModalOpen, setForwardModalOpen] = useState(false);
-  // const [loading, setLoading] = useState(false);
+
   const history = useHistory();
-  // const [forwardMessage, setForwardMessage] = useState(null);
+  const { setCurrentTicket } = useContext(TicketsContext);
 
   const [openAlert, setOpenAlert] = useState(false);
   const [userTicketOpen, setUserTicketOpen] = useState("");
   const [queueTicketOpen, setQueueTicketOpen] = useState("");
-  
+
   const { showSelectMessageCheckbox,
     setShowSelectMessageCheckbox,
     selectedMessages,
     forwardMessageModalOpen,
     setForwardMessageModalOpen } = useContext(ForwardMessageContext);
-  
+
+  const handleSelectTicket = (ticket) => {
+    const code = uuidv4();
+    const { id, uuid } = ticket;
+    setCurrentTicket({ id, uuid, code });
+  }
+
   const handleSaveTicket = async (contactId) => {
     if (!contactId) return;
-    //setLoading(true);
+
     try {
       const { data: ticket } = await api.post("/tickets", {
         contactId: contactId,
         userId: user?.id,
         status: "open",
-        queueId: ticketGroup.queueId,
-        whatsappId: ticketGroup?.whatsappId
+        queueId: queueId,
+        whatsappId: whatsappId
       });
+      handleSelectTicket(ticket);
       history.push(`/tickets/${ticket.uuid}`);
     } catch (err) {
       const ticket = JSON.parse(err.response.data.error);
@@ -68,6 +74,8 @@ const MessageOptionsMenu = ({
         setOpenAlert(false);
         setUserTicketOpen("");
         setQueueTicketOpen("");
+        
+        handleSelectTicket(ticket);
         history.push(`/tickets/${ticket.uuid}`);
       }
     }
@@ -167,7 +175,7 @@ const MessageOptionsMenu = ({
         <MenuItem onClick={handleSetShowSelectCheckbox}>
           {i18n.t("messageOptionsMenu.forward")}
         </MenuItem>
-        {!message.fromMe && ticketGroup.isGroup && (
+        {!message.fromMe && isGroup && (
           <MenuItem onClick={() => handleSaveTicket(message?.contact?.id)}>
             {i18n.t("messageOptionsMenu.talkTo")}
           </MenuItem>

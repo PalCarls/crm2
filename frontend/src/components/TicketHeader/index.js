@@ -14,9 +14,10 @@ const useStyles = makeStyles(theme => ({
 		flex: "none",
 		borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
 		height: "65px",
-		// [theme.breakpoints.down("sm")]: {
-		// 	flexWrap: "wrap",
-		// },
+		[theme.breakpoints.down("sm")]: {
+			flexWrap: "wrap",
+			height: 'max-content'
+		},
 	},
 }));
 

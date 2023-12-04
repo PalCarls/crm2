@@ -127,6 +127,14 @@ export default function Options(props) {
   const [requiredTag, setRequiredTag] = useState("enabled")
   const [loadingRequiredTag, setLoadingRequiredTag] = useState(false)
 
+  // Fechar ticket ao transferir para outro setor
+  const [closeTicketOnTransfer, setCloseTicketOnTransfer] = useState(false)
+  const [loadingCloseTicketOnTransfer, setLoadingCloseTicketOnTransfer] = useState(false)
+
+  // Usar carteira de clientes
+  const [directTicketsToWallets, setDirectTicketsToWallets] = useState(false)
+  const [loadingDirectTicketsToWallets, setLoadingDirectTicketsToWallets] = useState(false)
+
   const { update:updateUserCreation, getAll } = useSettings();
 
   const { update } = useCompanySettings();
@@ -168,8 +176,10 @@ export default function Options(props) {
       if (key === "lgpdHideNumber") setLGPDHideNumber(value);
       if (key === "lgpdConsent") setLGPDConsent(value);
       if (key === "lgpdMessage") setLGPDMessage(value);
-      if (key === "sendMsgTransfTicket") setSettingsTransfTicket(value)
-      if (key === "lgpdLink") setLGPDLink(value)
+      if (key === "sendMsgTransfTicket") setSettingsTransfTicket(value);
+      if (key === "lgpdLink") setLGPDLink(value);
+      if (key === "DirectTicketsToWallets") setDirectTicketsToWallets(value);
+      if (key === "closeTicketOnTransfer") setCloseTicketOnTransfer(value);
     }    
   }, [settings]);
 
@@ -378,6 +388,25 @@ export default function Options(props) {
     setLoadingRequiredTag(false);
   }
 
+  async function handleCloseTicketOnTransfer(value) {
+    setCloseTicketOnTransfer(value);
+    setLoadingCloseTicketOnTransfer(true);
+    await update({
+      column: "closeTicketOnTransfer",
+      data:value,
+    });
+    setLoadingCloseTicketOnTransfer(false);
+  }
+
+  async function handleDirectTicketsToWallets(value) {
+    setDirectTicketsToWallets(value);
+    setLoadingDirectTicketsToWallets(true);
+    await update({
+      column: "DirectTicketsToWallets",
+      data:value,
+    });
+    setLoadingDirectTicketsToWallets(false);
+  }
 
   return (
     <>
@@ -751,6 +780,42 @@ export default function Options(props) {
             </FormHelperText>
           </FormControl>
         </Grid>
+        <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="closeTicketOnTransfer-label"> {i18n.t("settings.settings.options.closeTicketOnTransfer")}</InputLabel>
+            <Select
+              labelId="closeTicketOnTransfer-label"
+              value={closeTicketOnTransfer}
+              onChange={async (e) => {
+                handleCloseTicketOnTransfer(e.target.value);
+              }}
+            >
+              <MenuItem value={false}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
+              <MenuItem value={true}>{i18n.t("settings.settings.options.enabled")}</MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingCloseTicketOnTransfer && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid>
+        {/* <Grid xs={12} sm={6} md={4} item>
+          <FormControl className={classes.selectContainer}>
+            <InputLabel id="DirectTicketsToWallets-label"> {i18n.t("settings.settings.options.DirectTicketsToWallets")}</InputLabel>
+            <Select
+              labelId="DirectTicketsToWallets-label"
+              value={directTicketsToWallets}
+              onChange={async (e) => {
+                handleDirectTicketsToWallets(e.target.value);
+              }}
+            >
+              <MenuItem value={false}>{i18n.t("settings.settings.options.disabled")}</MenuItem>
+              <MenuItem value={true}>{i18n.t("settings.settings.options.enabled")}</MenuItem>
+            </Select>
+            <FormHelperText>
+              {loadingDirectTicketsToWallets && i18n.t("settings.settings.options.updating")}
+            </FormHelperText>
+          </FormControl>
+        </Grid> */}
       </Grid>
       <br></br>
       {/*-----------------LGPD-----------------*/}

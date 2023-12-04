@@ -264,6 +264,12 @@ const MessageUploadMedias = ({ isOpen, files, onClose, onSend, onCancelSelection
     }, [currentIndex, firstTyping]);
 
     const handleKeyDown = (event) => {
+        if (event.key === 'Enter' && event.shiftKey) {
+            // const newCaptions = captions.slice();
+            // newCaptions[currentIndex] += '\n';
+            // setCaptions(newCaptions);
+            return
+        }
         switch (event.key) {
             case 'Escape':
                 onCancelSelection();
@@ -297,6 +303,9 @@ const MessageUploadMedias = ({ isOpen, files, onClose, onSend, onCancelSelection
                                 <InputBase
                                     placeholder="Legenda (opcional)"
                                     fullWidth
+                                    multiline
+                                    minRows={1}
+                                    maxRows={5}
                                     value={captions[currentIndex]}
                                     onChange={handleCaptionChange}
                                     onBlur={handleTextFieldBlur}

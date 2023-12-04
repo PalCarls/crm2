@@ -32,6 +32,7 @@ import CampaignReport from "../pages/CampaignReport";
 import Annoucements from "../pages/Annoucements";
 import Chat from "../pages/Chat";
 import Prompts from "../pages/Prompts";
+import AllConnections from "../pages/AllConnections/";
 
 // import Integrations from '../pages/Integrations';
 // import GoogleCalendarComponent from '../pages/Integrations/components/GoogleCalendarComponent';
@@ -85,7 +86,7 @@ const Routes = () => {
                 <Route exact path="/Kanban" component={Kanban} isPrivate />
                 <Route exact path="/TagsKanban" component={TagsKanban} isPrivate />
                 <Route exact path="/prompts" component={Prompts} isPrivate />
-
+                <Route exact path="/allConnections" component={AllConnections} isPrivate />
                 {showCampaigns && (
                   <>
                     <Route exact path="/contact-lists" component={ContactLists} isPrivate />

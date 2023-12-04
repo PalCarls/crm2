@@ -349,6 +349,8 @@ const messages = {
           "Foi informado tempo para redirecionar fila, porém não foi selecionada fila para redirecionar. Os dois campos precisam estar preenchidos",
         errorExpiresNPS:
           "É obrigado informar um tempo para avaliação quando se utiliza o NPS.",
+        errorRatingMessage:
+          "É obrigado informar uma mensagem de avaliação quando se utiliza o NPS.",
       },
       qrCode: {
         message: "Leia o QrCode para iniciar a sessão",
@@ -542,7 +544,11 @@ const messages = {
           projectName: "Nome do Projeto",
           language: "Linguagem",
           jsonContent: "JsonContent",
-          urlN8N: "URL N8N",
+          urlN8N: "URL",
+          typebotSlug: "Typebot - Slug",
+          typebotExpires: "Tempo em minutos para expirar uma conversa",
+          typebotKeywordFinish: "Palavra para finalizar a conversa",
+          typebotUnknownMessage: "Mensagem de opção inválida",      
         },
         buttons: {
           okAdd: "Adicionar",
@@ -761,6 +767,7 @@ const messages = {
         fieldQueuePlaceholder: "Selecione uma fila",
         fieldWhatsapp: "Selecione um whatsapp",
         noOptions: "Nenhum usuário encontrado com esse nome",
+        msgTransfer: "Observações - mensagem interna, não vai para o cliente",
         buttons: {
           ok: "Transferir",
           cancel: "Cancelar",
@@ -850,6 +857,7 @@ const messages = {
           version: "Versão",
           kanban: "Kanban",
           prompts: "Talk.Ai",
+          allConnections: "Gerenciar conexões"
         },
         appBar: {
           user: {
@@ -1339,7 +1347,7 @@ const messages = {
           schedules: "Agendamentos",
           enabled: "Habilitadas",
           disabled: "Desabilitadas",
-          clear: "Limpar",
+          clear: "Cancelar",
           delete: "Excluir",
           save: "Salvar",
           yes: "Sim",
@@ -1466,8 +1474,8 @@ const messages = {
             help: "Ajuda",
           },
           options: {
-            disabled: "Desabilitadas",
-            enabled: "Habilitadas",
+            disabled: "Desabilitado",
+            enabled: "Habilitado",
             updating: "Atualizando...",
             creationCompanyUser: "Criação de Company/Usuário",
             evaluations: "Avaliações",
@@ -1493,6 +1501,8 @@ const messages = {
               "Aceita receber audio de todos contatos?",
             enableLGPD: "Habilitar tratamento LGPD",
             requiredTag: "Tag obrigatoria para fechar ticket",
+            closeTicketOnTransfer: "Fechar ticket ao transferir para outra fila",
+            DirectTicketsToWallets: "Mover automaticamente cliente para carteira"
           },
           LGPD: {
             title: "LGPD",

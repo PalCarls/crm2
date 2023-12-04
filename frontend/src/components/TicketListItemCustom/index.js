@@ -6,15 +6,6 @@ import clsx from "clsx";
 
 import { makeStyles } from "@material-ui/core/styles";
 import { green, grey } from "@material-ui/core/colors";
-// import ListItem from "@material-ui/core/ListItem";
-// import ListItemText from "@material-ui/core/ListItemText";
-// import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-// import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-// import Typography from "@material-ui/core/Typography";
-// import Avatar from "@material-ui/core/Avatar";
-// import Divider from "@material-ui/core/Divider";
-// import Badge from "@material-ui/core/Badge";
-
 import { i18n } from "../../translate/i18n";
 
 import api from "../../services/api";
@@ -27,12 +18,6 @@ import toastError from "../../errors/toastError";
 import { v4 as uuidv4 } from "uuid";
 
 import GroupIcon from '@material-ui/icons/Group';
-// import WhatsAppIcon from "@material-ui/icons/WhatsApp";
-// import InstagramIcon from "@material-ui/icons/Instagram";
-// import FacebookIcon from "@material-ui/icons/Facebook";
-
-
-import TicketMessagesDialog from "../TicketMessagesDialog";
 import ContactTag from "../ContactTag";
 import ConnectionIcon from "../ConnectionIcon";
 import AcceptTicketWithouSelectQueue from "../AcceptTicketWithoutQueueModal";
@@ -42,9 +27,7 @@ import { isNil } from "lodash";
 import { toast } from "react-toastify";
 import { Done, HighlightOff, Replay, SwapHoriz } from "@material-ui/icons";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
-import { Avatar, Badge, Divider, ListItem, ListItemAvatar, ListItemSecondaryAction, ListItemText, Typography } from "@mui/material";
-
-// import contrastColor from "../../helpers/contrastColor";
+import { Avatar, Badge, Divider, ListItem, ListItemAvatar, ListItemButton, ListItemSecondaryAction, ListItemText, Typography } from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
     ticket: {
@@ -81,7 +64,7 @@ const useStyles = makeStyles((theme) => ({
         top: 0,
         color: "green",
         fontWeight: "bold",
-        marginRight: "-19px",
+        marginRight: "10px",
         borderRadius: 0,
     },
     noTicketsText: {
@@ -166,13 +149,6 @@ const useStyles = makeStyles((theme) => ({
         right: "1px",
     },
 
-
-    // acceptButton: {
-    //     position: "absolute",
-    //     left: "50%",
-    // },
-
-
     ticketQueueColor: {
         flex: "none",
         // width: "8px",
@@ -212,7 +188,6 @@ const useStyles = makeStyles((theme) => ({
         "& .MuiBadge-anchorOriginTopRightRectangle": {
             transform: "scale(1) translate(0%, -40%)",
         },
-
     },
     connectionIcon: {
         marginRight: theme.spacing(1)
@@ -220,14 +195,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
-// const TicketListItemCustom = ({ ticket }) => {
     const classes = useStyles();
     const history = useHistory();
     const [loading, setLoading] = useState(false);
-    const [ticketUser, setTicketUser] = useState(null);
-    const [tag, setTag] = useState([]);
-
-    const [whatsAppName, setWhatsAppName] = useState(null);
     const [acceptTicketWithouSelectQueueOpen, setAcceptTicketWithouSelectQueueOpen] = useState(false);
     const [transferTicketModalOpen, setTransferTicketModalOpen] = useState(false);
 
@@ -235,7 +205,6 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     const [userTicketOpen, setUserTicketOpen] = useState("");
     const [queueTicketOpen, setQueueTicketOpen] = useState("");
 
-    // const [openTicketMessageDialog, setOpenTicketMessageDialog] = useState(false);
     const { ticketId } = useParams();
     const isMounted = useRef(true);
     const { setCurrentTicket } = useContext(TicketsContext);
@@ -244,19 +213,10 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     const { get: getSetting } = useCompanySettings();
 
     useEffect(() => {
-        if (ticket.userId && ticket.user) {
-            setTicketUser(ticket?.user?.name.toUpperCase());
-        }
-
-        setWhatsAppName(ticket?.whatsapp?.name.toUpperCase());
-
-        setTag(ticket?.tags);
-
-        return () => {
-            isMounted.current = false;
-        };
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+		return () => {
+			isMounted.current = false;
+		};
+	}, []);
 
     const handleOpenAcceptTicketWithouSelectQueue = useCallback(() => {
         // console.log(ticket)
@@ -346,31 +306,33 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
         }
     }, []);
 
-    const handleOpenTransferModal = useCallback(() => {
+    const handleOpenTransferModal = () => {
         setLoading(true)
         setTransferTicketModalOpen(true);
         if (isMounted.current) {
             setLoading(false);
         }
+        handleSelectTicket(ticket);
         history.push(`/tickets/${ticket.uuid}`);
-    }, [])
+    }
 
     const handleAcepptTicket = async (id) => {
         setLoading(true);
         try {
-            const otherTicket = await api.put(`/tickets/${id}`, {
+            const otherTicket = await api.put(`/tickets/${id}`, ({
                 status: ticket.isGroup && ticket.channel === 'whatsapp' ? "group" : "open",
                 userId: user?.id,
-            });
+            }));
 
             if (otherTicket.data.id !== ticket.id) {
                 if (otherTicket.data.userId !== user?.id) {
-                    setOpenAlert(true)
-                    setUserTicketOpen(otherTicket.data.user.name)
-                    setQueueTicketOpen(otherTicket.data.queue.name)
+                    setOpenAlert(true);
+                    setUserTicketOpen(otherTicket.data.user.name);
+                    setQueueTicketOpen(otherTicket.data.queue.name);
                 } else {
                     setLoading(false);
-                    handleChangeTab(null, ticket.isGroup? "group" : "open");
+                    handleChangeTab(null, ticket.isGroup ? "group" : "open");
+                    handleSelectTicket(otherTicket.data);
                     history.push(`/tickets/${otherTicket.data.uuid}`);
                 }
             } else {
@@ -379,7 +341,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 try {
                     setting = await getSetting({
                         "column": "sendGreetingAccepted"
-                    })
+                    });
                 } catch (err) {
                     toastError(err);
                 }
@@ -391,20 +353,16 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                     setLoading(false);
                 }
 
-                // handleChangeTab(null, "tickets");
-                handleChangeTab(null, ticket.isGroup? "group" : "open");
+                handleChangeTab(null, ticket.isGroup ? "group" : "open");
+                handleSelectTicket(ticket);
                 history.push(`/tickets/${ticket.uuid}`);
             }
         } catch (err) {
             setLoading(false);
             toastError(err);
         }
-
     };
 
-    // const handleClose = () => {
-    //     setOpenTicketMessageDialog(false);
-    // };
 
     const handleSendMessage = async (id) => {
         const msg = `{{ms}} *{{name}}*, ${i18n.t("mainDrawer.appBar.user.myName")} *${user?.name}* ${i18n.t("mainDrawer.appBar.user.continuity")}.`;
@@ -464,7 +422,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 ticketId={ticket.id}
             /> */}
 
-            <ListItem dense button
+            <ListItemButton dense
                 onClick={(e) => {
                     handleSelectTicket(ticket);
                 }}
@@ -473,7 +431,6 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                     [classes.pendingTicket]: ticket.status === "pending",
                 })}
             >
-
                 <ListItemAvatar
                     sx={{ marginLeft: "-15px" }}
                 >
@@ -495,7 +452,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                 noWrap
                                 component="span"
                                 variant="body2"
-                                // color="textPrimary"
+                            // color="textPrimary"
                             >
                                 {ticket.isGroup && ticket.channel === "whatsapp" && <GroupIcon fontSize="small" style={{ color: grey[700], marginBottom: '-1px', marginLeft: '5px' }} />} &nbsp;
                                 {ticket.channel && <ConnectionIcon width="20" height="20" className={classes.connectionIcon} connectionType={ticket.channel} />} &nbsp;
@@ -528,7 +485,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                 noWrap
                                 component="span"
                                 variant="body2"
-                                // color="textSecondary"
+                            // color="textSecondary"
                             // style={console.log('ticket.lastMessage', ticket.lastMessage)}
                             >
                                 {ticket.lastMessage ? (
@@ -545,13 +502,13 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                     <br />
                                 )}
                                 <span className={classes.secondaryContentSecond} >
-                                    {whatsAppName ? <Badge className={classes.connectionTag}>{whatsAppName}</Badge> : <br></br>}
+                                    {ticket?.whatsapp ? <Badge className={classes.connectionTag}>{ticket.whatsapp?.name.toUpperCase()}</Badge> : <br></br>}
                                     {<Badge sx={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queue?.name.toUpperCase() || "SEM FILA"}</Badge>}
-                                    {ticketUser && (<Badge sx={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticketUser}</Badge>)}
+                                    {ticket?.user && (<Badge sx={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>)}
                                 </span>
                                 <span className={classes.secondaryContentSecond} >
                                     {
-                                        tag?.map((tag) => {
+                                        ticket.tags?.map((tag) => {
                                             return (
                                                 <ContactTag tag={tag} key={`ticket-contact-tag-${ticket.id}-${tag.id}`} />
                                             );
@@ -579,7 +536,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                 className={Number(ticket.unreadMessages) > 0 ? classes.lastMessageTimeUnread : classes.lastMessageTime}
                                 component="span"
                                 variant="body2"
-                                // color="textSecondary"
+                            // color="textSecondary"
                             >
 
                                 {isSameDay(parseISO(ticket.updatedAt), new Date()) ? (
@@ -720,9 +677,9 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                         )}
                     </span>
                 </ListItemSecondaryAction>
-            </ListItem>
+            </ListItemButton>
 
-            <Divider variant="inset" component="li" />
+            {/* <Divider variant="inset" component="li" /> */}
         </React.Fragment>
     );
 };

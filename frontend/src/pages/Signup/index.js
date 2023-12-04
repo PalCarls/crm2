@@ -177,10 +177,11 @@ const SignUp = () => {
                                         fullWidth
                                         id="email"
                                         label={i18n.t("signup.form.email")}
-                                        name="email"
+                                        name="email"                                        
                                         error={touched.email && Boolean(errors.email)}
                                         helperText={touched.email && errors.email}
                                         autoComplete="email"
+                                        inputProps={{ style: { textTransform: 'lowercase' } }}
                                     />
                                 </Grid>
                                 <Grid item xs={12}>

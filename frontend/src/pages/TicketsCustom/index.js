@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
@@ -12,6 +12,8 @@ import { QueueSelectedProvider } from "../../context/QueuesSelected/QueuesSelect
 
 import { i18n } from "../../translate/i18n";
 import { Hidden } from "@material-ui/core";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const useStyles = makeStyles(theme => ({
 	chatContainer: {
@@ -54,17 +56,26 @@ const useStyles = makeStyles(theme => ({
 const TicketsCustom = () => {
 	const classes = useStyles();
 	const { ticketId } = useParams();
+	const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
+	const history = useHistory();
 
+	useEffect(() => {
+		if (ticketId && currentTicket.uuid === undefined) {
+			history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
+
+		}
+
+	}, [])
 	return (
 		<QueueSelectedProvider>
 			<div className={classes.chatContainer}>
 				<div className={classes.chatPapper}>
 					<Grid container spacing={0}>
-						<Grid item xs={12} md={4} className={classes.contactsWrapper}>
+						<Grid item xs={12} md={3} className={classes.contactsWrapper}>
 							<TicketsManager />
 						</Grid>
-						<Grid item xs={12} md={8} className={classes.messagesWrapper}>
-							{ticketId ? (
+						<Grid item xs={12} md={9} className={classes.messagesWrapper}>
+							{ticketId && (ticketId === currentTicket.uuid) ? (
 								<>
 									<Ticket
 									/>

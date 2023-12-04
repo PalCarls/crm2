@@ -8,10 +8,12 @@ import Typography from "@material-ui/core/Typography";
 import Grid from "@material-ui/core/Grid";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
+import { v4 as uuidv4 } from "uuid";
 
 import { Button, Divider, } from "@material-ui/core";
 import { isNil } from 'lodash';
 import ShowTicketOpen from '../ShowTicketOpenModal';
+import { TicketsContext } from '../../context/Tickets/TicketsContext';
 
 const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
 
@@ -23,6 +25,7 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
     const [ openAlert, setOpenAlert ] = useState(false);
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
+    const { setCurrentTicket } = useContext(TicketsContext);
 
     const [selectedContact, setContact] = useState({
         id: 0,
@@ -56,6 +59,11 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
     //     }, 500);
     //     return () => clearTimeout(delayDebounceFn);
     // }, [contact, numbers]);
+    const handleSelectTicket = (ticket) => {
+        const code = uuidv4();
+        const { id, uuid } = ticket;
+        setCurrentTicket({ id, uuid, code });
+    };
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -115,6 +123,8 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
                 companyId: companyId,
                 whatsappId
             });
+            handleSelectTicket(ticket);
+
             history.push(`/tickets/${ticket.uuid}`);
         } catch (err) {
             const ticket  = JSON.parse(err.response.data.error);
@@ -127,6 +137,8 @@ const VcardPreview = ({ contact, numbers, queueId, whatsappId }) => {
               setOpenAlert(false);
               setUserTicketOpen("");
               setQueueTicketOpen("");
+              handleSelectTicket(ticket);
+
               history.push(`/tickets/${ticket.uuid}`);
             }
         }

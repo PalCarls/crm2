@@ -379,20 +379,23 @@ const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
 
 
   const isMobile = useMediaQuery('(max-width: 767px)'); // Ajuste o valor conforme necessário
+  const [placeholderText, setPlaceHolderText] = useState("");
+
   // Determine o texto do placeholder com base no ticketStatus
-  let placeholderText = "";
+  useEffect(() => {
   if (ticketStatus === "open" || ticketStatus === "group") {
-    placeholderText = i18n.t("messagesInput.placeholderOpen");
+    setPlaceHolderText(i18n.t("messagesInput.placeholderOpen"));
   } else {
-    placeholderText = i18n.t("messagesInput.placeholderClosed");
+    setPlaceHolderText(i18n.t("messagesInput.placeholderClosed"));
   }
 
   // Limitar o comprimento do texto do placeholder apenas em ambientes mobile
   const maxLength = isMobile ? 20 : Infinity; // Define o limite apenas em mobile
 
   if (isMobile && placeholderText.length > maxLength) {
-    placeholderText = placeholderText.substring(0, maxLength) + "...";
+    setPlaceHolderText(placeholderText.substring(0, maxLength) + "...");
   }
+  }, [ticketStatus])
 
   const {
     selectedMessages,

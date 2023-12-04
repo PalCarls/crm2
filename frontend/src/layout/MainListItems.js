@@ -29,7 +29,7 @@ import AnnouncementIcon from "@material-ui/icons/Announcement";
 import ForumIcon from "@material-ui/icons/Forum";
 import LocalAtmIcon from '@material-ui/icons/LocalAtm';
 import BusinessIcon from '@material-ui/icons/Business';
-import { AllInclusive, Assignment, AttachFile, CalendarToday, DeviceHubOutlined } from '@material-ui/icons';
+import { AllInclusive, Assignment, AttachFile, CalendarToday, DeviceHubOutlined, PhonelinkSetup } from '@material-ui/icons';
 
 
 import Typography from "@material-ui/core/Typography";
@@ -132,6 +132,9 @@ const MainListItems = (props, { collapsed }) => {
   const [openKanbanSubmenu, setOpenKanbanSubmenu] = useState(false);
   const [showCampaigns, setShowCampaigns] = useState(false);
   const [showKanban, setShowKanban] = useState(false);
+  const [showOpenAi, setShowOpenAi] = useState(false);
+  const [showIntegrations, setShowIntegrations] = useState(false);
+
   // novas features
   const [showSchedules, setShowSchedules] = useState(false);
   const [showInternalChat, setShowInternalChat] = useState(false);
@@ -170,6 +173,8 @@ const MainListItems = (props, { collapsed }) => {
 
       setShowCampaigns(planConfigs.plan.useCampaigns);
       setShowKanban(planConfigs.plan.useKanban);
+      setShowOpenAi(planConfigs.plan.useOpenAi);
+      setShowIntegrations(planConfigs.plan.useIntegrations);
       setShowSchedules(planConfigs.plan.useSchedules);
       setShowInternalChat(planConfigs.plan.useInternalChat);
       setShowExternalApi(planConfigs.plan.useExternalApi);
@@ -386,7 +391,7 @@ const MainListItems = (props, { collapsed }) => {
       {/* <ListItemLink
         to="/todolist"
         primary={i18n.t("ToDoList")}
-        icon={<EventIcon />}
+        icon={<EventAvailableIcon />}
       /> */}
 
       <ListItemLink
@@ -488,17 +493,21 @@ const MainListItems = (props, { collapsed }) => {
               icon={<AccountTreeOutlinedIcon />}
             />
 
-            <ListItemLink
-              to="/prompts"
-              primary={i18n.t("mainDrawer.listItems.prompts")}
-              icon={<AllInclusive />}
-            />
-            <ListItemLink
-              to="/queue-integration"
-              primary={i18n.t("mainDrawer.listItems.queueIntegration")}
-              icon={<DeviceHubOutlined />}
-            />
+            {showOpenAi && (
+              <ListItemLink
+                to="/prompts"
+                primary={i18n.t("mainDrawer.listItems.prompts")}
+                icon={<AllInclusive />}
+              />
+            )}
 
+            {showIntegrations && (
+              <ListItemLink
+                to="/queue-integration"
+                primary={i18n.t("mainDrawer.listItems.queueIntegration")}
+                icon={<DeviceHubOutlined />}
+              />
+            )}
             <ListItemLink
               to="/connections"
               primary={i18n.t("mainDrawer.listItems.connections")}
@@ -508,7 +517,13 @@ const MainListItems = (props, { collapsed }) => {
                 </Badge>
               }
             />
-
+            {user.super && (
+              <ListItemLink
+                to="/allConnections"
+                primary={i18n.t("mainDrawer.listItems.allConnections")}
+                icon={<PhonelinkSetup />}
+              />
+            )}
             <ListItemLink
               to="/files"
               primary={i18n.t("mainDrawer.listItems.files")}

@@ -5,6 +5,7 @@ import { Can } from "../Can";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton } from "@material-ui/core";
 import { DeviceHubOutlined, History, PictureAsPdf, Replay, SwapHorizOutlined } from "@material-ui/icons";
+import { v4 as uuidv4 } from "uuid";
 
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
@@ -31,8 +32,6 @@ import HighlightOffIcon from "@material-ui/icons/HighlightOff";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import UndoIcon from '@material-ui/icons/Undo';
 
-import { BiSend } from 'react-icons/bi';
-
 import ScheduleModal from "../ScheduleModal";
 import MenuItem from "@material-ui/core/MenuItem";
 import { Switch } from "@material-ui/core";
@@ -41,7 +40,6 @@ import { toast } from "react-toastify";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
 import ShowTicketLogModal from "../../components/ShowTicketLogModal";
 import TicketMessagesDialog from "../TicketMessagesDialog";
-import { blue } from "@material-ui/core/colors";
 
 const useStyles = makeStyles(theme => ({
     actionButtons: {
@@ -269,6 +267,11 @@ const TicketActionButtonsCustom = ({ ticket
             toastError(err);
         }
     };
+    const handleSelectTicket = (ticket) => {
+        const code = uuidv4();
+        const { id, uuid } = ticket;
+        setCurrentTicket({ id, uuid, code });
+    };
 
     const handleUpdateTicketStatus = async (e, status, userId) => {
         setLoading(true);
@@ -295,6 +298,8 @@ const TicketActionButtonsCustom = ({ ticket
             setLoading(false);
             if (status === "open" || status === "group") {
                 setCurrentTicket({ ...ticket, code: "#" + status });
+                handleSelectTicket(ticket);
+
                 history.push(`/tickets/${ticket.uuid}`);
             } else {
                 setCurrentTicket({ id: null, code: null })
@@ -320,6 +325,8 @@ const TicketActionButtonsCustom = ({ ticket
                     setQueueTicketOpen(otherTicket.data.queue.name)
                 } else {
                     setLoading(false);
+                    handleSelectTicket(otherTicket.data);
+
                     history.push(`/tickets/${otherTicket.data.uuid}`);
                 }
             } else {
@@ -327,7 +334,7 @@ const TicketActionButtonsCustom = ({ ticket
                     setLoading(false);
                 }
 
-                // handleChangeTab(null, "tickets");
+                handleSelectTicket(ticket);
                 history.push(`/tickets/${ticket.uuid}`);
             }
         } catch (err) {
@@ -398,19 +405,20 @@ const TicketActionButtonsCustom = ({ ticket
                         {i18n.t("messagesList.header.buttons.reopen")}
                     </ButtonWithSpinner>
                 )}
+                <IconButton
+                    className={classes.bottomButtonVisibilityIcon}
+                    onClick={handleShowLogTicket}
+                >
+                    <Tooltip title={i18n.t("messagesList.header.buttons.logTicket")}>
+                        <History />
+
+                    </Tooltip>
+                </IconButton>
                 {(ticket.status === "open" || ticket.status === "group") && (
                     <>
                         {/* {!showSelectMessageCheckbox ? ( */}
                         <>
-                            <IconButton
-                                className={classes.bottomButtonVisibilityIcon}
-                                onClick={handleShowLogTicket}
-                            >
-                                <Tooltip title={i18n.t("messagesList.header.buttons.logTicket")}>
-                                    <History />
 
-                                </Tooltip>
-                            </IconButton>
                             <IconButton
                                 className={classes.bottomButtonVisibilityIcon}
                                 onClick={handleEnableIntegration}

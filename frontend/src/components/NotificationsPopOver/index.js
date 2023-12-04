@@ -21,6 +21,8 @@ import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
+import { v4 as uuidv4 } from "uuid";
 
 const useStyles = makeStyles(theme => ({
 	tabContainer: {
@@ -63,6 +65,7 @@ const NotificationsPopOver = (volume) => {
 	const soundAlertRef = useRef();
 
 	const historyRef = useRef(history);
+	const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
 
 	useEffect(() => {
 		const fetchSettings = async () => {
@@ -170,6 +173,11 @@ const NotificationsPopOver = (volume) => {
 		};
 	}, [user, showPendingTickets]);
 
+	const handleSelectTicket = (ticket) => {
+        const code = uuidv4();
+        const { id, uuid } = ticket;
+        setCurrentTicket({ id, uuid, code });
+    };
 	const handleNotifications = data => {
 		const { message, contact, ticket } = data;
 
@@ -188,6 +196,7 @@ const NotificationsPopOver = (volume) => {
 		notification.onclick = e => {
 			e.preventDefault();
 			window.focus();
+			handleSelectTicket(ticket)
 			historyRef.current.push(`/tickets/${ticket.uuid}`);
 			// handleChangeTab(null, ticket.isGroup? "group" : "open");
 		};

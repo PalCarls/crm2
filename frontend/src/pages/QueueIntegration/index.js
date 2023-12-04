@@ -3,7 +3,8 @@ import { toast } from "react-toastify";
 import { socketConnection } from "../../services/socket";
 import n8n from "../../assets/n8n.png";
 import dialogflow from "../../assets/dialogflow.png";
-import webhooks from "../../assets/webhook.png"
+import webhooks from "../../assets/webhook.png";
+import typebot from "../../assets/typebot.jpg";
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -41,6 +42,8 @@ import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import toastError from "../../errors/toastError";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import usePlans from "../../hooks/usePlans";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_INTEGRATIONS") {
@@ -114,6 +117,23 @@ const QueueIntegration = () => {
   const [searchParam, setSearchParam] = useState("");
   const [queueIntegration, dispatch] = useReducer(reducer, []);
   const { user } = useContext(AuthContext);
+  const { getPlanCompany } = usePlans();
+  const companyId = user.companyId;
+  const history = useHistory();
+
+  useEffect(() => {
+    async function fetchData() {
+      const planConfigs = await getPlanCompany(undefined, companyId);
+      if (!planConfigs.plan.useIntegrations) {
+        toast.error("Esta empresa não possui permissão para acessar essa página! Estamos lhe redirecionando.");
+        setTimeout(() => {
+          history.push(`/`)
+        }, 1000);
+      }
+    }
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     dispatch({ type: "RESET" });
@@ -141,7 +161,6 @@ const QueueIntegration = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    const companyId = user.companyId;
     const socket = socketConnection({ companyId, userId: user.id });
 
     socket.on(`company-${companyId}-queueIntegration`, (data) => {
@@ -238,13 +257,13 @@ const QueueIntegration = () => {
               ),
             }}
           />
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleOpenUserModal}
-            >
-              {i18n.t("queueIntegration.buttons.add")}
-            </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleOpenUserModal}
+          >
+            {i18n.t("queueIntegration.buttons.add")}
+          </Button>
         </MainHeaderButtonsWrapper>
       </MainHeader>
       <Paper
@@ -265,14 +284,16 @@ const QueueIntegration = () => {
               {queueIntegration.map((integration) => (
                 <TableRow key={integration.id}>
                   <TableCell >
-                   {integration.type === "dialogflow" && (<Avatar 
-                   src={dialogflow} className={classes.avatar} />)}
-                   {integration.type === "n8n" && (<Avatar 
-                   src={n8n} className={classes.avatar} />)}
-                   {integration.type === "webhook" && (<Avatar 
-                   src={webhooks} className={classes.avatar} />)}
+                    {integration.type === "dialogflow" && (<Avatar 
+                      src={dialogflow} className={classes.avatar} />)}
+                    {integration.type === "n8n" && (<Avatar
+                      src={n8n} className={classes.avatar} />)}
+                    {integration.type === "webhook" && (<Avatar
+                      src={webhooks} className={classes.avatar} />)}
+                    {integration.type === "typebot" && (<Avatar
+                      src={typebot} className={classes.avatar} />)}
                   </TableCell>
-                  
+
                   <TableCell align="center">{integration.id}</TableCell>
                   <TableCell align="center">{integration.name}</TableCell>
                   <TableCell align="center">

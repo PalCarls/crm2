@@ -365,8 +365,8 @@ const MessagesAPI = () => {
              "body": "Message" <br></br> 
              "userId": ID usuário ou "" <br></br>
              "queueId": ID Fila ou ""<br></br>
-             "sendSignature": Assinar mensagem "true"/"false" <br></br>
-             "closeTicket": Encerrar o ticket "true"/"false"<br></br>
+             "sendSignature": Assinar mensagem - true/false <br></br>
+             "closeTicket": Encerrar o ticket - true/false<br></br>
              {"}"} 
           </Typography>
         </Grid>
@@ -408,7 +408,7 @@ const MessagesAPI = () => {
                 <b>sendSignature:</b> Assinar mensagem true/false
               </li>
               <li>
-                <b>closeTicket:</b> Encerrar ticket "true"/"false"
+                <b>closeTicket:</b> Encerrar ticket true/false
               </li>
             </ul>
           </Typography>

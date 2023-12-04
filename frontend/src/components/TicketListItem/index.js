@@ -4,6 +4,7 @@ import { useHistory, useParams } from "react-router-dom";
 import { parseISO, format, isSameDay } from "date-fns";
 import clsx from "clsx";
 import emojiRegex from "emoji-regex";
+import { v4 as uuidv4 } from "uuid";
 
 import { makeStyles, withStyles } from "@material-ui/core/styles";
 import { green } from "@material-ui/core/colors";
@@ -30,6 +31,7 @@ import toastError from "../../errors/toastError";
 import facebookIcon from "../../assets/facebook.png";
 import insatagramIcon from "../../assets/instagram.png";
 import whatsappIcon from "../../assets/whatsapp.png";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 const useStyles = makeStyles((theme) => ({
     ticket: {
@@ -237,6 +239,7 @@ const TicketListItem = ({ ticket }) => {
     const { ticketId } = useParams();
     const isMounted = useRef(true);
     const { user } = useContext(AuthContext);
+    const { setCurrentTicket } = useContext(TicketsContext);
 
     useEffect(() => {
         return () => {
@@ -260,6 +263,7 @@ const TicketListItem = ({ ticket }) => {
 
         return icon;
     }
+    
 
     const handleAcepptTicket = async (ticket) => {
         setLoading(true);
@@ -275,6 +279,7 @@ const TicketListItem = ({ ticket }) => {
         if (isMounted.current) {
             setLoading(false);
         }
+
         history.push(`/tickets/${ticket.uuid}`);
     };
 
@@ -343,11 +348,14 @@ const TicketListItem = ({ ticket }) => {
             setLoading(false);
         }
     };
-
     const handleSelectTicket = (ticket) => {
+        const code = uuidv4();
+        const { id, uuid } = ticket;
+        setCurrentTicket({ id, uuid, code });
         history.push(`/tickets/${ticket.uuid}`);
-    };
 
+    };
+   
     const renderUserName = (name) => {
         let str = name.replace(emojiRegex(), "").trim();
 

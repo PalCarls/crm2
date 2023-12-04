@@ -43,8 +43,10 @@ import { Button, Snackbar } from "@material-ui/core";
 import { i18n } from "../../translate/i18n";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
+import { v4 as uuidv4 } from "uuid";
 
 import api from "../../services/api";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 const useStyles = makeStyles((theme) => ({
   ticketsWrapper: {
@@ -330,6 +332,7 @@ const TicketsManagerTabs = () => {
   const [isHoveredOpen, setIsHoveredOpen] = useState(false);
   const [isHoveredClosed, setIsHoveredClosed] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(false);
+  const { setCurrentTicket } = useContext(TicketsContext);
 
   useEffect(() => {
     setSelectedQueuesMessage(selectedQueueIds);
@@ -414,9 +417,16 @@ const TicketsManagerTabs = () => {
     }
   };
 
+  const handleSelectTicket = (ticket) => {
+    const code = uuidv4();
+    const { id, uuid } = ticket;
+    setCurrentTicket({ id, uuid, code });
+  }
+
   const handleCloseOrOpenTicket = (ticket) => {
     setNewTicketModalOpen(false);
     if (ticket !== undefined && ticket.uuid !== undefined) {
+      handleSelectTicket(ticket);
       history.push(`/tickets/${ticket.uuid}`);
     }
   };
@@ -755,12 +765,12 @@ const TicketsManagerTabs = () => {
                       ? "3px solid #065183"
                       : "3px solid #FFF"
                     : tab === "open"
-                    ? theme.mode === "light"
-                      ? "3px solid #065183"
-                      : "3px solid #FFF"
-                    : theme.mode === "light"
-                    ? "2px solid #aaa"
-                    : "2px solid #aaa",
+                      ? theme.mode === "light"
+                        ? "3px solid #065183"
+                        : "3px solid #FFF"
+                      : theme.mode === "light"
+                        ? "2px solid #aaa"
+                        : "2px solid #aaa",
                   borderRadius: 8,
                   marginRight: 8,
                 }}
@@ -773,10 +783,10 @@ const TicketsManagerTabs = () => {
                         ? "#065183"
                         : "#FFF"
                       : tab === "open"
-                      ? theme.mode === "light"
-                        ? "#065183"
-                        : "#FFF"
-                      : "#aaa",
+                        ? theme.mode === "light"
+                          ? "#065183"
+                          : "#FFF"
+                        : "#aaa",
                   }}
                 />
               </IconButton>
@@ -813,12 +823,12 @@ const TicketsManagerTabs = () => {
                       ? "3px solid #065183"
                       : "3px solid #FFF"
                     : tab === "closed"
-                    ? theme.mode === "light"
-                      ? "3px solid #065183"
-                      : "3px solid #FFF"
-                    : theme.mode === "light"
-                    ? "2px solid #aaa"
-                    : "2px solid #aaa",
+                      ? theme.mode === "light"
+                        ? "3px solid #065183"
+                        : "3px solid #FFF"
+                      : theme.mode === "light"
+                        ? "2px solid #aaa"
+                        : "2px solid #aaa",
                   borderRadius: 8,
                   marginRight: 8,
                 }}
@@ -831,10 +841,10 @@ const TicketsManagerTabs = () => {
                         ? "#065183"
                         : "#FFF"
                       : tab === "closed"
-                      ? theme.mode === "light"
-                        ? "#065183"
-                        : "#FFF"
-                      : "#aaa",
+                        ? theme.mode === "light"
+                          ? "#065183"
+                          : "#FFF"
+                        : "#aaa",
                   }}
                 />
               </IconButton>

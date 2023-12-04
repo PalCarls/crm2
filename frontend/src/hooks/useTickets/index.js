@@ -22,6 +22,7 @@ const useTickets = ({
   const [loading, setLoading] = useState(true);
   const [hasMore, setHasMore] = useState(false);
   const [tickets, setTickets] = useState([]);
+  const [count, setCount] = useState(0);
 
   useEffect(() => {
     setLoading(true);
@@ -48,11 +49,11 @@ const useTickets = ({
             
             let tickets = [];
             
-          
             tickets = data.tickets;
           
             setTickets(tickets);
             setHasMore(data.hasMore);
+            setCount(data.count)
             setLoading(false);
           } catch (err) {
             setLoading(false);
@@ -111,7 +112,7 @@ const useTickets = ({
     forceSearch
   ]);
 
-  return { tickets, loading, hasMore };
+  return { tickets, loading, hasMore, count };
 };
 
 export default useTickets;

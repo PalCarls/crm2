@@ -16,7 +16,9 @@ import { i18n } from "../../translate/i18n";
 import {
   Box,
   Button,
+  Checkbox,
   FormControl,
+  FormControlLabel,
   Grid,
   IconButton,
   InputLabel,
@@ -63,10 +65,10 @@ const initialSettings = {
   longerIntervalAfter: 20,
   greaterInterval: 60,
   variables: [],
-  // sabado: "false",
-  // domingo: "false",
-  // startHour: "09:00",
-  // endHour: "18:00"
+  sabado: "false",
+  domingo: "false",
+  startHour: "09:00",
+  endHour: "18:00"
 };
 
 const CampaignsConfig = () => {
@@ -80,11 +82,11 @@ const CampaignsConfig = () => {
   const [variable, setVariable] = useState({ key: "", value: "" });
   const { user } = useContext(AuthContext);
 
-  // const [sabado, setSabado] = React.useState(false);
-  // const [domingo, setDomingo] = React.useState(false);
+  const [sabado, setSabado] = React.useState(false);
+  const [domingo, setDomingo] = React.useState(false);
 
-  // const [startHour, setStartHour] = useState("08:00");
-  // const [endHour, setEndHour] = useState("19:00");
+  const [startHour, setStartHour] = useState("08:00");
+  const [endHour, setEndHour] = useState("19:00");
 
   const { getPlanCompany } = usePlans();
 
@@ -106,9 +108,15 @@ const CampaignsConfig = () => {
   useEffect(() => {
     api.get("/campaign-settings").then(({ data }) => {
       const settingsList = [];
+      console.log(data)
       if (Array.isArray(data) && data.length > 0) {
         data.forEach((item) => {
           settingsList.push([item.key, item.value]);
+          if (item.key === "sabado") setSabado(item?.value === "true");
+          if (item.key === "domingo") setDomingo(item?.value === "true");
+          if (item.key === "startHour") setStartHour(item?.value);
+          if (item.key === "endHour") setEndHour(item?.value);
+
         });
         setSettings(Object.fromEntries(settingsList));
       }
@@ -154,31 +162,31 @@ const CampaignsConfig = () => {
     toast.success("Configurações salvas");
   };
 
-  // const handleChange = (event) => {
-  //   if (event.target.name === "sabado") {
-  //     setSabado(event.target.checked);
-  //   }
-  //   if (event.target.name === "domingo") {
-  //     setDomingo(event.target.checked);
-  //   }
-  // };
+  const handleChange = (event) => {
+    if (event.target.name === "sabado") {
+      setSabado(event.target.checked);
+    }
+    if (event.target.name === "domingo") {
+      setDomingo(event.target.checked);
+    }
+  };
 
-  // const handleSaveTimeMass = async () => {
-  //   let settings = {
-  //     sabado: sabado,
-  //     domingo: domingo,
-  //     startHour: startHour,
-  //     endHour: endHour
-  //   }
+  const handleSaveTimeMass = async () => {
+    let settings = {
+      sabado: sabado,
+      domingo: domingo,
+      startHour: startHour,
+      endHour: endHour
+    }
 
-  //   try {
-  //     await api.post(`/campaign-settings/`, { settings });
+    try {
+      await api.post(`/campaign-settings/`, { settings });
 
-  //     toast.success(i18n.t("settings.success"));
-  //   } catch (err) {
-  //     toastError(err);
-  //   }
-  // };
+      toast.success(i18n.t("settings.success"));
+    } catch (err) {
+      toastError(err);
+    }
+  };
 
   return (
     <MainContainer>
@@ -200,7 +208,7 @@ const CampaignsConfig = () => {
 
       <Paper className={classes.mainPaper} variant="outlined">
 
-        {/* <Typography component={"h1"}>Período de Disparo das Campanhas &nbsp;</Typography>
+        <Typography component={"h1"}>Período de Disparo das Campanhas &nbsp;</Typography>
         <Paper className={classes.paper}>
           <TextField
             id="buttonText"
@@ -209,7 +217,7 @@ const CampaignsConfig = () => {
             variant="outlined"
             fullWidth
             value={startHour}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => setStartHour(e.target.value)}
             style={{ marginRight: "10px" }}
           />
 
@@ -220,7 +228,7 @@ const CampaignsConfig = () => {
             variant="outlined"
             fullWidth
             value={endHour}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => setEndHour(e.target.value)}
             style={{ marginRight: "10px" }}
           />
 
@@ -246,7 +254,7 @@ const CampaignsConfig = () => {
             Salvar
           </Button>
 
-        </Paper> */}
+        </Paper>
 
         <Box className={classes.tabPanelsContainer}>
           <Grid spacing={1} container>
@@ -303,12 +311,18 @@ const CampaignsConfig = () => {
                   <MenuItem value={10}>10 segundos</MenuItem>
                   <MenuItem value={15}>15 segundos</MenuItem>
                   <MenuItem value={20}>20 segundos</MenuItem>
+                  <MenuItem value={30}>30 segundos</MenuItem>
+                  <MenuItem value={60}>40 segundos</MenuItem>
+                  <MenuItem value={70}>60 segundos</MenuItem>
+                  <MenuItem value={80}>80 segundos</MenuItem>
+                  <MenuItem value={100}>100 segundos</MenuItem>
+                  <MenuItem value={120}>120 segundos</MenuItem>                                                `` ``
                 </Select>
               </FormControl>
             </Grid>
             <Grid xs={12} md={3} item>
               <FormControl
-                variant="outlined"
+                variant="outlined" 
                 className={classes.formControl}
                 fullWidth
               >
@@ -328,6 +342,10 @@ const CampaignsConfig = () => {
                   <MenuItem value={10}>10 {i18n.t("campaigns.settings.messages")}</MenuItem>
                   <MenuItem value={15}>15 {i18n.t("campaigns.settings.messages")}</MenuItem>
                   <MenuItem value={20}>20 {i18n.t("campaigns.settings.messages")}</MenuItem>
+                  <MenuItem value={30}>30 {i18n.t("campaigns.settings.messages")}</MenuItem>
+                  <MenuItem value={40}>40 {i18n.t("campaigns.settings.messages")}</MenuItem>
+                  <MenuItem value={50}>50 {i18n.t("campaigns.settings.messages")}</MenuItem>
+                  <MenuItem value={60}>60 {i18n.t("campaigns.settings.messages")}</MenuItem>
                 </Select>
               </FormControl>
             </Grid>
@@ -354,6 +372,18 @@ const CampaignsConfig = () => {
                   <MenuItem value={40}>40 segundos</MenuItem>
                   <MenuItem value={50}>50 segundos</MenuItem>
                   <MenuItem value={60}>60 segundos</MenuItem>
+                  <MenuItem value={70}>70 segundos</MenuItem>
+                  <MenuItem value={80}>80 segundos</MenuItem>
+                  <MenuItem value={90}>90 segundos</MenuItem>
+                  <MenuItem value={100}>100 segundos</MenuItem>
+                  <MenuItem value={110}>110 segundos</MenuItem>
+                  <MenuItem value={120}>120 segundos</MenuItem>
+                  <MenuItem value={130}>130 segundos</MenuItem>
+                  <MenuItem value={140}>140 segundos</MenuItem>
+                  <MenuItem value={150}>150 segundos</MenuItem>
+                  <MenuItem value={160}>160 segundos</MenuItem>
+                  <MenuItem value={170}>170 segundos</MenuItem>
+                  <MenuItem value={180}>180 segundos</MenuItem>
                 </Select>
               </FormControl>
             </Grid>

@@ -91,24 +91,6 @@ const reducer = (state, action) => {
         return [...state];
     }
 
-    if (action.type === "LOAD_MOMENTS") {
-        const newTickets = action.payload;
-
-        newTickets.forEach((ticket) => {
-            const ticketIndex = state.findIndex((t) => t.id === ticket.id);
-            if (ticketIndex !== -1) {
-                state[ticketIndex] = ticket;
-                if (ticket.unreadMessages > 0) {
-                    state.unshift(state.splice(ticketIndex, 1)[0]);
-                }
-            } else {
-                state.push(ticket);
-            }
-        });
-
-        return [...state];
-    }
-
     if (action.type === "RESET_UNREAD") {
         const ticketId = action.payload;
 
@@ -219,16 +201,16 @@ const TicketsListCustom = (props) => {
 
 
     useEffect(() => {
-        const queueIds = queues.map((q) => q.id);
-        const filteredTickets = tickets.filter(
-            (t) => queueIds.indexOf(t.queueId) > -1
-        );
+        // const queueIds = queues.map((q) => q.id);
+        // const filteredTickets = tickets.filter(
+        //     (t) => queueIds.indexOf(t.queueId) > -1
+        // );
         // const allticket = user.allTicket === 'enabled';
-        if (profile === "admin" || allTicket || allowGroup || allHistoric) {
-            dispatch({ type: "LOAD_TICKETS", payload: tickets });
-        } else {
-            dispatch({ type: "LOAD_TICKETS", payload: filteredTickets });
-        }
+        // if (profile === "admin" || allTicket || allowGroup || allHistoric) {
+        dispatch({ type: "LOAD_TICKETS", payload: tickets });
+        // } else {
+        //  dispatch({ type: "LOAD_TICKETS", payload: filteredTickets });
+        // }
 
     }, [tickets]);
 
@@ -245,73 +227,69 @@ const TicketsListCustom = (props) => {
 
         const notBelongsToUserQueues = (ticket) =>
             ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
-        if (companyId) {
-            const socket = socketConnection({ companyId, userId: user.id });
-            socket.on("connect", () => {
-                if (status) {
-                    socket.emit("joinTickets", status);
-                } else {
-                    socket.emit("joinNotification");
-                }
-            });
+        const socket = socketConnection({ companyId, userId: user.id });
+        socket.on("connect", () => {
+            if (status) {
+                socket.emit("joinTickets", status);
+            } else {
+                socket.emit("joinNotification");
+            }
+        });
 
-            socket.on(`company-${companyId}-ticket`, (data) => {
-                
-                if (data.action === "updateUnread") {
-                    dispatch({
-                        type: "RESET_UNREAD",
-                        payload: data.ticketId,
-                    });
-                }
+        socket.on(`company-${companyId}-ticket`, (data) => {
+            if (data.action === "updateUnread") {
+                dispatch({
+                    type: "RESET_UNREAD",
+                    payload: data.ticketId,
+                });
+            }
 
-                if (data.action === "update" && (user.profile === "admin" || allTicket) ? shouldUpdateTicketAdmin(data.ticket) : shouldUpdateTicketUser(data.ticket)) {
-                    dispatch({
-                        type: "UPDATE_TICKET",
-                        payload: data.ticket,
-                        // isGroup: isGroup
-                    });
-                }
+            if (data.action === "update" && (user.profile === "admin" || allTicket) ? shouldUpdateTicketAdmin(data.ticket) : shouldUpdateTicketUser(data.ticket)) {
+                dispatch({
+                    type: "UPDATE_TICKET",
+                    payload: data.ticket,
+                });
+            }
 
-                if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
-                    dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
-                }
+            if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
+                dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
+            }
 
-                if (data.action === "delete") {
-                    dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
-                }
-            });
+            if (data.action === "delete") {
+                dispatch({ type: "DELETE_TICKET", payload: data.ticketId });
+            }
+        });
 
-            socket.on(`company-${companyId}-appMessage`, (data) => {
-                const queueIds = queues.map((q) => q.id);
-                if (
-                    profile === "user" &&
-                    (queueIds.indexOf(data.ticket.queue?.id) === -1 ||
-                        data.ticket.queue === null)
-                ) {
-                    return;
-                }
+        socket.on(`company-${companyId}-appMessage`, (data) => {
+            const queueIds = queues.map((q) => q.id);
+            if (
+                profile === "user" &&
+                (queueIds.indexOf(data.ticket.queue?.id) === -1 ||
+                    data.ticket.queue === null)
+            ) {
+                return;
+            }
 
-                if (data.action === "create" && (user.profile === "admin" || allTicket) ? shouldUpdateTicketAdmin(data.ticket) : shouldUpdateTicketUser(data.ticket)) {
-                    dispatch({
-                        type: "UPDATE_TICKET_UNREAD_MESSAGES",
-                        payload: data.ticket,
-                    });
-                }
-            });
+            if (data.action === "create" && (user.profile === "admin" || allTicket) ? shouldUpdateTicketAdmin(data.ticket) : shouldUpdateTicketUser(data.ticket)) {
+                dispatch({
+                    type: "UPDATE_TICKET_UNREAD_MESSAGES",
+                    payload: data.ticket,
+                });
+            }
+        });
 
-            socket.on(`company-${companyId}-contact`, (data) => {
-                if (data.action === "update") {
-                    dispatch({
-                        type: "UPDATE_TICKET_CONTACT",
-                        payload: data.contact,
-                    });
-                }
-            });
+        socket.on(`company-${companyId}-contact`, (data) => {
+            if (data.action === "update") {
+                dispatch({
+                    type: "UPDATE_TICKET_CONTACT",
+                    payload: data.contact,
+                });
+            }
+        });
 
-            return () => {
-                socket.disconnect();
-            };
-        }
+        return () => {
+            socket.disconnect();
+        };
     }, [status, searchParam, showAll, user, selectedQueueIds, tags, users, profile, queues, whatsappIds, statusFilter, allTicket]);
 
     useEffect(() => {
@@ -357,11 +335,14 @@ const TicketsListCustom = (props) => {
                     ) : (
                         <>
                             {ticketsList.map((ticket) => (
-                                <TicketListItem
-                                    ticket={ticket}
-                                    key={ticket.id}
-                                    handleChangeTab={handleChangeTab}
-                                />
+                                // <List key={ticket.id}>
+                                //     {console.log(ticket)}
+                                    <TicketListItem
+                                        ticket={ticket}
+                                        key={ticket.id}
+                                        handleChangeTab={handleChangeTab}
+                                    />
+                                // </List>
                             ))}
                         </>
                     )}

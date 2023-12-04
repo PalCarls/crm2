@@ -176,6 +176,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                                     variant="outlined"
                                     margin="dense"
                                     fullWidth
+                                    required
                                 />
                                 <FormControl fullWidth margin="dense" variant="outlined">
                                     <Field
@@ -188,6 +189,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                                         variant="outlined"
                                         margin="dense"
                                         fullWidth
+                                        required
                                         InputProps={{
                                             endAdornment: (
                                                 <InputAdornment position="end">
@@ -208,6 +210,7 @@ const PromptModal = ({ open, onClose, promptId }) => {
                                     variant="outlined"
                                     margin="dense"
                                     fullWidth
+                                    required
                                     rows={10}
                                     multiline={true}
                                 />

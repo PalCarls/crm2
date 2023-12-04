@@ -153,13 +153,23 @@ const MarkdownWrapper = ({ children }) => {
 	const boldRegex = /\*(.*?)\*/g;
 	const tildaRegex = /~(.*?)~/g;
 
+	const pixMarker = '###PIX_MARKER###';
+
+	if (children && children.includes('***')) {
+		children = children.replace(/\*\*\*/g, pixMarker);
+	}
+
 	if (children && boldRegex.test(children)) {
 		children = children.replace(boldRegex, "**$1**");
 	}
+
+	if (children && children.includes(pixMarker)) {
+		children = children.replace(new RegExp(pixMarker, 'g'), '***');
+	}
+
 	if (children && tildaRegex.test(children)) {
 		children = children.replace(tildaRegex, "~~$1~~");
 	}
-
 	const options = React.useMemo(() => {
 		const markdownOptions = {
 			disableParsingRawHTML: true,

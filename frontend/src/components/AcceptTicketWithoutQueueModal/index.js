@@ -13,7 +13,7 @@ import {
     MenuItem,
     Select
  } from "@material-ui/core";
-
+import { v4 as uuidv4 } from "uuid";
 
 import api from "../../services/api";
 import { AuthContext } from "../../context/Auth/AuthContext";
@@ -23,6 +23,7 @@ import toastError from "../../errors/toastError";
 import { Form, Formik } from "formik";
 import ShowTicketOpen from "../ShowTicketOpenModal";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 // const filter = createFilterOptions({
 // 	trim: true,
@@ -51,6 +52,7 @@ const AcceptTicketWithouSelectQueue = ({ modalOpen, onClose, ticketId, ticket })
 	const [ openAlert, setOpenAlert ] = useState(false);
 	const [ userTicketOpen, setUserTicketOpen] = useState("");
 	const [ queueTicketOpen, setQueueTicketOpen] = useState("");
+    const { setCurrentTicket } = useContext(TicketsContext);
 
 	const {get:getSetting} = useCompanySettings();
 
@@ -73,6 +75,12 @@ const handleClose = () => {
 const handleCloseAlert = () => {
 	setOpenAlert(false);
 	setLoading(false)
+};
+
+const handleSelectTicket = (ticket) => {
+	const code = uuidv4();
+	const { id, uuid } = ticket;
+	setCurrentTicket({ id, uuid, code });
 };
 
 const handleSendMessage = async (id) => {
@@ -120,11 +128,13 @@ const handleUpdateTicketStatus = async (queueId) => {
 				setQueueTicketOpen(otherTicket.data.queue.name)
 			} else {
 				setLoading(false);
+				handleSelectTicket(otherTicket.data);
 				history.push(`/tickets/${otherTicket.data.uuid}`);
 			}
 		} else {
 			handleSendMessage(ticket.id)
 			setLoading(false);
+			handleSelectTicket(ticket);
 			history.push(`/tickets/${ticket.uuid}`);
 			handleClose();
 		}

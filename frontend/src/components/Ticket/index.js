@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useCallback, Suspense, lazy, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
@@ -24,6 +24,7 @@ import { isNil } from 'lodash';
 import { Lock, LockOpen } from "@material-ui/icons";
 import { i18n } from "../../translate/i18n";
 import { Paper } from "@mui/material";
+import { TicketsContext } from "../../context/Tickets/TicketsContext";
 
 const drawerWidth = 320;
 
@@ -66,27 +67,24 @@ const Ticket = () => {
   const { ticketId } = useParams();
   const history = useHistory();
   const classes = useStyles();
-  const currentTicketId = useRef(ticketId);
 
   const { user } = useContext(AuthContext);
-  const isMounted = useRef(true);
 
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [contact, setContact] = useState({});
   const [ticket, setTicket] = useState({});
+  const [whatsapp, setWhatsapp] = useState({});
+  const [queueId, setQueueId] = useState({});
+  const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
 
   useEffect(() => {
     setLoading(true);
     const delayDebounceFn = setTimeout(() => {
       const fetchTicket = async () => {
         try {
-
-          const ticketIdNew = ticketId ? ticketId : ticket.id;
-
-          if (!isNil(ticketId) && ticketId !== "undefined") {
+          if (!isNil(ticketId) && ticketId !== "undefined" && ticketId === currentTicket.uuid) {
             const { data } = await api.get("/tickets/u/" + ticketId);
-
             // const { queueId } = data;
             // const { queues, profile, allowGroup } = user;
 
@@ -96,11 +94,15 @@ const Ticket = () => {
             //   history.push("/tickets");
             //   return;
             // }
-            if (isMounted.current) {
-              setContact(data.contact);
-              setTicket(data);
-              setLoading(false);
-            }
+
+            setContact(data.contact);
+            setWhatsapp(data.whatsapp);
+            setQueueId(data.queueId);
+            setTicket(data);
+            setLoading(false);
+          } else {
+            history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
+            setLoading(false);
           }
         } catch (err) {
           history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
@@ -111,10 +113,13 @@ const Ticket = () => {
       fetchTicket();
     }, 500);
 
-    return () =>
+    return () => {
+
       clearTimeout(delayDebounceFn);
-    isMounted.current = false;
-  }, [ticketId]);
+      // setMounted(false);
+
+    }
+  }, [ticketId, history, currentTicket]);
 
   useEffect(() => {
     const companyId = user.companyId;
@@ -147,7 +152,7 @@ const Ticket = () => {
     return () => {
       socket.disconnect();
     };
-  }, [ticketId, ticket, history]);
+  }, [ticketId, history]);
 
   const handleDrawerOpen = () => {
     setDrawerOpen(true);
@@ -157,33 +162,7 @@ const Ticket = () => {
     setDrawerOpen(false);
   };
 
-  const renderTicketInfo = () => {
-    if (ticket.user !== undefined) {
-      return (
-        <TicketInfo
-          contact={contact}
-          ticket={ticket}
-          onClick={handleDrawerOpen}
-        />
-      );
-    }
-  };
 
-  const renderMessagesList = () => {
-    return (
-      <>
-        {/*VER AQUI PARA FAZER O DRAG GERAL*/}
-        <>
-          <MessagesList
-            ticket={ticket}
-            ticketId={ticket.id}
-            isGroup={ticket.isGroup}
-          ></MessagesList>
-          <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} currentTicketId={currentTicketId}/>
-        </>
-      </>
-    );
-  };
 
   return (
     <div className={classes.root} id="drawer-container">
@@ -197,8 +176,11 @@ const Ticket = () => {
         {/* <div id="TicketHeader"> */}
         <TicketHeader loading={loading}>
           <div id="TicketHeader">
-            {renderTicketInfo()}
-          </div>
+            <TicketInfo
+              contact={contact}
+              ticket={ticket}
+              onClick={handleDrawerOpen}
+            />          </div>
           <TicketActionButtons
             ticket={ticket}
           />
@@ -209,7 +191,20 @@ const Ticket = () => {
         </Paper>
         <ReplyMessageProvider>
           <ForwardMessageProvider>
-            {renderMessagesList()}
+            {currentTicket.uuid === ticketId && (
+              <>
+                <MessagesList
+                  // ticket={ticket}
+                  ticketId={ticket.id}
+                  isGroup={ticket.isGroup}
+                  whatsapp={whatsapp}
+                  queueId={queueId}
+                  channel={ticket.channel}
+                >
+                </MessagesList>
+                <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} currentTicketId={ticketId} />
+              </>
+            )}
           </ForwardMessageProvider>
         </ReplyMessageProvider>
       </Paper>
