@@ -97,7 +97,8 @@ const NotificationsPopOver = (volume) => {
 			if (showPendingTickets) {
 				setNotifications(tickets);
 			} else {
-				const newNotifications = tickets.filter(ticket => ticket.status !== "pending");
+				// const newNotifications = tickets.filter(ticket => ticket.status !== "pending");
+				const newNotifications = tickets;
 
 				setNotifications(newNotifications);
 			}

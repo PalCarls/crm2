@@ -279,7 +279,7 @@ const TicketListItem = ({ ticket }) => {
         if (isMounted.current) {
             setLoading(false);
         }
-
+        handleSelectTicket(ticket);
         history.push(`/tickets/${ticket.uuid}`);
     };
 
@@ -315,6 +315,7 @@ const TicketListItem = ({ ticket }) => {
         if (isMounted.current) {
             setLoading(false);
         }
+        handleSelectTicket(ticket);
         history.push(`/tickets/${ticket.uuid}`);
     };
 
@@ -331,6 +332,7 @@ const TicketListItem = ({ ticket }) => {
         if (isMounted.current) {
             setLoading(false);
         }
+        handleSelectTicket(ticket);
         history.push(`/tickets/${ticket.uuid}`);
     };
 
