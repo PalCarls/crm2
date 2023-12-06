@@ -345,7 +345,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                 } catch (err) {
                     toastError(err);
                 }
-
+                console.log(ticket)
                 if (setting.sendGreetingAccepted === "enabled" && (!ticket.isGroup || ticket.whatsapp?.groupAsTicket === "enabled")) {
                     handleSendMessage(ticket.id);
                 }

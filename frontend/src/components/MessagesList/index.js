@@ -433,7 +433,6 @@ const MessagesList = ({
   channel
 }) => {
   const classes = useStyles();
-
   const [messagesList, dispatch] = useReducer(reducer, []);
   const [pageNumber, setPageNumber] = useState(1);
   const [hasMore, setHasMore] = useState(false);
@@ -1125,6 +1124,7 @@ const MessagesList = ({
         handleClose={handleCloseMessageOptionsMenu}
         isGroup={isGroup}
         whatsappId={whatsapp.id}
+        queueId={queueId}
       />
       <div
         id="messagesList"

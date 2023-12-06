@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
-import { useParams } from "react-router-dom";
 import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import { useMediaQuery } from '@material-ui/core';
@@ -14,28 +13,17 @@ import {
   Hidden,
   Menu,
   MenuItem,
-  Grid,
-  Typography,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemAvatar,
-  Avatar,
   Tooltip,
   Fab,
 } from "@material-ui/core";
 import {
   blue,
-  deepPurple,
   green,
   pink,
-  purple,
   grey,
-  red,
 } from "@material-ui/core/colors";
 import {
   AttachFile,
-  Cancel,
   CheckCircleOutline,
   Clear,
   Comment,
@@ -68,11 +56,8 @@ import ContactSendModal from "../ContactSendModal";
 import CameraModal from "../CameraModal";
 import axios from "axios";
 
-import { getBackendUrl } from "../../config";
 import useCompanySettings from "../../hooks/useSettings/companySettings";
-import { private_excludeVariablesFromRoot } from "@mui/material";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
-import { setIn } from "formik";
 import MessageUploadMedias from "../MessageUploadMedias";
 
 
