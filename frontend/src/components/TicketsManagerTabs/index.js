@@ -340,7 +340,7 @@ const TicketsManagerTabs = () => {
 
   useEffect(() => {
     if (user.profile.toUpperCase() === "ADMIN" || user.allUserChat.toUpperCase() === "ENABLED") {
-      setShowAllTickets(true);
+      setShowAllTickets(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -647,7 +647,7 @@ const TicketsManagerTabs = () => {
                     onMouseEnter={() => setIsHoveredAll(true)}
                     onMouseLeave={() => setIsHoveredAll(false)}
                     className={classes.button}
-                    value="check"
+                    value="uncheck"
                     selected={showAllTickets}
                     onChange={() =>
                       setShowAllTickets((prevState) => !prevState)

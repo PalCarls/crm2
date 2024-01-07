@@ -202,9 +202,9 @@ const CampaignModal = ({
           setWhatsapps(mappedWhatsapps);
         });
 
-      api.get(`/tags`, { params: { companyId, kanban: 0 } })
+      api.get(`/tags/list`, { params: { companyId, kanban: 0 } })
         .then(({ data }) => {
-          const fetchedTags = data.tags;
+          const fetchedTags = data;
           // Perform any necessary data transformation here
           const formattedTagLists = fetchedTags.map((tag) => ({
             id: tag.id,

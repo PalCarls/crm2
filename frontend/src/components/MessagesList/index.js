@@ -3,7 +3,7 @@ import moment from "moment";
 import { isSameDay, parseISO, format } from "date-fns";
 import clsx from "clsx";
 
-import { blue, red } from "@material-ui/core/colors";
+import { blue, green, red } from "@material-ui/core/colors";
 import {
   Button,
   CircularProgress,
@@ -46,6 +46,7 @@ import useCompanySettings from "../../hooks/useSettings/companySettings";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { QueueSelectedContext } from "../../context/QueuesSelected/QueuesSelectedContext";
 import AudioModal from "../AudioModal";
+import { messages } from "../../translate/languages";
 
 const useStyles = makeStyles((theme) => ({
   messagesListWrapper: {
@@ -88,7 +89,20 @@ const useStyles = makeStyles((theme) => ({
     overflowY: "scroll",
     ...theme.scrollbarStyles,
   },
-
+  dragElement: {
+    background: 'rgba(255, 255, 255, 0.8)',
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    zIndex: 999999,
+    textAlign: "center",
+    fontSize: "3em",
+    border: "5px dashed #333",
+    color: '#333',
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center"
+  },
   circleLoading: {
     color: blue[500],
     position: "absolute",
@@ -326,8 +340,8 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: 4,
   },
 
-  ackErrorIcon: {
-    color: red[500],
+  ackPlayedIcon: {
+    color: green[500],
     fontSize: 18,
     verticalAlign: "middle",
     marginLeft: 4,
@@ -428,6 +442,7 @@ const MessagesList = ({
   // ticket,
   ticketId,
   isGroup,
+  onDrop,
   whatsapp,
   queueId,
   channel
@@ -445,6 +460,10 @@ const MessagesList = ({
   const messageOptionsMenuOpen = Boolean(anchorEl);
   const currentTicketId = useRef(ticketId);
   const { getAll } = useCompanySettings();
+
+  const [showModalMediaNavigator, setShowModalMediaNavigator] = useState({});
+
+  const [dragActive, setDragActive] = useState(false);
 
   const [lgpdDeleteMessage, setLGPDDeleteMessage] = useState(false);
   const { selectedQueuesMessage } = useContext(QueueSelectedContext);
@@ -670,10 +689,10 @@ const MessagesList = ({
           return <DoneAll fontSize="small" className={classes.ackIcons} />;
         } else
           if (message.ack === 3 || message.ack === 4) {
-            return <DoneAll fontSize="small" className={classes.ackDoneAllIcon} />;
+            return <DoneAll fontSize="small" className={message.mediaType === "audio" ? classes.ackPlayedIcon : classes.ackDoneAllIcon} />;
           } else
             if (message.ack === 5) {
-              return <Close fontSize="small" className={classes.ackErrorIcon} />
+              return <DoneAll fontSize="small" className={classes.ackDoneAllIcon} />
             }
   };
 
@@ -850,6 +869,27 @@ const MessagesList = ({
       </div>
     );
   };
+
+  const handleDrag = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (event.type === "dragenter" || event.type === "dragover") {
+      setDragActive(true);
+    } else if (event.type === "dragleave") {
+      setDragActive(false);
+    }
+  }
+
+  const handleDrop = event => {
+    event.preventDefault();
+    event.stopPropagation();
+    setDragActive(false);
+    if (event.dataTransfer.files && event.dataTransfer.files[0]) {
+      if (onDrop) {
+        onDrop(event.dataTransfer.files);
+      }
+    }
+  }
   const xmlRegex = /<([^>]+)>/g;
   const boldRegex = /\*(.*?)\*/g;
 
@@ -1116,7 +1156,9 @@ const MessagesList = ({
   };
 
   return (
-    <div className={classes.messagesListWrapper}>
+    <div className={classes.messagesListWrapper} onDragEnter={handleDrag}>
+      {dragActive && <div className={classes.dragElement} onDragEnter={handleDrag} onDragLeave={handleDrag} onDragOver={handleDrag} onDrop={handleDrop}>Solte o arquivo aqui</div>}
+
       <MessageOptionsMenu
         message={selectedMessage}
         anchorEl={anchorEl}

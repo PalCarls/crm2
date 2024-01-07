@@ -269,7 +269,7 @@ const MainListItems = (props, { collapsed }) => {
   return (
     <div onClick={drawerClose}>
       <Can
-        role={user.profile}
+        role={user.showDashboard === "enabled" ? "admin" : user.profile}
         perform="dashboard:view"
         yes={() => (
           <ListItemLink

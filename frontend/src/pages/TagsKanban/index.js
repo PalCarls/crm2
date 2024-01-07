@@ -264,9 +264,9 @@ const Tags = () => {
                       size="small"
                     />
                   </TableCell>
-                  <TableCell align="center">{tag?.ticketsCount ? (<span>{tag?.ticketsCount}</span>) : <span>0</span>}</TableCell>
+                  <TableCell align="center">{tag?.ticketTags ? (<span>{tag?.ticketTags?.length}</span>) : <span>0</span>}</TableCell>
                   <TableCell align="center">
-                    <IconButton size="small" onClick={() => handleEditTag(tag)}>
+                    <IconButton size="small" onClick={() => handleEditTag(tag)}> 
                       <EditIcon />
                     </IconButton>
 

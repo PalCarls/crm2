@@ -333,6 +333,9 @@ const messages = {
             "Encerrar chats abertos quando última mensagem for",
           expiresInactiveMessage: "Mensagem de encerramento por inatividade",
           prompt: "Prompt",
+          collectiveVacationEnd: "Data final",
+          collectiveVacationStart: "Data inicial",
+          collectiveVacationMessage: "Mensagem de férias coletivas",
         },
         buttons: {
           okAdd: "Adicionar",
@@ -547,8 +550,11 @@ const messages = {
           urlN8N: "URL",
           typebotSlug: "Typebot - Slug",
           typebotExpires: "Tempo em minutos para expirar uma conversa",
-          typebotKeywordFinish: "Palavra para finalizar a conversa",
-          typebotUnknownMessage: "Mensagem de opção inválida",      
+          typebotKeywordFinish: "Palavra para finalizar o ticket",
+          typebotKeywordRestart: "Palavra para reiniciar o fluxo",
+          typebotRestartMessage: "Mensagem ao reiniciar a conversa",
+          typebotUnknownMessage: "Mensagem de opção inválida",
+          typebotDelayMessage: "Intervalo (ms) entre mensagens",
         },
         buttons: {
           okAdd: "Adicionar",
@@ -594,6 +600,12 @@ const messages = {
           allHistoricEnabled: "Habilitado",
           allHistoricDisabled: "Desabilitado",
           allUserChat: "Ver conversas de outros usuários",
+          userClosePendingTicket: "Permitir fechar tickets pendentes",
+          showDashboard: "Ver Dashboard"
+        },
+        tabs: {
+          general: "Geral",
+          permissions: "Permissões",
         },
         buttons: {
           okAdd: "Adicionar",
@@ -1612,7 +1624,7 @@ const messages = {
           imageVideo: "Fotos e vídeos",
           cam: "Câmera",
           contact: "Contato",
-          meet: "Link Jitsi Meet",
+          meet: "Vídeo chamada",
         },
       },
       messageOptionsMenu: {

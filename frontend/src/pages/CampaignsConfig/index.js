@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext} from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { Field } from "formik";
 import { useHistory } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
@@ -139,6 +139,10 @@ const CampaignsConfig = () => {
 
   const addVariable = () => {
     setSettings((prev) => {
+      if (!Array.isArray(prev.variables)) {
+        // Lidar com o caso em que prev.variables não é um array
+        return { ...prev, variables: [Object.assign({}, variable)] };
+      }
       const variablesExists = settings.variables.filter(
         (v) => v.key === variable.key
       );
@@ -208,7 +212,7 @@ const CampaignsConfig = () => {
 
       <Paper className={classes.mainPaper} variant="outlined">
 
-        <Typography component={"h1"}>Período de Disparo das Campanhas &nbsp;</Typography>
+        {/* <Typography component={"h1"}>Período de Disparo das Campanhas &nbsp;</Typography>
         <Paper className={classes.paper}>
           <TextField
             id="buttonText"
@@ -254,7 +258,7 @@ const CampaignsConfig = () => {
             Salvar
           </Button>
 
-        </Paper>
+        </Paper> */}
 
         <Box className={classes.tabPanelsContainer}>
           <Grid spacing={1} container>
@@ -322,12 +326,12 @@ const CampaignsConfig = () => {
             </Grid>
             <Grid xs={12} md={3} item>
               <FormControl
-                variant="outlined" 
+                variant="outlined"
                 className={classes.formControl}
                 fullWidth
               >
                 <InputLabel id="longerIntervalAfter-label">
-                {i18n.t("campaigns.settings.intervalGapAfter")}
+                  {i18n.t("campaigns.settings.intervalGapAfter")}
                 </InputLabel>
                 <Select
                   name="longerIntervalAfter"
@@ -356,7 +360,7 @@ const CampaignsConfig = () => {
                 fullWidth
               >
                 <InputLabel id="greaterInterval-label">
-                {i18n.t("campaigns.settings.laggerTriggerRange")}
+                  {i18n.t("campaigns.settings.laggerTriggerRange")}
                 </InputLabel>
                 <Select
                   name="greaterInterval"
@@ -388,13 +392,13 @@ const CampaignsConfig = () => {
               </FormControl>
             </Grid>
             <Grid xs={12} className={classes.textRight} item>
-              <Button
+              {/* <Button
                 onClick={() => setShowVariablesForm(!showVariablesForm)}
                 color="primary"
                 style={{ marginRight: 10 }}
               >
                 {i18n.t("campaigns.settings.addVar")}
-              </Button>
+              </Button> */}
               <Button
                 onClick={saveSettings}
                 color="primary"
@@ -403,7 +407,7 @@ const CampaignsConfig = () => {
                 {i18n.t("campaigns.settings.save")}
               </Button>
             </Grid>
-            {showVariablesForm && (
+            {/* {showVariablesForm && (
               <>
                 <Grid xs={12} md={6} item>
                   <TextField
@@ -476,7 +480,7 @@ const CampaignsConfig = () => {
                   </TableBody>
                 </Table>
               </Grid>
-            )}
+            )} */}
           </Grid>
         </Box>
       </Paper>

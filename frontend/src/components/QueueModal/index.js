@@ -608,6 +608,7 @@ const QueueModal = ({ open, onClose, queueId, onEdit }) => {
                         multiline
                         rows={5}
                         fullWidth
+                        required={schedulesEnabled}
                         name="outOfHoursMessage"
                         error={
                           touched.outOfHoursMessage &&

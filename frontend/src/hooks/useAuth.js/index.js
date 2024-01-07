@@ -175,8 +175,6 @@ Entre em contato com o Suporte para mais informações! `);
       setIsAuth(false);
       setUser({});
       localStorage.removeItem("token");
-      localStorage.removeItem("companyId");
-      localStorage.removeItem("userId");
       localStorage.removeItem("cshow");
       api.defaults.headers.Authorization = undefined;
       setLoading(false);

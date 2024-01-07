@@ -136,6 +136,9 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     importOldMessages: "",
     importOldMessagesGroups: "",
     integrationId: "",
+    collectiveVacationEnd: "",
+    collectiveVacationStart: "",
+    collectiveVacationMessage: ""
   };
   const [whatsApp, setWhatsApp] = useState(initialState);
   const [selectedQueueIds, setSelectedQueueIds] = useState([]);
@@ -390,7 +393,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
       <Dialog
         open={open}
         onClose={handleClose}
-        maxWidth="xl"
+        maxWidth="lg"
         fullWidth
         scroll="paper"
       >
@@ -838,62 +841,133 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
                 >
                   <DialogContent dividers>
                     {/* MENSAGEM DE SAUDAÇÃO */}
-                    <div>
-                      <Field
-                        as={TextField}
-                        label={i18n.t("whatsappModal.form.greetingMessage")}
-                        type="greetingMessage"
-                        multiline
-                        rows={4}
-                        fullWidth
-                        name="greetingMessage"
-                        error={
-                          touched.greetingMessage && Boolean(errors.greetingMessage)
-                        }
-                        helperText={
-                          touched.greetingMessage && errors.greetingMessage
-                        }
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </div>
+                    <Grid container spacing={1}>
+                      <Grid item xs={12} md={12} xl={12}>
+                        <Field
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.greetingMessage")}
+                          type="greetingMessage"
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="greetingMessage"
+                          error={
+                            touched.greetingMessage && Boolean(errors.greetingMessage)
+                          }
+                          helperText={
+                            touched.greetingMessage && errors.greetingMessage
+                          }
+                          variant="outlined"
+                          margin="dense"
+                        />
+                      </Grid>
 
-                    {/* MENSAGEM DE CONCLUSÃO */}
-                    <div>
-                      <Field
-                        as={TextField}
-                        label={i18n.t("whatsappModal.form.complationMessage")}
-                        multiline
-                        rows={4}
-                        fullWidth
-                        name="complationMessage"
-                        error={
-                          touched.complationMessage &&
-                          Boolean(errors.complationMessage)
-                        }
-                        helperText={
-                          touched.complationMessage && errors.complationMessage
-                        }
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </div>
+                      {/* MENSAGEM DE CONCLUSÃO */}
+                      <Grid item xs={12} md={12} xl={12}>
+                        <Field
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.complationMessage")}
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="complationMessage"
+                          error={
+                            touched.complationMessage &&
+                            Boolean(errors.complationMessage)
+                          }
+                          helperText={
+                            touched.complationMessage && errors.complationMessage
+                          }
+                          variant="outlined"
+                          margin="dense"
+                        />
+                      </Grid>
 
-                    {/* MENSAGEM DE FORA DE EXPEDIENTE */}
-                    <div>
-                      <Field
-                        as={TextField}
-                        label={i18n.t("whatsappModal.form.outOfHoursMessage")}
-                        multiline
-                        rows={4}
-                        fullWidth
-                        name="outOfHoursMessage"
-                        error={touched.outOfHoursMessage && Boolean(errors.outOfHoursMessage)}
-                        helperText={touched.outOfHoursMessage && errors.outOfHoursMessage}
-                        variant="outlined"
-                        margin="dense"
-                      />
-                    </div>
+                      {/* MENSAGEM DE FORA DE EXPEDIENTE */}
+                      <Grid item xs={12} md={12} xl={12}>
+                        <Field
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.outOfHoursMessage")}
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="outOfHoursMessage"
+                          error={touched.outOfHoursMessage && Boolean(errors.outOfHoursMessage)}
+                          helperText={touched.outOfHoursMessage && errors.outOfHoursMessage}
+                          variant="outlined"
+                          margin="dense"
+                        />
+                      </Grid>
+                      {/* MENSAGEM DE FÉRIAS COLETIVAS */}
+                      <Grid item xs={12} md={12} xl={12}>
+                        <Field
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.collectiveVacationMessage")}
+                          multiline
+                          rows={4}
+                          fullWidth
+                          name="collectiveVacationMessage"
+                          error={touched.collectiveVacationMessage && Boolean(errors.collectiveVacationMessage)}
+                          helperText={touched.collectiveVacationMessage && errors.collectiveVacationMessage}
+                          variant="outlined"
+                          margin="dense"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Field
+                          fullWidth
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.collectiveVacationStart")}
+                          type="date"
+                          name="collectiveVacationStart"
+                          required={values.collectiveVacationMessage?.length > 0}
+                          inputProps={{
+                            min: moment()
+                              .add(-10, "days")
+                              .format("YYYY-MM-DD"),
+                          }}
+                          //min="2022-11-06T22:22:55"
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          error={
+                            touched.collectiveVacationStart &&
+                            Boolean(errors.collectiveVacationStart)
+                          }
+                          helperText={
+                            touched.collectiveVacationStart && errors.collectiveVacationStart
+                          }
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={6}>
+                        <Field
+                          fullWidth
+                          as={TextField}
+                          label={i18n.t("whatsappModal.form.collectiveVacationEnd")}
+                          type="date"
+                          name="collectiveVacationEnd"
+                          required={values.collectiveVacationMessage?.length > 0}
+                          inputProps={{
+                            min: moment()
+                              .add(-10, "days")
+                              .format("YYYY-MM-DD")
+                          }}
+                          //min="2022-11-06T22:22:55"
+                          InputLabelProps={{
+                            shrink: true,
+                          }}
+                          error={
+                            touched.collectiveVacationEnd &&
+                            Boolean(errors.collectiveVacationEnd)
+                          }
+                          helperText={
+                            touched.collectiveVacationEnd && errors.collectiveVacationEnd
+                          }
+                          variant="outlined"
+                        />
+                      </Grid>
+                    </Grid>
                   </DialogContent>
                 </TabPanel>
 

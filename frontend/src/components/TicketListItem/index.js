@@ -585,7 +585,7 @@ const TicketListItem = ({ ticket }) => {
                     )}
                 </div>
 
-                {ticket.status === "pending" && (
+                {(ticket.status === "pending" && (user.showDashboard === "enabled" || user.profile === "admin")) && (
                     <IconButton
                         className={classes.bottomButton}
                         color="primary"

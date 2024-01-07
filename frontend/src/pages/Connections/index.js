@@ -574,7 +574,9 @@ const Connections = () => {
                     autoLoad={false}
                     fields="name,email,picture"
                     version="9.0"
-                    scope="public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"
+                    scope={process.env.REQUIRE_BUSINESS_MANAGEMENT === "TRUE" ? 
+                      "public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement,business_management" 
+                    : "public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"}
                     callback={responseFacebook}
                     render={(renderProps) => (
                       <MenuItem
@@ -598,7 +600,9 @@ const Connections = () => {
                     autoLoad={false}
                     fields="name,email,picture"
                     version="9.0"
-                    scope="public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"
+                    scope={process.env.REQUIRE_BUSINESS_MANAGEMENT === "TRUE" ? 
+                      "public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement,business_management" 
+                    : "public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"}
                     callback={responseInstagram}
                     render={(renderProps) => (
                       <MenuItem

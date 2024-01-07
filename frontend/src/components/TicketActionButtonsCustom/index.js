@@ -248,6 +248,7 @@ const TicketActionButtonsCustom = ({ ticket
     const handleDeleteTicket = async () => {
         try {
             await api.delete(`/tickets/${ticket.id}`);
+            history.push("/tickets")
         } catch (err) {
             toastError(err);
         }

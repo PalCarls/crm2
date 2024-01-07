@@ -141,7 +141,8 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
 
   const handleSaveTicket = async contactId => {
     if (!contactId) return;
-    if (selectedQueue === "" && user.profile !== 'admin') {
+    // if (selectedQueue === "" && user.profile !== 'admin') {
+    if (selectedQueue === "") {
       toast.error("Selecione uma fila");
       return;
     }
@@ -192,7 +193,7 @@ const NewTicketModal = ({ modalOpen, onClose, initialContact }) => {
   };
 
   const handleAddNewContactTicket = contact => {
-    handleSaveTicket(contact.id);
+    setSelectedContact(contact);
   };
 
   const createAddContactOption = (filterOptions, params) => {

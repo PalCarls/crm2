@@ -213,10 +213,10 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
     const { get: getSetting } = useCompanySettings();
 
     useEffect(() => {
-		return () => {
-			isMounted.current = false;
-		};
-	}, []);
+        return () => {
+            isMounted.current = false;
+        };
+    }, []);
 
     const handleOpenAcceptTicketWithouSelectQueue = useCallback(() => {
         // console.log(ticket)
@@ -624,7 +624,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
-                        {(ticket.status === "pending") && (
+                        {(ticket.status === "pending" && (user.userClosePendingTicket === "enabled" || user.profile === "admin")) && (
                             <ButtonWithSpinner
                                 //color="primary"
                                 style={{ backgroundColor: 'transparent', boxShadow: 'none', border: 'none', color: 'red', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}

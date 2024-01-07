@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext, useRef, useCallback } from "react";
 import { useParams, useHistory } from "react-router-dom";
 
 import { toast } from "react-toastify";
@@ -77,6 +77,16 @@ const Ticket = () => {
   const [whatsapp, setWhatsapp] = useState({});
   const [queueId, setQueueId] = useState({});
   const { currentTicket, setCurrentTicket } = useContext(TicketsContext)
+  const [dragDropFiles, setDragDropFiles] = useState([]);
+
+  const [isMounted, setIsMounted] = useState(true);
+  useEffect(() => {
+    // ComponentDidMount
+    return () => {
+      // ComponentWillUnmount
+      setIsMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -84,22 +94,25 @@ const Ticket = () => {
       const fetchTicket = async () => {
         try {
           if (!isNil(ticketId) && ticketId !== "undefined" && ticketId === currentTicket.uuid) {
-            const { data } = await api.get("/tickets/u/" + ticketId);
-            // const { queueId } = data;
-            // const { queues, profile, allowGroup } = user;
+            if (isMounted) {
+              const { data } = await api.get("/tickets/u/" + ticketId);
 
-            // const queueAllowed = queues.find((q) => q.id === queueId);
-            // if (queueAllowed === undefined && profile !== "admin" && !allowGroup) {
-            //   toast.error("Acesso não permitido");
-            //   history.push("/tickets");
-            //   return;
-            // }
+              // const { queueId } = data;
+              // const { queues, profile, allowGroup } = user;
 
-            setContact(data.contact);
-            setWhatsapp(data.whatsapp);
-            setQueueId(data.queueId);
-            setTicket(data);
-            setLoading(false);
+              // const queueAllowed = queues.find((q) => q.id === queueId);
+              // if (queueAllowed === undefined && profile !== "admin" && !allowGroup) {
+              //   toast.error("Acesso não permitido");
+              //   history.push("/tickets");
+              //   return;
+              // }
+
+              setContact(data.contact);
+              setWhatsapp(data.whatsapp);
+              setQueueId(data.queueId);
+              setTicket(data);
+              setLoading(false);
+            }
           } else {
             history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
             setLoading(false);
@@ -108,6 +121,10 @@ const Ticket = () => {
           history.push("/tickets");   // correção para evitar tela branca uuid não encontrado Feito por Altemir 16/08/2023
           setLoading(false);
           toastError(err);
+        } finally {
+          if (isMounted.current) {
+            setLoading(false);
+          }
         }
       };
       fetchTicket();
@@ -154,13 +171,13 @@ const Ticket = () => {
     };
   }, [ticketId, history]);
 
-  const handleDrawerOpen = () => {
+  const handleDrawerOpen = useCallback(() => {
     setDrawerOpen(true);
-  };
+  }, []);
 
-  const handleDrawerClose = () => {
+  const handleDrawerClose = useCallback(() => {
     setDrawerOpen(false);
-  };
+  }, []);
 
 
 
@@ -191,8 +208,9 @@ const Ticket = () => {
         </Paper>
         <ReplyMessageProvider>
           <ForwardMessageProvider>
-            {currentTicket.uuid === ticketId && (
+            {currentTicket.uuid === ticketId && isMounted && (
               <>
+                {/* {console.log("RENDERIZOU")} */}
                 <MessagesList
                   // ticket={ticket}
                   ticketId={ticket.id}
@@ -200,9 +218,16 @@ const Ticket = () => {
                   whatsapp={whatsapp}
                   queueId={queueId}
                   channel={ticket.channel}
+                  onDrop={setDragDropFiles}
                 >
                 </MessagesList>
-                <MessageInput ticketId={ticket.id} ticketStatus={ticket.status} currentTicketId={ticketId} />
+                <MessageInput
+                  ticketId={ticket.id}
+                  ticketStatus={ticket.status}
+                  currentTicketId={ticketId}
+                  ticketChannel={ticket.channel}
+                  droppedFiles={dragDropFiles}
+                />
               </>
             )}
           </ForwardMessageProvider>

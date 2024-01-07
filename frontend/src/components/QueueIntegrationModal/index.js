@@ -81,12 +81,20 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
   const classes = useStyles();
 
   const initialState = {
-    type: "dialogflow",
+    type: "typebot",
     name: "",
     projectName: "",
     jsonContent: "",
     language: "",
     urlN8N: "",
+    typebotDelayMessage: 1000,
+    typebotExpires: 1,
+    typebotKeywordFinish: "",
+    typebotKeywordRestart: "",
+    typebotRestartMessage: "",
+    typebotSlug: "",
+    typebotUnknownMessage: "",
+
   };
 
   const [integration, setIntegration] = useState(initialState);
@@ -112,6 +120,7 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
         jsonContent: "",
         language: "",
         urlN8N: "",
+        typebotDelayMessage: 1000
       });
     };
 
@@ -364,10 +373,22 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                           <Field
                             as={TextField}
                             label={i18n.t("queueIntegrationModal.form.typebotExpires")}
-                            autoFocus
                             name="typebotExpires"
                             error={touched.typebotExpires && Boolean(errors.typebotExpires)}
                             helpertext={touched.typebotExpires && errors.typebotExpires}
+                            variant="outlined"
+                            margin="dense"
+                            fullWidth
+                            className={classes.textField}
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={6} xl={6} >
+                          <Field
+                            as={TextField}
+                            label={i18n.t("queueIntegrationModal.form.typebotDelayMessage")}
+                            name="typebotDelayMessage"
+                            error={touched.typebotDelayMessage && Boolean(errors.typebotDelayMessage)}
+                            helpertext={touched.typebotDelayMessage && errors.typebotDelayMessage}
                             variant="outlined"
                             margin="dense"
                             fullWidth
@@ -390,8 +411,20 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                         <Grid item xs={12} md={6} xl={6} >
                           <Field
                             as={TextField}
+                            label={i18n.t("queueIntegrationModal.form.typebotKeywordRestart")}
+                            name="typebotKeywordRestart"
+                            error={touched.typebotKeywordRestart && Boolean(errors.typebotKeywordRestart)}
+                            helpertext={touched.typebotKeywordRestart && errors.typebotKeywordRestart}
+                            variant="outlined"
+                            margin="dense"
+                            fullWidth
+                            className={classes.textField}
+                          />
+                        </Grid>
+                        <Grid item xs={12} md={6} xl={6} >
+                          <Field
+                            as={TextField}
                             label={i18n.t("queueIntegrationModal.form.typebotUnknownMessage")}
-                            autoFocus
                             name="typebotUnknownMessage"
                             error={touched.typebotUnknownMessage && Boolean(errors.typebotUnknownMessage)}
                             helpertext={touched.typebotUnknownMessage && errors.typebotUnknownMessage}
@@ -401,6 +434,20 @@ const QueueIntegration = ({ open, onClose, integrationId }) => {
                             className={classes.textField}
                           />
                         </Grid>
+                        <Grid item xs={12} md={12} xl={12} >
+                          <Field
+                            as={TextField}
+                            label={i18n.t("queueIntegrationModal.form.typebotRestartMessage")}
+                            name="typebotRestartMessage"
+                            error={touched.typebotRestartMessage && Boolean(errors.typebotRestartMessage)}
+                            helpertext={touched.typebotRestartMessage && errors.typebotRestartMessage}
+                            variant="outlined"
+                            margin="dense"
+                            fullWidth
+                            className={classes.textField}
+                          />
+                        </Grid>
+                        
                       </>
                     )}
                   </Grid>

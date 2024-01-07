@@ -65,7 +65,7 @@ var defaultMessages = {
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_SCHEDULES") {
-    return action.payload;
+    return [...state, ...action.payload];
   }
 
   if (action.type === "UPDATE_SCHEDULES") {

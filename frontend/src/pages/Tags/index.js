@@ -4,6 +4,7 @@ import React, {
   useReducer,
   useCallback,
   useContext,
+  useRef,
 } from "react";
 import { toast } from "react-toastify";
 
@@ -40,20 +41,23 @@ import { AuthContext } from "../../context/Auth/AuthContext";
 
 const reducer = (state, action) => {
   if (action.type === "LOAD_TAGS") {
-    const tags = action.payload;
-    const newTags = [];
-
-    tags.forEach((tag) => {
-      const tagIndex = state.findIndex((s) => s.id === tag.id);
-      if (tagIndex !== -1) {
-        state[tagIndex] = tag;
-      } else {
-        newTags.push(tag);
-      }
-    });
-
-    return [...state, ...newTags];
+    return [...state, ...action.payload];
   }
+  // if (action.type === "LOAD_TAGS") {
+  //   const tags = action.payload;
+  //   const newTags = [];
+
+  //   tags.forEach((tag) => {
+  //     const tagIndex = state.findIndex((s) => s.id === tag.id);
+  //     if (tagIndex !== -1) {
+  //       state[tagIndex] = tag;
+  //     } else {
+  //       newTags.push(tag);
+  //     }
+  //   });
+
+  //   return [...state, ...newTags];
+  // }
 
   if (action.type === "UPDATE_TAGS") {
     const tag = action.payload;
@@ -67,14 +71,18 @@ const reducer = (state, action) => {
     }
   }
 
+  // if (action.type === "DELETE_TAGS") {
+  //   const tagId = action.payload;
+
+  //   const tagIndex = state.findIndex((s) => s.id === tagId);
+  //   if (tagIndex !== -1) {
+  //     state.splice(tagIndex, 1);
+  //   }
+  //   return [...state];
+  // }
   if (action.type === "DELETE_TAGS") {
     const tagId = action.payload;
-
-    const tagIndex = state.findIndex((s) => s.id === tagId);
-    if (tagIndex !== -1) {
-      state.splice(tagIndex, 1);
-    }
-    return [...state];
+    return state.filter((tag) => tag.id !== tagId);
   }
 
   if (action.type === "RESET") {
@@ -105,26 +113,31 @@ const Tags = () => {
   const [searchParam, setSearchParam] = useState("");
   const [tags, dispatch] = useReducer(reducer, []);
   const [tagModalOpen, setTagModalOpen] = useState(false);
+  const pageNumberRef = useRef(1);
+
+  const loadMore = () => {
+    setPageNumber((prevPageNumber) => prevPageNumber + 1);
+  };
 
   useEffect(() => {
-    setLoading(true);
-    const delayDebounceFn = setTimeout(() => {
-      const fetchTags = async () => {
-        try {
-          const { data } = await api.get("/tags/", {
-            params: { searchParam, pageNumber, kanban: 0 },
-          });
-
-          dispatch({ type: "LOAD_TAGS", payload: data.tags });
-          setHasMore(data.hasMore);
-          setLoading(false);
-        } catch (err) {
-          toastError(err);
-        }
-      };
-      fetchTags();
-    }, 500);
-    return () => clearTimeout(delayDebounceFn);
+    const fetchMoreTags = async () => {
+      try {
+        const { data } = await api.get("/tags/", {
+          params: { searchParam, pageNumber, kanban: 0 },
+        });
+  
+        dispatch({ type: "LOAD_TAGS", payload: data.tags });
+        setHasMore(data.hasMore);
+        setLoading(false);
+      } catch (err) {
+        toastError(err);
+      }
+    };
+  
+    if (pageNumber > 0) {
+      setLoading(true);
+      fetchMoreTags();
+    }
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
@@ -182,9 +195,10 @@ const Tags = () => {
     setPageNumber(1);
   };
 
-  const loadMore = () => {
-    setPageNumber((prevState) => prevState + 1);
-  };
+  // const loadMore = () => {
+  //   setPageNumber((prevState) => prevState + 1);
+  // };
+  
 
   const handleScroll = (e) => {
     if (!hasMore || loading) return;
@@ -287,7 +301,7 @@ const Tags = () => {
                   </TableCell>
                 </TableRow>
               ))}
-              {loading && <TableRowSkeleton columns={4} />}
+              {loading && <TableRowSkeleton key="skeleton" columns={3} />}
             </>
           </TableBody>
         </Table>

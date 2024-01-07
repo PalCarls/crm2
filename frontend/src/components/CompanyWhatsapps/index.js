@@ -447,7 +447,7 @@ const WhatsAppModalCompany = ({
                           autoLoad={false}
                           fields="name,email,picture"
                           version="13.0"
-                          scope="public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"
+                          scope="public_profile,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagementnt,business_management"
                           callback={responseFacebook}
                           render={renderProps => (
                             <MenuItem onClick={renderProps.onClick}>
@@ -467,7 +467,7 @@ const WhatsAppModalCompany = ({
                           autoLoad={false}
                           fields="name,email,picture"
                           version="13.0"
-                          scope="public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement"
+                          scope="public_profile,instagram_basic,instagram_manage_messages,pages_messaging,pages_show_list,pages_manage_metadata,pages_read_engagement,business_management"
                           callback={responseInstagram}
                           render={renderProps => (
                             <MenuItem onClick={renderProps.onClick}>

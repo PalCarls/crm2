@@ -336,10 +336,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
+const MessageInput = ({ ticketId, ticketStatus, currentTicketId, droppedFiles, ticketChannel }) => {
+
   const classes = useStyles();
   const [medias, setMedias] = useState([]);
   const [mediasUpload, setMediasUpload] = useState([]);
+  const isMounted = useRef(true);
 
   const [inputMessage, setInputMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
@@ -368,24 +370,38 @@ const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
 
   // Determine o texto do placeholder com base no ticketStatus
   useEffect(() => {
-  if (ticketStatus === "open" || ticketStatus === "group") {
-    setPlaceHolderText(i18n.t("messagesInput.placeholderOpen"));
-  } else {
-    setPlaceHolderText(i18n.t("messagesInput.placeholderClosed"));
-  }
+    if (ticketStatus === "open" || ticketStatus === "group") {
+      setPlaceHolderText(i18n.t("messagesInput.placeholderOpen"));
+    } else {
+      setPlaceHolderText(i18n.t("messagesInput.placeholderClosed"));
+    }
 
-  // Limitar o comprimento do texto do placeholder apenas em ambientes mobile
-  const maxLength = isMobile ? 20 : Infinity; // Define o limite apenas em mobile
+    // Limitar o comprimento do texto do placeholder apenas em ambientes mobile
+    const maxLength = isMobile ? 20 : Infinity; // Define o limite apenas em mobile
 
-  if (isMobile && placeholderText.length > maxLength) {
-    setPlaceHolderText(placeholderText.substring(0, maxLength) + "...");
-  }
+    if (isMobile && placeholderText.length > maxLength) {
+      setPlaceHolderText(placeholderText.substring(0, maxLength) + "...");
+    }
   }, [ticketStatus])
 
   const {
     selectedMessages,
     setForwardMessageModalOpen,
     showSelectMessageCheckbox } = useContext(ForwardMessageContext);
+
+  useEffect(() => {
+    if (droppedFiles && droppedFiles.length > 0) {
+      const selectedMedias = Array.from(droppedFiles);
+      setMediasUpload(selectedMedias);
+      setShowModalMedias(true);
+    }
+  }, [droppedFiles]);
+
+  useEffect(() => {
+    return () => {
+      isMounted.current = false;
+    };
+  }, []);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -442,7 +458,7 @@ const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
   }
 
   const handleSendLinkVideo = async () => {
-    const link = `https://meet.jit.si/${currentTicketId.current}`;
+    const link = `https://meet.jit.si/${currentTicketId}`;
     setInputMessage(link);
   }
 
@@ -746,12 +762,16 @@ const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
       formData.append("body", privateMessage ? `\u200d${message}` : message);
       formData.append("fromMe", true);
 
-      await api.post(`/messages/${ticketId}`, formData);
+      if (isMounted.current) {
+        await api.post(`/messages/${ticketId}`, formData);
+      }
     } catch (err) {
       toastError(err);
-      setLoading(false);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+      }
     }
-    setLoading(false);
   };
 
 
@@ -767,18 +787,22 @@ const MessageInput = ({ ticketId, ticketStatus, currentTicketId }) => {
       }
 
       const formData = new FormData();
-      const filename = `${new Date().getTime()}.mp3`;
+      const filename = ticketChannel === "whatsapp" ? `${new Date().getTime()}.mp3` : `${new Date().getTime()}.m4a`;
       formData.append("medias", blob, filename);
       formData.append("body", filename);
       formData.append("fromMe", true);
 
-      await api.post(`/messages/${ticketId}`, formData);
+      if (isMounted.current) {
+        await api.post(`/messages/${ticketId}`, formData);
+      }
     } catch (err) {
       toastError(err);
+    } finally {
+      if (isMounted.current) {
+        setLoading(false);
+        setRecording(false);
+      }
     }
-
-    setRecording(false);
-    setLoading(false);
   };
 
   const handleCloseModalMedias = () => {

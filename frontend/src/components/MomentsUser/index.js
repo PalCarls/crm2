@@ -182,7 +182,7 @@ const DashboardManage = () => {
                   avatar={<Avatar alt={`${group.user.profileImage}`} src={group.user.profileImage? `${backendUrl}/public/company${companyId}/user/${group.user.profileImage}` : null} />}
                   title={(
                     <span>{group.user.name || "Pendentes"} <br />
-                      {`Atendimentos: ${group.userTickets.length}`}
+                      {`Atendimentos: ${group.userTickets?.length}`}
                     </span>
                   )}
                 />
@@ -196,7 +196,7 @@ const DashboardManage = () => {
                       </ListItemAvatar>
                       <ListItemText
                         disableTypography
-                        primary={ticket.contact.name.length > 30 ? ticket.contact.name.substring(0,25) + '...' : ticket.contact.name}
+                        primary={ticket.contact.name?.length > 30 ? ticket.contact.name.substring(0,25) + '...' : ticket.contact.name}
                         secondary={
                           <Fragment>
                             <div>
@@ -205,7 +205,7 @@ const DashboardManage = () => {
                                 component="span"
                                 variant="body2"
                               >
-                                {`${ticket.lastMessage.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
+                                {`${ticket.lastMessage?.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
                               </Typography>
                             </div>
                             <Badge className={classes.connectionTag}>{ticket.whatsapp.name}</Badge>
@@ -255,7 +255,7 @@ const DashboardManage = () => {
                     <span>{"Pendentes"}
                       <ReportProblem className={classes.pending} />
                       <div>
-                        Atendimentos: {pendingTickets.length}
+                        Atendimentos: {pendingTickets?.length}
                       </div>
                     </span>
                   )}
@@ -279,7 +279,7 @@ const DashboardManage = () => {
                                 component="span"
                                 variant="body2"
                               >
-                                {`${ticket.lastMessage.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
+                                {`${ticket.lastMessage?.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
                               </Typography>
                             </div>
                             <Badge className={classes.connectionTag}>{ticket.whatsapp.name}</Badge>

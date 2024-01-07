@@ -34,14 +34,14 @@ const ShowTicketLogModal = ({ isOpen, handleClose, logs }) => {
                     {`${log.type === 'access' ||
                       log.type === 'transfered' ||
                       log.type === 'open' || log.type === 'pending' || log.type === "closed" || log.type === "reopen"
-                      ? log.user.name
-                      : log.type === 'queue'
-                        ? log.queue.name
+                      ? log?.user?.name
+                      : log?.type === 'queue'
+                        ? log?.queue?.name
                         : log.type === 'receivedTransfer'
                           ? log?.queue?.name + ' - ' + log?.user?.name
                           : ''} 
                     ${typeDescriptions[log.type]} - ${format(
-                            parseISO(log.createdAt),
+                            parseISO(log?.createdAt),
                             'dd/MM/yyyy HH:mm'
                           )}`}
                   </StepLabel>
