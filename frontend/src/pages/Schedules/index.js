@@ -12,6 +12,7 @@ import Title from "../../components/Title";
 import api from "../../services/api";
 import { i18n } from "../../translate/i18n";
 import MainHeaderButtonsWrapper from "../../components/MainHeaderButtonsWrapper";
+// import MessageModal from "../../components/MessageModal"
 import ScheduleModal from "../../components/ScheduleModal";
 import ConfirmationModal from "../../components/ConfirmationModal";
 import toastError from "../../errors/toastError";
@@ -136,10 +137,11 @@ const Schedules = () => {
 
   const fetchSchedules = useCallback(async () => {
     try {
-      const { data } = await api.get("/schedules/", {
+      const { data } = await api.get("/schedules", {
         params: { searchParam, pageNumber },
       });
 
+      console.log(data)
       dispatch({ type: "LOAD_SCHEDULES", payload: data.schedules });
       setHasMore(data.hasMore);
       setLoading(false);
@@ -267,10 +269,13 @@ const Schedules = () => {
         open={scheduleModalOpen}
         onClose={handleCloseScheduleModal}
         reload={fetchSchedules}
-        aria-labelledby="form-dialog-title"
-        scheduleId={selectedSchedule && selectedSchedule.id}
+        // aria-labelledby="form-dialog-title"
+        scheduleId={
+          selectedSchedule ? selectedSchedule.id : null
+        }
         contactId={contactId}
         cleanContact={cleanContact}
+
       />
       <MainHeader>
         <Title>{i18n.t("schedules.title")} ({schedules.length})</Title>
@@ -301,9 +306,9 @@ const Schedules = () => {
         <Calendar
           messages={defaultMessages}
           formats={{
-          agendaDateFormat: "DD/MM ddd",
-          weekdayFormat: "dddd"
-      }}
+            agendaDateFormat: "DD/MM ddd",
+            weekdayFormat: "dddd"
+          }}
           localizer={localizer}
           events={schedules.map((schedule) => ({
             title: (

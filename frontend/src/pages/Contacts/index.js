@@ -563,6 +563,9 @@ const Contacts = () => {
                             <TableCell align="center">
                                 {i18n.t("contacts.table.lastMessage")}
                             </TableCell>
+                            <TableCell align="center">
+                                {i18n.t("contacts.table.whatsapp")}
+                            </TableCell>
                             <TableCell align="center">{"Status"}</TableCell>
                             <TableCell align="center">
                                 {i18n.t("contacts.table.actions")}
@@ -592,6 +595,7 @@ const Contacts = () => {
                                     <TableCell align="center">
                                         {getDateLastMessage(contact)}
                                     </TableCell>
+                                    <TableCell>{contact?.whatsapp?.name}</TableCell>
                                     <TableCell align="center">
                                         {contact.active ? (
                                             <CheckCircleIcon
@@ -671,7 +675,7 @@ const Contacts = () => {
                                     </TableCell>
                                 </TableRow>
                             ))}
-                            {loading && <TableRowSkeleton avatar columns={3} />}
+                            {loading && <TableRowSkeleton avatar columns={6} />}
                         </>
                     </TableBody>
                 </Table>

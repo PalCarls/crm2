@@ -399,7 +399,7 @@ export function CompanyForm(props) {
                           {i18n.t("compaies.table.dueDate")}
                         </ButtonWithSpinner>
                       </Grid>
-                      <Grid xs={6} md={1} item>
+                      {/* <Grid xs={6} md={1} item>
                         <ButtonWithSpinner
                           style={{ marginTop: 7 }}
                           className={classes.fullWidth}
@@ -410,7 +410,7 @@ export function CompanyForm(props) {
                         >
                           {i18n.t("compaies.table.user")}
                         </ButtonWithSpinner>
-                      </Grid>
+                      </Grid> */}
                     </>
                   ) : null}
                   <Grid xs={6} md={1} item>

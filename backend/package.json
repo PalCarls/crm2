@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.1.6d",
+  "version": "1.1.6g",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -24,7 +24,7 @@
     "@hapi/boom": "^9.1.4",
     "@sentry/node": "^6.18.1",
     "@supabase/supabase-js": "^2.33.2",
-    "@whiskeysockets/baileys": "github:WhiskeySockets/Baileys#update-proto/stable",
+    "@whiskeysockets/baileys": "github:laxeder/baileys#rompot",
     "axios": "^1.5.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -52,8 +52,9 @@
     "mustache": "^4.2.0",
     "mysql2": "^2.3.3",
     "node-cache": "^5.1.2",
+    "node-cron": "^3.0.3",
     "nodemailer": "^6.8.0",
-    "openai": "^3.3.0",
+    "openai": "^4.24.7",
     "pg": "^8.7.3",
     "pino": "^7.8.0",
     "pino-pretty": "^10.0.0",

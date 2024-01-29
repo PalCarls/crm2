@@ -181,7 +181,7 @@ const DashboardManage = () => {
                   style={{ maxWidth: '380px', width: '100%' }}
                   avatar={<Avatar alt={`${group.user.profileImage}`} src={group.user.profileImage? `${backendUrl}/public/company${companyId}/user/${group.user.profileImage}` : null} />}
                   title={(
-                    <span>{group.user.name || "Pendentes"} <br />
+                    <span>{group?.user?.name || "Pendentes"} <br />
                       {`Atendimentos: ${group.userTickets?.length}`}
                     </span>
                   )}
@@ -196,7 +196,7 @@ const DashboardManage = () => {
                       </ListItemAvatar>
                       <ListItemText
                         disableTypography
-                        primary={ticket.contact.name?.length > 30 ? ticket.contact.name.substring(0,25) + '...' : ticket.contact.name}
+                        primary={ticket?.contact?.name?.length > 30 ? ticket?.contact?.name.substring(0,25) + '...' : ticket?.contact?.name}
                         secondary={
                           <Fragment>
                             <div>
@@ -208,7 +208,7 @@ const DashboardManage = () => {
                                 {`${ticket.lastMessage?.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
                               </Typography>
                             </div>
-                            <Badge className={classes.connectionTag}>{ticket.whatsapp.name}</Badge>
+                            <Badge className={classes.connectionTag}>{ticket?.whatsapp?.name}</Badge>
                             <Badge style={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queue?.name.toUpperCase() || "SEM FILA"}</Badge>
                           </Fragment>
                         }
@@ -270,7 +270,7 @@ const DashboardManage = () => {
                       </ListItemAvatar>
                       <ListItemText
                         disableTypography
-                        primary={ticket.contact.name}
+                        primary={ticket?.contact?.name}
                         secondary={
                           <Fragment>
                             <div>
@@ -282,7 +282,7 @@ const DashboardManage = () => {
                                 {`${ticket.lastMessage?.length > 30 ? String(ticket.lastMessage).substring(0, 27) + '...' : ticket.lastMessage}`}
                               </Typography>
                             </div>
-                            <Badge className={classes.connectionTag}>{ticket.whatsapp.name}</Badge>
+                            <Badge className={classes.connectionTag}>{ticket?.whatsapp?.name}</Badge>
                             <Badge style={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queue?.name.toUpperCase() || "SEM FILA"}</Badge>
                           </Fragment>
                         }

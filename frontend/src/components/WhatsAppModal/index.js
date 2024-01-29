@@ -120,6 +120,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
     provider: "beta",
     expiresTicket: 0,
     allowGroup: false,
+    enableImportMessage: false,
     groupAsTicket: "disabled",
     timeUseBotQueues: '0',
     timeSendQueue: '0',
@@ -214,7 +215,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
         const whatsQueueIds = data.queues?.map((queue) => queue.id);
         setSelectedQueueIds(whatsQueueIds);
         setSchedules(data.schedules)
-        if (data?.importOldMessages) {
+        if (!isNil(data?.importOldMessages)) {
           setEnableImportMessage(true);
           setImportOldMessages(data?.importOldMessages);
           setImportRecentMessages(data?.importRecentMessages);
@@ -366,6 +367,7 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
   const handleClose = () => {
     onClose();
     setWhatsApp(initialState);
+    setEnableImportMessage(false);
     // inputFileRef.current.value = null
     setAttachment(null)
     setAttachmentName("")

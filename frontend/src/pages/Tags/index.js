@@ -120,6 +120,7 @@ const Tags = () => {
   };
 
   useEffect(() => {
+
     const fetchMoreTags = async () => {
       try {
         const { data } = await api.get("/tags/", {
@@ -141,11 +142,6 @@ const Tags = () => {
   }, [searchParam, pageNumber]);
 
   useEffect(() => {
-    dispatch({ type: "RESET" });
-    setPageNumber(1);
-  }, [searchParam]);
-
-  useEffect(() => {
     const socket = socketConnection({ companyId: user.companyId });
 
     socket.on(`company${user.companyId}-tag`, (data) => {
@@ -162,7 +158,7 @@ const Tags = () => {
     return () => {
       socket.disconnect();
     };
-  }, [user]);
+  }, []);
 
   const handleOpenTagModal = () => {
     setSelectedTag(null);
@@ -209,7 +205,7 @@ const Tags = () => {
   };
 
   return (
-    <MainContainer>
+    <MainContainer className={classes.mainContainer}>
       <ConfirmationModal
         title={deletingTag && `${i18n.t("tags.confirmationModal.deleteTitle")}`}
         open={confirmModalOpen}
@@ -301,6 +297,7 @@ const Tags = () => {
                   </TableCell>
                 </TableRow>
               ))}
+
               {loading && <TableRowSkeleton key="skeleton" columns={3} />}
             </>
           </TableBody>

@@ -43,7 +43,7 @@ import Files from "../pages/Files/";
 import ToDoList from "../pages/ToDoList/";
 import Kanban from "../pages/Kanban";
 import TagsKanban from "../pages/TagsKanban";
-
+import ScheduledMessages from "../pages/Scheduled Messages";
 const Routes = () => {
   const [showCampaigns, setShowCampaigns] = useState(false);
 
@@ -81,6 +81,7 @@ const Routes = () => {
                 <Route exact path="/queue-integration" component={QueueIntegration} isPrivate />
                 <Route exact path="/announcements" component={Annoucements} isPrivate />
                 <Route exact path="/chats/:id?" component={Chat} isPrivate />
+                <Route exact path="/scheduled_messages" component={ScheduledMessages} isPrivate />
                 <Route exact path="/files" component={Files} isPrivate />
                 <Route exact path="/moments" component={ChatMoments} isPrivate />
                 <Route exact path="/Kanban" component={Kanban} isPrivate />

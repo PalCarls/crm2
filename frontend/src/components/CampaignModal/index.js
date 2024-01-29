@@ -18,7 +18,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import AttachFileIcon from "@material-ui/icons/AttachFile";
 import DeleteOutlineIcon from "@material-ui/icons/DeleteOutline";
 import Chip from '@material-ui/core/Chip';
-
+import { isNil } from "lodash";
 import { i18n } from "../../translate/i18n";
 import moment from "moment";
 
@@ -206,10 +206,13 @@ const CampaignModal = ({
         .then(({ data }) => {
           const fetchedTags = data;
           // Perform any necessary data transformation here
-          const formattedTagLists = fetchedTags.map((tag) => ({
-            id: tag.id,
-            name: tag.name,
-          }));
+          const formattedTagLists = fetchedTags
+            .filter(tag => tag.contacts.length > 0)  // Filtra as tags com contacts.length > 0
+            .map((tag) => ({
+              id: tag.id,
+              name: `${tag.name} (${tag.contacts.length})`,
+            }));
+
           setTagLists(formattedTagLists);
         })
         .catch((error) => {
@@ -707,6 +710,7 @@ const CampaignModal = ({
                         value={selectedQueue}
                         onChange={(e) => setSelectedQueue(e.target.value)}
                         label={i18n.t("transferTicketModal.fieldQueuePlaceholder")}
+                        required={!isNil(selectedUser)}
                       >
                         {queues.map((queue) => (
                           <MenuItem key={queue.id} value={queue.id}>

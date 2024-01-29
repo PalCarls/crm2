@@ -33,6 +33,7 @@ import ModalImageCors from "../ModalImageCors";
 import MessageOptionsMenu from "../MessageOptionsMenu";
 import whatsBackground from "../../assets/wa-background.png";
 import whatsBackgroundDark from "../../assets/wa-background-dark.png";
+import YouTubePreview from "../ModalYoutubeCors";
 
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { ForwardMessageContext } from "../../context/ForwarMessage/ForwardMessageContext";
@@ -633,7 +634,7 @@ const MessagesList = ({
             }
           }
         }
-        return <VcardPreview contact={contact} numbers={obj[0]?.number} queueId={queueId} whatsappId={whatsapp.id} />
+        return <VcardPreview contact={contact} numbers={obj[0]?.number} queueId={queueId} whatsappId={whatsapp?.id} />
       } else
 
         if (message.mediaType === "image") {
@@ -880,6 +881,11 @@ const MessagesList = ({
     }
   }
 
+  const isYouTubeLink = (url) => {
+    const youtubeRegex = /(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    return youtubeRegex.test(url);
+  };
+
   const handleDrop = event => {
     event.preventDefault();
     event.stopPropagation();
@@ -928,6 +934,7 @@ const MessagesList = ({
                     {message.contact?.name}
                   </span>
                 )}
+                
                 {/* {isGroup && (
                   <span className={classes.messageContactName}>
                     {JSON.parse(message.dataJson).pushName} #{message.contact?.name}
@@ -986,7 +993,11 @@ const MessagesList = ({
                     {message.contact?.name}
                   </span>
                 )}
-
+                {isYouTubeLink(message.body) && (
+                  <>
+                    <YouTubePreview videoUrl={message.body} />
+                  </>
+                )}
                 {/* {isGroup && (
                   <span className={classes.messageContactName}>
                     {JSON.parse(message.dataJson).pushName} #{message.contact?.name}
@@ -1096,6 +1107,12 @@ const MessagesList = ({
                     <br />
                   </div>
                 )}
+                {isYouTubeLink(message.body) && (
+                  <>
+                    {console.log(message.body)}
+                    <YouTubePreview videoUrl={message.body} />
+                  </>
+                )}
                 {!lgpdDeleteMessage && message.isDeleted && (
                   <div>
                     <span className={classes.deletedMessage}
@@ -1165,7 +1182,7 @@ const MessagesList = ({
         menuOpen={messageOptionsMenuOpen}
         handleClose={handleCloseMessageOptionsMenu}
         isGroup={isGroup}
-        whatsappId={whatsapp.id}
+        whatsappId={whatsapp?.id}
         queueId={queueId}
       />
       <div

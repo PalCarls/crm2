@@ -458,6 +458,7 @@ const messages = {
           termsLGDP: "Termos LGPD aceito em:",
           allTicket: "Visualizar chamados sem fila",
           allowGroup: "Permitir grupos",
+          whatsapp: "Conexão Origem: "
         },
         buttons: {
           addExtraInfo: "Adicionar informação",
@@ -650,6 +651,7 @@ const messages = {
           okAdd: "Adicionar",
           okEdit: "Salvar",
           cancel: "Cancelar",
+          addSchedule: "Adicionar agendamento"
         },
         success: "Agendamento salvo com sucesso.",
       },

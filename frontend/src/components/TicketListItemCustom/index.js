@@ -503,7 +503,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                                 )}
                                 <span className={classes.secondaryContentSecond} >
                                     {ticket?.whatsapp ? <Badge className={classes.connectionTag}>{ticket.whatsapp?.name.toUpperCase()}</Badge> : <br></br>}
-                                    {<Badge sx={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queue?.name.toUpperCase() || "SEM FILA"}</Badge>}
+                                    {<Badge sx={{ backgroundColor: ticket.queue?.color || "#7c7c7c" }} className={classes.connectionTag}>{ticket.queueId ? ticket.queue?.name.toUpperCase() : ticket.status === "lgpd" ? "LGPD": "SEM FILA"}</Badge>}
                                     {ticket?.user && (<Badge sx={{ backgroundColor: "#000000" }} className={classes.connectionTag}>{ticket.user?.name.toUpperCase()}</Badge>)}
                                 </span>
                                 <span className={classes.secondaryContentSecond} >
@@ -624,7 +624,7 @@ const TicketListItemCustom = ({ handleChangeTab, ticket }) => {
                         )}
                     </span>
                     <span className={classes.secondaryContentSecond} >
-                        {(ticket.status === "pending" && (user.userClosePendingTicket === "enabled" || user.profile === "admin")) && (
+                        {((ticket.status === "pending" || ticket.status === "lgpd") && (user.userClosePendingTicket === "enabled" || user.profile === "admin")) && (
                             <ButtonWithSpinner
                                 //color="primary"
                                 style={{ backgroundColor: 'transparent', boxShadow: 'none', border: 'none', color: 'red', padding: '0px', bottom: '0px', borderRadius: "50%", right: '1px', fontSize: '0.6rem', bottom: '-30px', minWidth: '2em', width: 'auto' }}

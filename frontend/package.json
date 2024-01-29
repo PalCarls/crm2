@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "version": "0.1.0",
+  "version": "1.1.6g",
   "private": true,
   "dependencies": {
     "@date-io/date-fns": "^2.16.0",
@@ -65,6 +65,7 @@
     "react-toastify": "^6.0.9",
     "react-trello": "^2.2.11",
     "react-webcam": "^7.1.1",
+    "react-youtube": "^10.1.0",
     "recharts": "^2.0.2",
     "socket.io-client": "^3.0.5",
     "styled-components": "^5.3.6",

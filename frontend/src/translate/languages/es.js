@@ -317,7 +317,6 @@ const messages = {
             "Cantidad máxima de veces que la evaluación será enviada",
           closeLastMessageOptions1: "Del Agente/Cliente",
           closeLastMessageOptions2: "Del Agente",
-
           outOfHoursMessage: "Mensaje fuera de horario de atención",
           greetingMessage: "Mensaje de saludo",
           complationMessage: "Mensaje de conclusión",
@@ -334,6 +333,7 @@ const messages = {
           whenExpiresTicket:
             "Cerrar chats abiertos cuando el último mensaje sea",
           expiresInactiveMessage: "Mensaje al cerrar por inactividade",
+          prompt: "Prompt",
         },
         buttons: {
           okAdd: "Agregar",
@@ -346,6 +346,10 @@ const messages = {
           minutes: "minutos",
         },
         success: "WhatsApp guardado satisfactoriamente.",
+        errorSendQueue:
+          "Además del tiempo debes seleccinar una fila para redirecionar. Se necesitan los dos campos.",
+        errorExpiresNPS:
+          "Es necesario llenar el tiempo para la evaluación para el NPS.",
       },
       qrCode: {
         message: "Lée el código QR para empezar la sesión.",
@@ -541,7 +545,11 @@ const messages = {
           projectName: "Nombre del Proyecto",
           language: "Idioma",
           jsonContent: "JsonContent",
-          urlN8N: "URL N8N",
+          urlN8N: "URL",
+          typebotSlug: "Typebot - Slug",
+          typebotExpires: "Tiempo en minutos para expirar una conversación",
+          typebotKeywordFinish: "Palabra para finalizar la conversación",
+          typebotUnknownMessage: "Mensaje de opción invalida",
         },
         buttons: {
           okAdd: "Agregar",
@@ -586,6 +594,13 @@ const messages = {
           allHistoric: "Ver historicos",
           allHistoricEnabled: "Activado",
           allHistoricDisabled: "Desactivado",
+          allUserChat: "Ver conversación de otros usuarios",
+          userClosePendingTicket: "Permitir cerrar tickets pendientes",
+          showDashboard: "Ver Dashboard",
+        },
+        tabs: {
+          general: "General",
+          permissions: "Permissos",
         },
         buttons: {
           okAdd: "Agregar",
@@ -759,6 +774,8 @@ const messages = {
         fieldQueuePlaceholder: "Seleccione una fila",
         fieldWhatsapp: "Seleccione un whatsapp",
         noOptions: "No se encontraron usuarios con ese nombre",
+        msgTransfer:
+          "Observación - los mensajes internos, no serán visualizados por el cliente.",
         buttons: {
           ok: "Transferir",
           cancel: "Cancelar",
@@ -848,6 +865,7 @@ const messages = {
           version: "Versión",
           kanban: "Kanban",
           prompts: "Talk.Ai",
+          allConnections: "Admin conexiones",
         },
         appBar: {
           user: {
@@ -1100,6 +1118,9 @@ const messages = {
             statusTicket: "Status del Ticket",
             openTicketStatus: "Abierto",
             closedTicketStatus: "Cerrado",
+            enabledOpenTicket: "Activado",
+            disabledOpenTicket: "Desactivado",
+            openTicket: "Abrir ticket",
           },
           buttons: {
             add: "Agregar",
@@ -1465,6 +1486,7 @@ const messages = {
             officeScheduling: "Programar horarios",
             queueManagement: "Gerenciar por Fila",
             companyManagement: "Gerenciar por Empresa",
+            connectionManagement: "Gerenciar por Conexión",
             sendGreetingAccepted: "Enviar saludos al aceptar ticket",
             sendMsgTransfTicket:
               "Enviar mensaje de transferencia (departamento/agente)",
@@ -1482,6 +1504,9 @@ const messages = {
             acceptAudioMessageContact: "Aceptar audios de todos",
             enableLGPD: "Habilitar opción P.P.",
             requiredTag: "Tag obligatoria para cerrar ticket",
+            closeTicketOnTransfer: "Cerrar ticket al transferir para otra fila",
+            DirectTicketsToWallets:
+              "Mover automaticamente cliente para cartera",
           },
           LGPD: {
             title: "Politica de Privacidad",

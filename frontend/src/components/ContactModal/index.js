@@ -23,6 +23,7 @@ import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import toastError from "../../errors/toastError";
 import { TagsContainer } from "../TagsContainer";
+// import AsyncSelect from "../AsyncSelect";
 
 const useStyles = makeStyles(theme => ({
 	root: {
@@ -115,10 +116,10 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 	const handleSaveContact = async values => {
 		try {
 			if (contactId) {
-				await api.put(`/contacts/${contactId}`, {...values, disableBot: disableBot});
+				await api.put(`/contacts/${contactId}`, { ...values, disableBot: disableBot });
 				handleClose();
 			} else {
-				const { data } = await api.post("/contacts", {...values, disableBot: disableBot});
+				const { data } = await api.post("/contacts", { ...values, disableBot: disableBot });
 				if (onSave) {
 					onSave(data);
 				}
@@ -149,7 +150,7 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 						}, 400);
 					}}
 				>
-					{({ values, errors, touched, isSubmitting }) => (
+					{({ values, errors, touched, isSubmitting, setFieldValue }) => (
 						<Form>
 							<DialogContent dividers>
 								<Typography variant="subtitle1" gutterBottom>
@@ -206,7 +207,12 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 									/>
 									{i18n.t("contactModal.form.chatBotContact")}
 								</Typography>
-
+								<Typography
+									style={{ marginBottom: 8, marginTop: 12 }}
+									variant="subtitle1"
+								>
+									{i18n.t("contactModal.form.whatsapp")} {contact?.whatsapp ? contact?.whatsapp.name : ""}
+								</Typography>
 								<Typography
 									style={{ marginBottom: 8, marginTop: 12 }}
 									variant="subtitle1"
@@ -214,7 +220,17 @@ const ContactModal = ({ open, onClose, contactId, initialValues, onSave }) => {
 									{i18n.t("contactModal.form.termsLGDP")} {contact?.lgpdAcceptedAt ? format(new Date(contact?.lgpdAcceptedAt), "dd/MM/yyyy 'às' HH:mm") : ""}
 								</Typography>
 
-
+								{/* <Typography variant="subtitle1" gutterBottom>{i18n.t("contactModal.form.customer_portfolio")}</Typography> */}
+								{/* <div style={{ marginTop: 10 }}>
+									<AsyncSelect url="/users" dictKey={"users"}
+										initialValue={values.user} width="100%" label={i18n.t("contactModal.form.attendant")}
+										onChange={(event, value) => setFieldValue("userId", value ? value.id : null)} />
+								</div>
+								<div style={{ marginTop: 10 }}>
+									<AsyncSelect url="/queue" dictKey={null}
+										initialValue={values.queue} width="100%" label={i18n.t("contactModal.form.queue")}
+										onChange={(event, value) => setFieldValue("queueId", value ? value.id : null)} />
+								</div> */}
 								<Typography
 									style={{ marginBottom: 8, marginTop: 12 }}
 									variant="subtitle1"
